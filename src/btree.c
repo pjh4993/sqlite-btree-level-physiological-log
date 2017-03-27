@@ -3736,10 +3736,9 @@ static int autoVacuumCommit(BtShared *pBt){
 int sqlite3BtreeCommitPhaseOne(Btree *p, const char *zMaster){
   Logger *pLogger = p->pBt->pLogger;
   int rc = SQLITE_OK;
-  if(pLogger->p_check < LOG_LIMIT)
-	  return rc;
-  printf("real commit begin\n");
   if( p->inTrans==TRANS_WRITE ){
+    if(pLogger->p_check < LOG_LIMIT)
+	  return rc;
     BtShared *pBt = p->pBt;
     sqlite3BtreeEnter(p);
 #ifndef SQLITE_OMIT_AUTOVACUUM
@@ -3829,18 +3828,23 @@ static void btreeEndTransaction(Btree *p){
 int sqlite3BtreeCommitPhaseTwo(Btree *p, int bCleanup){
 
   Logger *pLogger = p->pBt->pLogger;
-  sqlite3LogForceAtCommit(pLogger);
-  if(pLogger->p_check < LOG_LIMIT)
-	  return SQLITE_OK;
-  printf("real commit begin\n");
   if( p->inTrans==TRANS_NONE ) return SQLITE_OK;
-  sqlite3BtreeEnter(p);
-  btreeIntegrity(p);
+  if( p->inTrans==TRANS_WRITE ){
+    if(pLogger->p_check < LOG_LIMIT){
+      printf("commit begin\n");
+      sqlite3LogForceAtCommit(pLogger);
+	  return SQLITE_OK;
+    }
+    printf("commit begin\n");
+    sqlite3LogForceAtCommit(pLogger);
+
+    sqlite3BtreeEnter(p);
+    btreeIntegrity(p);
 
   /* If the handle has a write-transaction open, commit the shared-btrees 
   ** transaction and set the shared state to TRANS_READ.
   */
-  if( p->inTrans==TRANS_WRITE ){
+    printf("check point begin\n");
     int rc;
     BtShared *pBt = p->pBt;
     assert( pBt->inTransaction==TRANS_WRITE );
@@ -3853,11 +3857,11 @@ int sqlite3BtreeCommitPhaseTwo(Btree *p, int bCleanup){
     p->iDataVersion--;  /* Compensate for pPager->iDataVersion++; */
     pBt->inTransaction = TRANS_READ;
     btreeClearHasContent(pBt);
+    sqlite3LogCheckPoint(pLogger);
   }
 
   btreeEndTransaction(p);
   sqlite3BtreeLeave(p);
-  sqlite3LogCheckPoint(pLogger);
   return SQLITE_OK;
 }
 
@@ -8093,7 +8097,7 @@ int sqlite3BtreeInsert(
     if( info.nSize==szNew && info.nLocal==info.nPayload ){
 	  m_logCell.opcode = 3;
 	  m_logCell.data = serializeLog(0,(void*)(&pCur->pLog), &(m_logCell.data_size));
-	  sqlite3Log(pLogger,&m_logCell);
+	  //sqlite3Log(pLogger,&m_logCell);
 
       /* Overwrite the old cell with the new if they are the same size.
       ** We could also try to do this if the old cell is smaller, then add

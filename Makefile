@@ -15,12 +15,12 @@
 # The toplevel directory of the source tree.  This is the directory
 # that contains this "Makefile.in" and the "configure.in" script.
 #
-TOP = /home/sysadmin/Public/sqlite-src-3160000
+TOP = /home/sysadmin/lab/sqlite-btree-level-physiological-log
 
 # C Compiler and options for use in building executables that
 # will run on the platform that is doing the build.
 #
-BCC = gcc  -g -O0
+BCC = gcc  -g -O0	
 
 # TCC is the C Compile and options for use in building executables that 
 # will run on the target platform.  (BCC and TCC are usually the
@@ -54,12 +54,12 @@ LIBTCL =
 
 # Compiler options needed for programs that use the readline() library.
 #
-READLINE_FLAGS = -DHAVE_READLINE=1 -I/usr/include/readline
+READLINE_FLAGS = -DHAVE_READLINE=0 
 READLINE_FLAGS += -DHAVE_EDITLINE=0
 
 # The library that programs using readline() must link against.
 #
-LIBREADLINE = -lreadline -lncurses 
+LIBREADLINE = 
 
 # Should the database engine be compiled threadsafe
 #

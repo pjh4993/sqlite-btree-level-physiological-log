@@ -4429,6 +4429,7 @@ case OP_InsertInt: {
   x.pKey = 0;
   //ARIES
   //Insert log need
+  //#have to change lLog, pLog const * 
   pC->uc.pCursor->lLog.nKey = x.nKey;
   pC->uc.pCursor->lLog.nData = x.nData;
   pC->uc.pCursor->lLog.nZero = x.nZero;
