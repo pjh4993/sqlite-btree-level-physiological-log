@@ -111,9 +111,8 @@ void sqlite3Log(Logger *pLogger ,logCell *pLogCell){
 	char *tmp1, *tmp2;
 	void *m_log_buffer = pLogger->log_buffer + pLogger->lastLsn;
 	char *m_logCell = sqlite3Malloc(sizeof(int) * 3 + pLogCell->data_size);
-    if(pLogCell->opcode != -1)
+    if(pLogCell->opcode > 0)
         pLogger->p_check = pLogger->p_check + 1;
-    printf("sqlite3 Log p_check increase %d\n",pLogger->p_check);
 	pLogger->lastLsn += (sizeof(int) * 3 + pLogCell->data_size);
 	//printf("lastLsn %d %lu\n",pLogger->lastLsn,sizeof(int) * 3 + pLogCell->data_size);
 	pLogCell->lastLsn = pLogger->lastLsn;
@@ -299,11 +298,11 @@ int sqlite3LogForceAtCommit(Logger *pLogger){
 	m_logCell.data_size = 0;
 	m_logCell.data = NULL;
     //#call msync in here pls
-	if(pLogger->p_check != LOG_LIMIT)
-		sqlite3Log(pLogger,&m_logCell);
+    sqlite3Log(pLogger,&m_logCell);
 };
 
 int sqlite3LogCheckPoint(Logger *pLogger){
+    printf("log checkpoint begin\n");
     if(pLogger->p_check >= LOG_LIMIT){
         logCell m_logCell;
         m_logCell.opcode = -1;

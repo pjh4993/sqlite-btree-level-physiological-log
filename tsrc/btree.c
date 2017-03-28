@@ -3830,13 +3830,12 @@ int sqlite3BtreeCommitPhaseTwo(Btree *p, int bCleanup){
   Logger *pLogger = p->pBt->pLogger;
   if( p->inTrans==TRANS_NONE ) return SQLITE_OK;
   if( p->inTrans==TRANS_WRITE ){
+    printf("log force at commit begin\n");
+    sqlite3LogForceAtCommit(pLogger);
     if(pLogger->p_check < LOG_LIMIT){
-      printf("commit begin\n");
-      sqlite3LogForceAtCommit(pLogger);
 	  return SQLITE_OK;
     }
-    printf("commit begin\n");
-    sqlite3LogForceAtCommit(pLogger);
+    printf("check point begin\n");
 
     sqlite3BtreeEnter(p);
     btreeIntegrity(p);
@@ -3844,7 +3843,6 @@ int sqlite3BtreeCommitPhaseTwo(Btree *p, int bCleanup){
   /* If the handle has a write-transaction open, commit the shared-btrees 
   ** transaction and set the shared state to TRANS_READ.
   */
-    printf("check point begin\n");
     int rc;
     BtShared *pBt = p->pBt;
     assert( pBt->inTransaction==TRANS_WRITE );
@@ -7975,7 +7973,7 @@ int sqlite3BtreeInsert(
   int appendBias,                /* True if this is likely an append */
   int seekResult                 /* Result of prior MovetoUnpacked() call */
 ){
-
+  printf("btree insert begin\n");
   int res;
   int rc;
   int loc = seekResult;          /* -1: before desired location  +1: after */
@@ -8143,7 +8141,7 @@ int sqlite3BtreeInsert(
   */
   pCur->info.nSize = 0;
   pCur->pLog.iTable = pCur->lLog.iTable;
-  printf("pcur->curFlags : %d\n",pCur->curFlags);
+  //printf("pcur->curFlags : %d\n",pCur->curFlags);
   if( pPage->nOverflow || pPage->nCell == 1){
 	//ARIES
 	//Logical REDO, UNDO LOG
