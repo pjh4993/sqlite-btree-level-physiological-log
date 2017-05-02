@@ -3271,6 +3271,7 @@ int sqlite3BtreeBeginTrans(Btree *p, int wrflag){
     }
   }
 
+  printf("sqlite3BtreeBeginTrans\n");
 
 trans_begun:
   if( rc==SQLITE_OK && wrflag ){
@@ -3830,7 +3831,7 @@ int sqlite3BtreeCommitPhaseTwo(Btree *p, int bCleanup){
   Logger *pLogger = p->pBt->pLogger;
   if( p->inTrans==TRANS_NONE ) return SQLITE_OK;
   if( p->inTrans==TRANS_WRITE ){
-    printf("log force at commit begin\n");
+    printf("log force at commit begin %d\n",pLogger->p_check);
     sqlite3LogForceAtCommit(pLogger);
     if(pLogger->p_check < LOG_LIMIT){
 	  return SQLITE_OK;

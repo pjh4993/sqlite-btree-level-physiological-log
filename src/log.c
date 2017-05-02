@@ -107,10 +107,15 @@ void deserializeLog(int logType, void *data, void **dest){
 }
 
 void sqlite3Log(Logger *pLogger ,logCell *pLogCell){
-	int i;
 	char *tmp1, *tmp2;
-	void *m_log_buffer = pLogger->log_buffer + pLogger->lastLsn;
+	void *m_log_buffer = pLogger->log_buffer + ((pLogCell->opcode != -2)?pLogger->lastLsn : pLogger->syncedLsn);
 	char *m_logCell = sqlite3Malloc(sizeof(int) * 3 + pLogCell->data_size);
+    if(pLogCell->opcode == -2){
+        int m_buf = 0;
+        memcpy(m_log_buffer, &m_buf, sizeof(int));
+        msync(m_log_buffer,sizeof(int), MS_SYNC);
+        return;
+    }
     if(pLogCell->opcode > 0)
         pLogger->p_check = pLogger->p_check + 1;
 	pLogger->lastLsn += (sizeof(int) * 3 + pLogCell->data_size);
@@ -123,12 +128,11 @@ void sqlite3Log(Logger *pLogger ,logCell *pLogCell){
 		memcpy(m_logCell+ sizeof(int)*3,pLogCell->data, pLogCell->data_size);
 	memcpy(m_log_buffer, m_logCell, sizeof(int) * 3 + pLogCell->data_size);
 	sqlite3_free(m_logCell);
-	/*
 	if(pLogCell->opcode == 0){
 		msync(pLogger->log_buffer + pLogger->syncedLsn, pLogger->lastLsn - pLogger->syncedLsn , MS_SYNC);
 		pLogger->syncedLsn = pLogger->lastLsn;
-	}
-	*/
+        printf("log msynced!\n");
+    }
 	//puts("");
 	return;	
 };
@@ -299,6 +303,14 @@ int sqlite3LogForceAtCommit(Logger *pLogger){
 	m_logCell.data = NULL;
     //#call msync in here pls
     sqlite3Log(pLogger,&m_logCell);
+};
+
+int sqlite3LogRollback(Logger *pLogger){
+    logCell m_logCell;
+    m_logCell.opcode = -2;
+    m_logCell.data_size = 0;
+    m_logCell.data = NULL;
+    sqlite3Log(pLogger, &m_logCell);
 };
 
 int sqlite3LogCheckPoint(Logger *pLogger){
