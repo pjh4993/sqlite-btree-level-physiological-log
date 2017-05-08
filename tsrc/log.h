@@ -9,9 +9,10 @@ typedef struct LOGICALLOG logicalLog;
 struct PHYSICALLOG{
 	int idx;
 	int cellSize;
+	Pgno pgno;
 	int iTable;
 	int curFlags;
-	Pgno pgno;
+    int loc;
 	char* newCell;
 };
 struct LOGICALLOG{
@@ -31,7 +32,6 @@ struct LOGGER{
     unsigned int lastLsn;
 	unsigned int syncedLsn;
 	char *log_file_name;
-	qLogCell *apLogCell;
 };
 struct LOGCELL{
 	int lastLsn;
@@ -81,4 +81,73 @@ int sqlite3LogAnalysis(Logger *pLogger);
 void sqlite3LogRecovery(Btree* pBtree,sqlite3* db);
 int sqlite3LogForceAtCommit(Logger* pLogger);
 int sqlite3LogCheckPoint(Logger* pLogger);
+
+
+#define INIT_LIST_HEAD(ptr) do { \
+	(ptr)->next = (ptr); (ptr)->prev = (ptr); \
+} while (0)
+
+static __inline__ void __list_add(qLogCell * new,
+	qLogCell * prev,
+	qLogCell * next)
+{
+	next->prev = new;
+	new->next = next;
+	new->prev = prev;
+	prev->next = new;
+}
+
+static __inline__ void list_add(qLogCell *new, qLogCell *head)
+{
+	__list_add(new, head, head->next);
+}
+
+static __inline__ void list_add_tail(qLogCell *new, qLogCell *head)
+{
+	__list_add(new, head->prev, head);
+}
+
+static __inline__ void __list_del(qLogCell * prev,
+				  qLogCell * next)
+{
+	next->prev = prev;
+	prev->next = next;
+}
+
+static __inline__ void list_del(qLogCell *entry)
+{
+	__list_del(entry->prev, entry->next);
+}
+
+/**
+ * list_empty - tests whether a list is empty
+ * @head: the list to test.
+ */
+static __inline__ int list_empty(qLogCell *head)
+{
+	return head->next == head;
+}
+
+/**
+ * list_entry - get the struct for this entry
+ * @ptr:	the &struct list_head pointer.
+ * @type:	the type of the struct this is embedded in.
+ * @member:	the name of the list_struct within the struct.
+ */
+#define list_entry(ptr, type, member) \
+	((type *)((char *)(ptr)-(unsigned long)(&((type *)0)->member)))
+
+/**
+ * list_for_each_prev	-	iterate over a list in reverse order
+ * @pos:	the &struct list_head to use as a loop counter.
+ * @head:	the head for your list.
+ */
+#define list_for_each_prev(pos, head) \
+	for (pos = (head)->prev; pos != (head); \
+        	pos = pos->prev)
+ 
+
+
+
+
 #endif

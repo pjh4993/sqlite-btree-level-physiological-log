@@ -2000,13 +2000,11 @@ static int getAndInitPage(
   assert( pCur==0 || bReadOnly==pCur->curPagerFlags );
   assert( pCur==0 || pCur->iPage>0 );
 
-  //printf("pgno : %d, btreePagecount: %d\n",pgno, btreePagecount(pBt));
   if( pgno>btreePagecount(pBt) ){
     rc = SQLITE_CORRUPT_BKPT;
     goto getAndInitPage_error;
   }
   rc = sqlite3PagerGet(pBt->pPager, pgno, (DbPage**)&pDbPage, bReadOnly);
-  //printf("result of sqlite3PagerGet : %d\n",rc);
   if( rc ){
     goto getAndInitPage_error;
   }
@@ -2025,7 +2023,6 @@ static int getAndInitPage(
   /* If obtaining a child page for a cursor, we must verify that the page is
   ** compatible with the root page. */
   if( pCur && ((*ppPage)->nCell<1 || (*ppPage)->intKey!=pCur->curIntKey) ){
-	//printf("dont know why yet\n");
     rc = SQLITE_CORRUPT_BKPT;
     releasePage(*ppPage);
     goto getAndInitPage_error;
@@ -3271,7 +3268,6 @@ int sqlite3BtreeBeginTrans(Btree *p, int wrflag){
     }
   }
 
-  printf("sqlite3BtreeBeginTrans\n");
 
 trans_begun:
   if( rc==SQLITE_OK && wrflag ){
@@ -3831,12 +3827,10 @@ int sqlite3BtreeCommitPhaseTwo(Btree *p, int bCleanup){
   Logger *pLogger = p->pBt->pLogger;
   if( p->inTrans==TRANS_NONE ) return SQLITE_OK;
   if( p->inTrans==TRANS_WRITE ){
-    printf("log force at commit begin %d\n",pLogger->p_check);
     sqlite3LogForceAtCommit(pLogger);
     if(pLogger->p_check < LOG_LIMIT){
 	  return SQLITE_OK;
     }
-    printf("check point begin\n");
 
     sqlite3BtreeEnter(p);
     btreeIntegrity(p);
@@ -4864,7 +4858,6 @@ static int moveToRoot(BtCursor *pCur){
   assert( CURSOR_INVALID < CURSOR_REQUIRESEEK );
   assert( CURSOR_VALID   < CURSOR_REQUIRESEEK );
   assert( CURSOR_FAULT   > CURSOR_REQUIRESEEK );
-  //printf("pCur->eState : %d\n",pCur->eState);
   if( pCur->eState>=CURSOR_REQUIRESEEK ){
     if( pCur->eState==CURSOR_FAULT ){
       assert( pCur->skipNext!=SQLITE_OK );
@@ -4872,7 +4865,6 @@ static int moveToRoot(BtCursor *pCur){
     }
     sqlite3BtreeClearCursor(pCur);
   }
-  //printf("pCur->iPage : %d , pCur->pgnoRoot: %d\n",pCur->iPage, pCur->pgnoRoot);
   if( pCur->iPage>=0 ){
     if( pCur->iPage ){
       do{
@@ -4888,7 +4880,6 @@ static int moveToRoot(BtCursor *pCur){
     assert( pCur->iPage==(-1) );
     rc = getAndInitPage(pCur->pBtree->pBt, pCur->pgnoRoot, &pCur->apPage[0],
                         0, pCur->curPagerFlags);
-	//printf("result of getAndInitPage : %d\n",rc);
     if( rc!=SQLITE_OK ){
       pCur->eState = CURSOR_INVALID;
        return rc;
@@ -4910,7 +4901,6 @@ static int moveToRoot(BtCursor *pCur){
   ** in such a way that page pRoot is linked into a second b-tree table 
   ** (or the freelist).  */
   assert( pRoot->intKey==1 || pRoot->intKey==0 );
-  //printf("isinit : %d intKey : %d\n",pRoot->isInit,pRoot->intKey);
   if( pRoot->isInit==0 || (pCur->pKeyInfo==0)!=pRoot->intKey ){
     return SQLITE_CORRUPT_BKPT;
   }
@@ -5019,7 +5009,6 @@ int sqlite3BtreeLast(BtCursor *pCur, int *pRes){
   assert( cursorOwnsBtShared(pCur) );
   assert( sqlite3_mutex_held(pCur->pBtree->db->mutex) );
 
-  //printf("check btree cursor pointing\n");
   /* If the cursor already points to the last entry, this is a no-op. */
   if( CURSOR_VALID==pCur->eState && (pCur->curFlags & BTCF_AtLast)!=0 ){
 #ifdef SQLITE_DEBUG
@@ -5036,7 +5025,6 @@ int sqlite3BtreeLast(BtCursor *pCur, int *pRes){
   }
 
   rc = moveToRoot(pCur);
-  //printf("move to root check %d\n",rc);
   if( rc==SQLITE_OK ){
     if( CURSOR_INVALID==pCur->eState ){
       assert( pCur->pgnoRoot==0 || pCur->apPage[pCur->iPage]->nCell==0 );
@@ -7974,7 +7962,6 @@ int sqlite3BtreeInsert(
   int appendBias,                /* True if this is likely an append */
   int seekResult                 /* Result of prior MovetoUnpacked() call */
 ){
-  printf("btree insert begin\n");
   int res;
   int rc;
   int loc = seekResult;          /* -1: before desired location  +1: after */
@@ -8073,14 +8060,7 @@ int sqlite3BtreeInsert(
   assert( szNew==pPage->NULLlSize(pPage, newCell) );
   assert( szNew <= MX_CELL_SIZE(pBt) );
   idx = pCur->aiIdx[pCur->iPage];
-
-  pCur->lLog.curFlags = pCur->pLog.curFlags= pCur->curFlags;
-  pCur->lLog.seekResult = seekResult;
-  pCur->pLog.idx = idx;
-  pCur->pLog.newCell = newCell;
-  pCur->pLog.cellSize = szNew;
-  pCur->pLog.pgno = pPage->pgno;
-
+  pCur->pLog.loc = loc;
   if( loc==0 ){
     CellInfo info;
     assert( idx<pPage->nCell );
@@ -8094,8 +8074,6 @@ int sqlite3BtreeInsert(
     }
     rc = clearCell(pPage, oldCell, &info);
     if( info.nSize==szNew && info.nLocal==info.nPayload ){
-	  m_logCell.opcode = 3;
-	  m_logCell.data = serializeLog(0,(void*)(&pCur->pLog), &(m_logCell.data_size));
 	  //sqlite3Log(pLogger,&m_logCell);
 
       /* Overwrite the old cell with the new if they are the same size.
@@ -8116,6 +8094,15 @@ int sqlite3BtreeInsert(
   }else{
     assert( pPage->leaf );
   }
+
+  pCur->lLog.curFlags = pCur->pLog.curFlags= pCur->curFlags;
+  pCur->lLog.seekResult = seekResult;
+  pCur->pLog.idx = idx;
+  pCur->pLog.newCell = newCell;
+  pCur->pLog.cellSize = szNew;
+  pCur->pLog.pgno = pPage->pgno;
+
+
   insertCell(pPage, idx, newCell, szNew, 0, 0, &rc);
   assert( pPage->nOverflow==0 || rc==SQLITE_OK );
   assert( rc!=SQLITE_OK || pPage->nCell>0 || pPage->nOverflow>0 );
@@ -8142,15 +8129,11 @@ int sqlite3BtreeInsert(
   */
   pCur->info.nSize = 0;
   pCur->pLog.iTable = pCur->lLog.iTable;
-  //printf("pcur->curFlags : %d\n",pCur->curFlags);
   if( pPage->nOverflow || pPage->nCell == 1){
 	//ARIES
 	//Logical REDO, UNDO LOG
 	m_logCell.opcode = 1;
 	m_logCell.data = serializeLog(1,(void*)(&pCur->lLog), &(m_logCell.data_size));
-  }else if(pCur->curFlags == 3){
-	m_logCell.opcode = 3;
-	m_logCell.data = serializeLog(0,(void*)(&pCur->pLog), &(m_logCell.data_size));
   }else{
 	//ARIES
 	//Physical REDO, UNDO LOG
