@@ -1,15 +1,14 @@
-rm -rf test.db
-rm -rf test.db.log
-touch test.db
-sqlite3 test.db < init.sql
-rm -rf test.db.log
-echo $1
-if [ "$1" == "gdb" ]; then
+rm -rf test$1.db
+rm -rf test$1.db.log
+touch test$1.db
+sqlite3 test$1.db < init.sql
+rm -rf test$1.db.log
+if [ "$2" == "gdb" ]; then
     gdb ./sqlite3 -tui
-elif [ "$1" == "test" ]; then
-    ./sqlite3 test.db < test.sql
-    gdb ./sqlite3 -tui
+elif [ "$2" == "test" ]; then
+    ./sqlite3 test$1.db < test2.sql
+    ./sqlite3 test$1.db
 else
-    ./sqlite3 test.db < test.sql
-    ./sqlite3 test.db
+    ./sqlite3 test$1.db < test.sql
+    ./sqlite3 test$1.db
 fi

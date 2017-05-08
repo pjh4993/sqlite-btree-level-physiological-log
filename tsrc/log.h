@@ -1,6 +1,6 @@
 #ifndef SQLITE_LOGGING
 #define SQLITE_LOGGING
-#define LOG_LIMIT 10
+#define LOG_LIMIT 100
 typedef struct LOGGER Logger;
 typedef struct LOGCELL logCell;
 typedef struct QLOGCELL qLogCell;

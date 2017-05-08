@@ -8060,7 +8060,15 @@ int sqlite3BtreeInsert(
   assert( szNew==pPage->NULLlSize(pPage, newCell) );
   assert( szNew <= MX_CELL_SIZE(pBt) );
   idx = pCur->aiIdx[pCur->iPage];
+
   pCur->pLog.loc = loc;
+  pCur->lLog.curFlags = pCur->pLog.curFlags= pCur->curFlags;
+  pCur->lLog.seekResult = seekResult;
+  pCur->pLog.newCell = newCell;
+  pCur->pLog.cellSize = szNew;
+  pCur->pLog.pgno = pPage->pgno;
+  pCur->pLog.idx = idx;
+
   if( loc==0 ){
     CellInfo info;
     assert( idx<pPage->nCell );
@@ -8084,6 +8092,12 @@ int sqlite3BtreeInsert(
       assert( rc==SQLITE_OK ); /* clearCell never fails when nLocal==nPayload */
       if( oldCell+szNew > pPage->aDataEnd ) return SQLITE_CORRUPT_BKPT;
       memcpy(oldCell, newCell, szNew);
+
+      m_logCell.opcode = 2;
+      m_logCell.data = serializeLog(0,(void*)(&pCur->pLog), &(m_logCell.data_size));
+
+      sqlite3Log(pLogger, &m_logCell);
+
       return SQLITE_OK;
     }
     dropCell(pPage, idx, info.nSize, &rc);
@@ -8091,17 +8105,10 @@ int sqlite3BtreeInsert(
   }else if( loc<0 && pPage->nCell>0 ){
     assert( pPage->leaf );
     idx = ++pCur->aiIdx[pCur->iPage];
+    pCur->pLog.idx = idx;
   }else{
     assert( pPage->leaf );
   }
-
-  pCur->lLog.curFlags = pCur->pLog.curFlags= pCur->curFlags;
-  pCur->lLog.seekResult = seekResult;
-  pCur->pLog.idx = idx;
-  pCur->pLog.newCell = newCell;
-  pCur->pLog.cellSize = szNew;
-  pCur->pLog.pgno = pPage->pgno;
-
 
   insertCell(pPage, idx, newCell, szNew, 0, 0, &rc);
   assert( pPage->nOverflow==0 || rc==SQLITE_OK );
