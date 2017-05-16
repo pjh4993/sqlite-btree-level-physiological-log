@@ -524,6 +524,7 @@ struct BtCursor {
   MemPage *apPage[BTCURSOR_MAX_DEPTH];  /* Pages from root to current page */
   physicalLog pLog;
   logicalLog lLog;
+  logicalDLog dLog;
 };
 
 /*

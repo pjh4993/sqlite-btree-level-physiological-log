@@ -3468,6 +3468,7 @@ case OP_OpenWrite:
   //ARIES
   //CURSOR DATA
   pCur->uc.pCursor->lLog.iTable = p2;
+  pCur->uc.pCursor->dLog.pgno = p2;
   rc = sqlite3BtreeCursor(pX, p2, wrFlag, pKeyInfo, pCur->uc.pCursor);
   pCur->pKeyInfo = pKeyInfo;
   /* Set the VdbeCursor.isTable variable. Previous versions of
@@ -5093,6 +5094,13 @@ case OP_IdxInsert: {        /* in2 */
     x.pKey = pIn2->z;
     x.aMem = aMem + pOp->p3;
     x.nMem = (u16)pOp->p4.i;
+
+    pC->uc.pCursor->lLog.nKey = x.nKey;
+    pC->uc.pCursor->lLog.nData = x.nData;
+    pC->uc.pCursor->lLog.nZero = x.nZero;
+    pC->uc.pCursor->lLog.pData = x.pData;
+    pC->uc.pCursor->lLog.nMem = x.nMem;
+
 	//ARIES
 	//Insert log need for INDEX
     rc = sqlite3BtreeInsert(pC->uc.pCursor, &x,

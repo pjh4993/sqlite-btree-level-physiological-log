@@ -21,6 +21,8 @@
 #ifndef SQLITE_OMIT_DISKIO
 #include "sqliteInt.h"
 #include "wal.h"
+#include "log.h"
+extern int logstate;
 
 
 /******************* NOTES ON THE DESIGN OF THE PAGER ************************
@@ -7400,6 +7402,7 @@ int sqlite3PagerOpenWal(
 
     rc = pagerOpenWal(pPager);
     if( rc==SQLITE_OK ){
+      logState = WORK;
       pPager->journalMode = PAGER_JOURNALMODE_WAL;
       pPager->eState = PAGER_OPEN;
     }

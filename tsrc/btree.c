@@ -3734,7 +3734,7 @@ int sqlite3BtreeCommitPhaseOne(Btree *p, const char *zMaster){
   Logger *pLogger = p->pBt->pLogger;
   int rc = SQLITE_OK;
   if( p->inTrans==TRANS_WRITE ){
-    if(pLogger->p_check < LOG_LIMIT)
+    if(p->pBt->pPager->pWal != 0 && pLogger->p_check < LOG_LIMIT)
 	  return rc;
     BtShared *pBt = p->pBt;
     sqlite3BtreeEnter(p);
@@ -3828,7 +3828,7 @@ int sqlite3BtreeCommitPhaseTwo(Btree *p, int bCleanup){
   if( p->inTrans==TRANS_NONE ) return SQLITE_OK;
   if( p->inTrans==TRANS_WRITE ){
     sqlite3LogForceAtCommit(pLogger);
-    if(pLogger->p_check < LOG_LIMIT){
+    if(p->pBt->pPager->pWal != 0 && pLogger->p_check < LOG_LIMIT){
 	  return SQLITE_OK;
     }
 
@@ -7962,6 +7962,7 @@ int sqlite3BtreeInsert(
   int appendBias,                /* True if this is likely an append */
   int seekResult                 /* Result of prior MovetoUnpacked() call */
 ){
+  printf("sqlite3BtreeInsert\n");
   int res;
   int rc;
   int loc = seekResult;          /* -1: before desired location  +1: after */
@@ -8189,6 +8190,7 @@ end_insert:
 ** but which might be used by alternative storage engines.
 */
 int sqlite3BtreeDelete(BtCursor *pCur, u8 flags){
+  printf("sqlite3BtreeDelete\n");
   Btree *p = pCur->pBtree;
   BtShared *pBt = p->pBt;              
   int rc;                              /* Return code */
@@ -8199,6 +8201,8 @@ int sqlite3BtreeDelete(BtCursor *pCur, u8 flags){
   CellInfo info;                       /* Size of the cell being deleted */
   int bSkipnext = 0;                   /* Leaf cursor in SKIPNEXT state */
   u8 bPreserve = flags & BTREE_SAVEPOSITION;  /* Keep cursor valid */
+  logCell m_logCell;
+  Logger *pLogger = pBt->pLogger;
 
   assert( cursorOwnsBtShared(pCur) );
   assert( pBt->inTransaction==TRANS_WRITE );
@@ -8214,6 +8218,17 @@ int sqlite3BtreeDelete(BtCursor *pCur, u8 flags){
   iCellIdx = pCur->aiIdx[iCellDepth];
   pPage = pCur->apPage[iCellDepth];
   pCell = findCell(pPage, iCellIdx);
+  
+
+  btreeParseCell(pPage,iCellIdx,&info);
+
+  pCur->dLog.iCellDepth = iCellDepth;
+  pCur->dLog.iCellIdx = iCellIdx;
+  pCur->dLog.pPagePgno = pPage->pgno;
+
+  m_logCell.opcode = 3;
+  m_logCell.data = serializeLog(2,(void*)(&pCur->dLog), &(m_logCell.data_size));
+  sqlite3Log(pLogger, &m_logCell);
 
   /* If the bPreserve flag is set to true, then the cursor position must
   ** be preserved following this delete operation. If the current delete
@@ -8355,6 +8370,7 @@ int sqlite3BtreeDelete(BtCursor *pCur, u8 flags){
 */
 static int btreeCreateTable(Btree *p, int *piTable, int createTabFlags){
   BtShared *pBt = p->pBt;
+  pBt->pLogger->p_check = LOG_LIMIT; 
   MemPage *pRoot;
   Pgno pgnoRoot;
   int rc;

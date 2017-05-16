@@ -1,9 +1,14 @@
 #include "log.h"
 #include <stdio.h>
 #include "btree.h"
+#define LOG_SIZE 4096*1024
+#define HDR_SIZE sizeof(logHdr)
 
+logHdr hdr;
 qLogCell logqueue;
 qLogCell* logqueue_head = &logqueue;
+
+
 
 static inline void add_to_logqueue(qLogCell * p)
 {
@@ -21,7 +26,7 @@ static inline void del_from_logqueue(qLogCell * p)
 
 int sqlite3LoggerOpen(sqlite3_vfs *pVfs,const char* zFilename,Logger **ppLogger){
 	Logger *pLogger;
-	int fileLen, fullPathLen, logNameLen, m_log_fd;
+	int fileLen, fullPathLen, logNameLen, m_log_fd, tmp=0;
 	void* m_log_buffer;
 	char* zLogname;
 	pLogger = sqlite3MallocZero(sizeof(Logger));
@@ -39,15 +44,26 @@ int sqlite3LoggerOpen(sqlite3_vfs *pVfs,const char* zFilename,Logger **ppLogger)
 	zLogname[fileLen+4] = '\0';
 	pLogger->log_file_name = zLogname;
 	
-	m_log_fd = open(zLogname, O_RDWR | O_CREAT, 0644);
+	m_log_fd = open(zLogname, O_RDWR, 0644);
+    if(m_log_fd < 0){
+        m_log_fd = open(zLogname,O_RDWR | O_CREAT,0644);
+        tmp = 1;
+    }
 	if(m_log_fd < 0){
 		fprintf(stderr, "LOG FILE OPEN ERROR\n");
 	}else{
-		ftruncate(m_log_fd,1024*4096);
+		ftruncate(m_log_fd,LOG_SIZE);
 		pLogger->log_fd = m_log_fd;
 	}
 
-	m_log_buffer = (void*) mmap(NULL, 1024*4096, PROT_READ | PROT_WRITE, MAP_SHARED, m_log_fd,0);
+	m_log_buffer = (void*) mmap(NULL, LOG_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, m_log_fd,0);
+    if(tmp){
+        hdr.stLsn = 0;
+        memcpy(m_log_buffer,&hdr,sizeof(hdr));
+        tmp = -1;
+        memcpy(m_log_buffer + HDR_SIZE,&tmp, sizeof(int));
+        msync(m_log_buffer,sizeof(int) + HDR_SIZE, MS_SYNC);
+    }
 	if(m_log_buffer == MAP_FAILED){
 		fprintf(stderr, "LOG FILE MAPPING ERROR\n");
 	}
@@ -87,7 +103,17 @@ void* serializeLog(int logType, void* logData, int* size){
 		memcpy(m_serialized + sizeof(int)*3 + sizeof(Pgno), &(m_log->curFlags), sizeof(int));
 		memcpy(m_serialized + sizeof(int)*4 + sizeof(Pgno), &(m_log->loc), sizeof(int));
 		memcpy(m_serialized + sizeof(int)*5 + sizeof(Pgno), m_log->newCell, sizeof(char)*m_log->cellSize);
-	}
+	}else if(logType == 2){
+        logicalDLog* m_log = logData;
+        *size = sizeof(Pgno)*2 + sizeof(int) * 2 + sizeof(u8);
+		m_serialized = sqlite3Malloc(*size);
+        memcpy(m_serialized, &(m_log->pgno), sizeof(Pgno));
+        memcpy(m_serialized + sizeof(Pgno), &(m_log->pPagePgno), sizeof(Pgno));
+        memcpy(m_serialized + sizeof(Pgno)*2, &(m_log->iCellDepth), sizeof(int));
+        memcpy(m_serialized + sizeof(Pgno)*2 + sizeof(int), &(m_log->iCellIdx), sizeof(int));
+        memcpy(m_serialized + sizeof(Pgno)*2 + sizeof(int)*2, &(m_log->curFlags), sizeof(int));
+        memcpy(m_serialized + sizeof(Pgno)*2 + sizeof(int)*3, &(m_log->flags), sizeof(u8));
+    }
 	return m_serialized;
 }
 
@@ -114,14 +140,24 @@ void deserializeLog(int logType, void *data, void **dest){
 		memcpy(&(m_pLog->loc), data + sizeof(int)*4 + sizeof(Pgno), sizeof(int));
 		m_pLog->newCell = data + sizeof(int)*5 + sizeof(Pgno);
 		*dest = m_pLog;
-		for(i =0 ; i < m_pLog->cellSize; i++){
-		}
-	}
+	}else if(logType == 2){
+        logicalDLog* m_dLog = sqlite3Malloc(sizeof(logicalDLog));
+        memcpy(&(m_dLog->pgno), data, sizeof(Pgno));
+        memcpy(&(m_dLog->pPagePgno), data+sizeof(Pgno), sizeof(Pgno));
+        memcpy(&(m_dLog->iCellDepth), data+sizeof(Pgno)*2, sizeof(int));
+        memcpy(&(m_dLog->iCellIdx), data+sizeof(Pgno)*2+sizeof(int), sizeof(int));
+        memcpy(&(m_dLog->curFlags), data+sizeof(Pgno)*2+sizeof(int)*2, sizeof(int));
+        memcpy(&(m_dLog->flags), data+sizeof(Pgno)*2+sizeof(int)*3, sizeof(u8));
+        *dest = m_dLog; 
+    }
 }
 
 void sqlite3Log(Logger *pLogger ,logCell *pLogCell){
+    if(logState == RECOVERY)
+        return;
 	char *tmp1, *tmp2;
-	void *m_log_buffer = pLogger->log_buffer + ((pLogCell->opcode != -2)?pLogger->lastLsn : pLogger->syncedLsn);
+    int tmp;
+	void *m_log_buffer = pLogger->log_buffer + HDR_SIZE + ((pLogCell->opcode != -2)?pLogger->lastLsn : pLogger->syncedLsn);
 	char *m_logCell = sqlite3Malloc(sizeof(int) * 3 + pLogCell->data_size);
     if(pLogCell->opcode == -2){
         int m_buf = 0;
@@ -132,17 +168,36 @@ void sqlite3Log(Logger *pLogger ,logCell *pLogCell){
     if(pLogCell->opcode > 0)
         pLogger->p_check = pLogger->p_check + 1;
 	pLogger->lastLsn += (sizeof(int) * 3 + pLogCell->data_size);
-	pLogCell->lastLsn = pLogger->lastLsn;
+    if(pLogger->lastLsn + sizeof(int) > LOG_SIZE){
+        tmp = 0;
+        memcpy(pLogger->prevLsn, &tmp, sizeof(int));
+        m_log_buffer = pLogger->log_buffer + HDR_SIZE;
+        pLogger->lastLsn = (sizeof(int)*3 + pLogCell->data_size);
+    }
+	pLogCell->nextLsn = pLogger->lastLsn;
 	memcpy(m_logCell,&(pLogger->lastLsn),sizeof(int));
+    pLogger->prevLsn = m_log_buffer;
 	memcpy(m_logCell+ sizeof(int),&(pLogCell->opcode), sizeof(int));
 	memcpy(m_logCell+ sizeof(int)*2,&(pLogCell->data_size), sizeof(int));
 	if(pLogCell->data_size > 0 && pLogCell->data != NULL)
 		memcpy(m_logCell+ sizeof(int)*3,pLogCell->data, pLogCell->data_size);
 	memcpy(m_log_buffer, m_logCell, sizeof(int) * 3 + pLogCell->data_size);
 	sqlite3_free(m_logCell);
-	if(pLogCell->opcode == 0 || pLogCell->opcode == -1){
-		msync(pLogger->log_buffer + pLogger->syncedLsn, pLogger->lastLsn - pLogger->syncedLsn , MS_SYNC);
-		pLogger->syncedLsn = pLogger->lastLsn;
+    switch(pLogCell->opcode){
+        case -1:
+            hdr.stLsn = pLogger->lastLsn;
+            memcpy(pLogger->log_buffer,&hdr,sizeof(logHdr)); 
+            msync(pLogger->log_buffer,sizeof(logHdr),MS_SYNC);
+        case 0:
+            tmp = -1;
+            memcpy(pLogger->log_buffer + HDR_SIZE + pLogger->lastLsn, &tmp, sizeof(int));
+            if(pLogger->syncedLsn > pLogger->lastLsn){
+                msync(pLogger->log_buffer + pLogger->syncedLsn, LOG_SIZE - pLogger->syncedLsn, MS_SYNC);
+                pLogger->syncedLsn = 0;
+            }
+            msync(pLogger->log_buffer + pLogger->syncedLsn, pLogger->lastLsn - pLogger->syncedLsn + sizeof(int) , MS_SYNC);
+            pLogger->syncedLsn = pLogger->lastLsn;
+            break;
     }
 	return;	
 };
@@ -150,45 +205,58 @@ void sqlite3Log(Logger *pLogger ,logCell *pLogCell){
 int parseLogBuffer(void* m_log_buffer, logCell **m_plogCell){
 	*m_plogCell = sqlite3Malloc(sizeof(logCell));
 	logCell* m_logCell = *m_plogCell;
-	memcpy(&(m_logCell->lastLsn) ,m_log_buffer, sizeof(int));
+	memcpy(&(m_logCell->nextLsn) ,m_log_buffer, sizeof(int));
+    if(m_logCell->nextLsn == -1)
+        return m_logCell->nextLsn;
 	memcpy(&(m_logCell->opcode) ,m_log_buffer + sizeof(int), sizeof(int));
 	memcpy(&(m_logCell->data_size) ,m_log_buffer + sizeof(int)*2, sizeof(int));
 	m_logCell->data = sqlite3Malloc(m_logCell->data_size);
 	memcpy(m_logCell->data ,m_log_buffer + sizeof(int)*3, m_logCell->data_size);
-	return m_logCell->lastLsn;
+	return m_logCell->nextLsn;
 };
 
 //implement queue pls:
 int sqlite3LogAnalysis(Logger *pLogger){
-	void* m_log_buffer = pLogger->log_buffer;
+    memcpy(&hdr,pLogger->log_buffer, sizeof(logHdr));
+	void* m_log_buffer = pLogger->log_buffer + HDR_SIZE + hdr.stLsn;
 	logCell *m_logCell;
 	qLogCell *tmpQueue,*nextTmp;
-	int m_lastLsn, id = 0,start_id = 0 , i;
-	while((m_lastLsn = parseLogBuffer(m_log_buffer, &m_logCell)) && (m_lastLsn != 0)){
-		if(m_logCell->opcode == -1){
+	int m_nextLsn, id = 0,start_id = 0 , i;
+	while((m_nextLsn = parseLogBuffer(m_log_buffer, &m_logCell)) && (m_nextLsn >= 0)){
+		if(m_logCell->opcode == -1 ){
 			//flush queue
             list_for_each_prev(tmpQueue,logqueue_head){
                 del_from_logqueue(tmpQueue);    
             }
-            m_log_buffer = pLogger->log_buffer + m_lastLsn;
+            m_log_buffer = pLogger->log_buffer + m_nextLsn;
             continue;
-		}
+		}else if(m_logCell->opcode == -2){
+            list_for_each_prev(tmpQueue,logqueue_head){
+                if(tmpQueue->m_logCell->opcode == 0)
+                    break;
+                del_from_logqueue(tmpQueue);    
+            }
+            m_log_buffer = pLogger->log_buffer + m_nextLsn;
+            continue;
+        }
 		//insert into queue
 		tmpQueue = sqlite3Malloc(sizeof(qLogCell));
 		tmpQueue->m_logCell = m_logCell;
         tmpQueue->prev= tmpQueue->next = NULL;
         add_to_logqueue(tmpQueue);
-		m_log_buffer = pLogger->log_buffer + m_lastLsn;
+		m_log_buffer = pLogger->log_buffer + HDR_SIZE + m_nextLsn;
 	};
 	return SQLITE_OK;
 };
 
 void sqlite3LogRecovery(Btree* pBtree, sqlite3* db){
+    logState = RECOVERY;
 	Logger *pLogger = pBtree->pBt->pLogger;
 	logCell *mLogCell;
 	BtCursor *btCsr = sqlite3Malloc(sizeof(BtCursor));
 	logicalLog *m_lLog;
 	physicalLog *m_pLog;
+	logicalDLog *m_dLog;
 	qLogCell *tmpQueue,*prevTmp;
 	CellInfo info;
 	unsigned char* oldCell;
@@ -196,6 +264,7 @@ void sqlite3LogRecovery(Btree* pBtree, sqlite3* db){
 	MemPage* pPage;
 	int rc,i,loc;
 	//while queue exists
+    sqlite3BtreeBeginTrans(pBtree,4);
     list_for_each_prev(tmpQueue,logqueue_head){
 		sqlite3BtreeCursorZero(btCsr);
 		mLogCell = tmpQueue->m_logCell;
@@ -204,7 +273,6 @@ void sqlite3LogRecovery(Btree* pBtree, sqlite3* db){
 				deserializeLog(1, mLogCell->data, (void**)&m_lLog);
 				BtreePayload x;
 				sqlite3BtreeCursor(pBtree, m_lLog->iTable, 4, 0x0, btCsr);
-				while( pBtree->pBt->pPage1==0 && SQLITE_OK==(rc = lockBtree(pBtree->pBt)) );
 				rc = sqlite3BtreeLast(btCsr,&rc);
 				x.nKey = m_lLog->nKey;
 				x.nData = m_lLog->nData;
@@ -214,16 +282,13 @@ void sqlite3LogRecovery(Btree* pBtree, sqlite3* db){
 				x.pData = m_lLog->pData;
 				x.pKey = NULL;
 				btCsr->curFlags = m_lLog->curFlags;
-				btCsr->curIntKey = 1;
-				sqlite3BtreeBeginTrans(pBtree,4);
-				sqlite3BtreeInsert(btCsr,&x,1,m_lLog->seekResult);
-				sqlite3BtreeCloseCursor(btCsr);
+				rc = sqlite3BtreeInsert(btCsr,&x,1,m_lLog->seekResult);
+                //printf("logical insert %d\n",rc);
 				break;
 			case 2:
 				deserializeLog(0, mLogCell->data, (void**)&m_pLog);
                 loc = m_pLog->loc;
 				rc = sqlite3BtreeCursor(pBtree, m_pLog->pgno, 4, 0x0, btCsr);
-				while( pBtree->pBt->pPage1==0 && SQLITE_OK==(rc = lockBtree(pBtree->pBt)) );
 				rc = sqlite3BtreeLast(btCsr,&rc);
 				newCell = pBtree->pBt->pTmpSpace;
 				memcpy(newCell, m_pLog->newCell, m_pLog->cellSize);
@@ -255,10 +320,33 @@ void sqlite3LogRecovery(Btree* pBtree, sqlite3* db){
 				insertCell(pPage, m_pLog->idx, newCell, m_pLog->cellSize, 0, 0, &rc);
 				pPage->pDbPage->pPager->eState = PAGER_WRITER_FINISHED; 
 				sqlite3PcacheMakeDirty(pPage->pDbPage);
-				rc = sqlite3BtreeCloseCursor(btCsr);
+
+                pLogger->p_check = LOG_LIMIT;
+                pBtree->inTrans = TRANS_WRITE;
+                pBtree->pBt->inTransaction = TRANS_WRITE;
+                sqlite3BtreeCommit(pBtree);
+
+                releasePage(pPage);
+                //printf("physical insert %d\n",rc);
 				break;
+            case 3:
+				deserializeLog(2, mLogCell->data, (void**)&m_dLog);
+				rc = sqlite3BtreeCursor(pBtree, m_dLog->pgno, 4, 0x0, btCsr);
+                rc = sqlite3BtreeFirst(btCsr, &rc);
+                btCsr->iPage = m_dLog->iCellDepth;
+                btCsr->curFlags = m_dLog->curFlags;
+                btCsr->aiIdx[m_dLog->iCellDepth] = m_dLog->iCellIdx;
+                btreeGetPage(pBtree->pBt,m_dLog->pPagePgno,&pPage,0);
+                releasePage(btCsr->apPage[m_dLog->iCellDepth]);
+                btCsr->apPage[m_dLog->iCellDepth] = pPage;
+                btreeParseCell(btCsr->apPage[m_dLog->iCellDepth],m_dLog->iCellIdx,&btCsr->info);
+                sqlite3BtreeDelete(btCsr,m_dLog->flags);
+                //printf("logical delete %d\n",rc);
+                break;
 		}
 end_recovery:
+        if(mLogCell->opcode > 0)
+            rc = sqlite3BtreeCloseCursor(btCsr);
         sqlite3_free(mLogCell);
         del_from_logqueue(tmpQueue);
 	}
@@ -269,11 +357,16 @@ end_recovery:
 	pBtree->inTrans = TRANS_WRITE;
 	pBtree->pBt->inTransaction = TRANS_WRITE;
 	sqlite3BtreeCommit(pBtree);
-	memset(pLogger->log_buffer, 0x00, 1024*4096);                                                                                                                                                   
-	msync(pLogger->log_buffer, 1024*4096, MS_SYNC);   
+    hdr.stLsn = 0;
+    int tmp = -1;
+    memcpy(pLogger->log_buffer,&hdr,sizeof(logHdr));
+    memcpy(pLogger->log_buffer + HDR_SIZE,&tmp, sizeof(int));
+    msync(pLogger->log_buffer,sizeof(int) + HDR_SIZE, MS_SYNC);
+
 	pLogger->p_check = 0;
     pLogger->lastLsn = pLogger->syncedLsn = 0;
-    
+    if(pBtree->pBt->pPager->pWal)
+        logState = WORK;
 };
 
 int sqlite3LogForceAtCommit(Logger *pLogger){
@@ -294,7 +387,6 @@ int sqlite3LogRollback(Logger *pLogger){
 };
 
 int sqlite3LogCheckPoint(Logger *pLogger){
-    printf("log checkpoint begin\n");
     if(pLogger->p_check >= LOG_LIMIT){
         logCell m_logCell;
         m_logCell.opcode = -1;

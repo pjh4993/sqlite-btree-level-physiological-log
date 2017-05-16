@@ -3468,6 +3468,7 @@ case OP_OpenWrite:
   //ARIES
   //CURSOR DATA
   pCur->uc.pCursor->lLog.iTable = p2;
+  pCur->uc.pCursor->dLog.pgno = p2;
   rc = sqlite3BtreeCursor(pX, p2, wrFlag, pKeyInfo, pCur->uc.pCursor);
   pCur->pKeyInfo = pKeyInfo;
   /* Set the VdbeCursor.isTable variable. Previous versions of

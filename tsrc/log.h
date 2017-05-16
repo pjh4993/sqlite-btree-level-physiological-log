@@ -1,11 +1,19 @@
 #ifndef SQLITE_LOGGING
 #define SQLITE_LOGGING
-#define LOG_LIMIT 100
+#define LOG_LIMIT 3000
+#define RECOVERY 0
+#define WORK 1
+
 typedef struct LOGGER Logger;
 typedef struct LOGCELL logCell;
 typedef struct QLOGCELL qLogCell;
 typedef struct PHYSICALLOG physicalLog;
 typedef struct LOGICALLOG logicalLog;
+typedef struct LOGICALDLOG logicalDLog;
+typedef struct LOGHDR logHdr;
+struct LOGHDR{
+    int stLsn;
+};
 struct PHYSICALLOG{
 	int idx;
 	int cellSize;
@@ -25,16 +33,26 @@ struct LOGICALLOG{
 	int curFlags;
 	void *pData;
 };
+struct LOGICALDLOG{
+    Pgno pgno;
+    int iCellDepth;
+    int iCellIdx;
+    int curFlags;
+    u8 flags;
+    Pgno pPagePgno;
+};
 struct LOGGER{
     int log_fd;
 	int p_check;
     void *log_buffer;
+    void *prevLsn;
     unsigned int lastLsn;
 	unsigned int syncedLsn;
 	char *log_file_name;
+    int state;
 };
 struct LOGCELL{
-	int lastLsn;
+	int nextLsn;
 	int opcode;
 	int data_size;
 	void *data;
@@ -146,6 +164,7 @@ static __inline__ int list_empty(qLogCell *head)
 	for (pos = (head)->prev; pos != (head); \
         	pos = pos->prev)
  
+static int logState = RECOVERY;
 
 
 
