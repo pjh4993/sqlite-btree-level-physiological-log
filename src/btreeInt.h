@@ -233,6 +233,10 @@ typedef struct MemPage MemPage;
 typedef struct BtLock BtLock;
 typedef struct CellInfo CellInfo;
 
+typedef struct IdxInsertLog idxInsertLog;
+typedef struct IdxDeleteLog idxDeleteLog;
+typedef struct CreateLog createLog;
+
 /*
 ** This is a magic string that appears at the beginning of every
 ** SQLite database in order to identify the file as a real database.
@@ -441,6 +445,8 @@ struct BtShared {
   Btree *pWriter;       /* Btree with currently open write transaction */
 #endif
   u8 *pTmpSpace;        /* Temp space sufficient to hold a single cell */
+
+  createLog cLog;
 };
 
 /*
@@ -522,9 +528,9 @@ struct BtCursor {
   void *padding1;           /* Make object size a multiple of 16 */
   u16 aiIdx[BTCURSOR_MAX_DEPTH];        /* Current index in apPage[i] */
   MemPage *apPage[BTCURSOR_MAX_DEPTH];  /* Pages from root to current page */
-  physicalLog pLog;
-  logicalLog lLog;
-  logicalDLog dLog;
+
+  idxInsertLog idxInsLog;
+  idxDeleteLog idxDelLog;
 };
 
 /*

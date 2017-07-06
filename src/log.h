@@ -1,172 +1,74 @@
 #ifndef SQLITE_LOGGING
 #define SQLITE_LOGGING
-#define LOG_LIMIT 3000
-#define RECOVERY 0
-#define WORK 1
+#define LOG_LIMIT 4096
+#include "list.h"
+
+enum opcode {CREATETABLE, CREATEINDEX, EXIT, INSERT, IDXINSERT, DELETE, IDXDELETE, COMMIT};
+enum compare {UNKNOWN,INT, STRING, RECORD};
+enum loggerState {ON, OFF};
 
 typedef struct LOGGER Logger;
 typedef struct LOGCELL logCell;
 typedef struct QLOGCELL qLogCell;
-typedef struct PHYSICALLOG physicalLog;
-typedef struct LOGICALLOG logicalLog;
-typedef struct LOGICALDLOG logicalDLog;
 typedef struct LOGHDR logHdr;
+
 struct LOGHDR{
     int stLsn;
 };
-struct PHYSICALLOG{
-	int idx;
-	int cellSize;
-	Pgno pgno;
-	int iTable;
-	int curFlags;
-    int loc;
-	char* newCell;
+
+struct CreateLog{
+    int flags;
 };
-struct LOGICALLOG{
-	int iTable;
-	int nKey;
-	int nData;
-	int nZero;
-	int nMem;
-	int seekResult;
-	int curFlags;
-	void *pData;
+
+struct IdxInsertLog{
+    int iDb;
+    int iTable;
+    int wrFlag;
+    int seekResult;
+    int appendBias;
+    KeyInfo* pKeyInfo;
+    const BtreePayload *pX;
 };
-struct LOGICALDLOG{
-    Pgno pgno;
-    int iCellDepth;
+
+struct IdxDeleteLog{
+    int iTable;
+    int wrFlag;
     int iCellIdx;
-    int curFlags;
+    int iCellDepth;
     u8 flags;
-    Pgno pPagePgno;
+    u32 pPagePgno;
 };
+
 struct LOGGER{
-    int log_fd;
+    sqlite3_file* fd;
+	char *zFile;
+    struct list_head q;
+    logHdr hdr;
 	int p_check;
-    void *log_buffer;
-    void *prevLsn;
+    int syncFlags;
     unsigned int lastLsn;
-	unsigned int syncedLsn;
-	char *log_file_name;
-    int state;
+    enum loggerState state;
 };
+
 struct LOGCELL{
 	int nextLsn;
-	int opcode;
+	enum opcode op;
 	int data_size;
 	void *data;
 };
+
 struct QLOGCELL{
 	struct LOGCELL* m_logCell;
-	struct QLOGCELL *next, *prev;
+    struct list_head q;
 };
-/*
- * insert
- * 	- redo
- * 		- page split, overflow occured : logical recovery with btree module , need
- * 		cursor
- * 		- physical recovery with cell level function
- *
- * 	- undo
- * 		- page split, overflow occured : WTF....
- * 		- physical recovery with cell level function
- *
- * delete
- * 	- redo
- * 		- page split, overflow occured : logical recovery with btree module , need
- * 		cursor
- * 		- physical recovery with cell level function
- * 	- undo
- * 		- page split, overflow occured : WTF....
- * 		- physical recovery with cell level function
- *
- * update
- * 	- redo
- * 		- page split, overflow occured : logical recovery with btree module , need
- * 		cursor
- * 		- physical recovery with cell level function
- * 	- undo
- * 		- page split, overflow occured : WTF....
- * 		- physical recovery with cell level function
- *
- */
 
-void* serializeLog(int logType, void* logData, int* size);
-int sqlite3LoggerOpen(sqlite3_vfs *pVfs,const char* zFilename, Logger **ppLogger);
-void sqlite3Log(Logger *pLogger ,logCell *pLogCell);
-int sqlite3LogAnalysis(Logger *pLogger);
-void sqlite3LogRecovery(Btree* pBtree,sqlite3* db);
-int sqlite3LogForceAtCommit(Logger* pLogger);
-int sqlite3LogCheckPoint(Logger* pLogger);
-
-
-#define INIT_LIST_HEAD(ptr) do { \
-	(ptr)->next = (ptr); (ptr)->prev = (ptr); \
-} while (0)
-
-static __inline__ void __list_add(qLogCell * new,
-	qLogCell * prev,
-	qLogCell * next)
-{
-	next->prev = new;
-	new->next = next;
-	new->prev = prev;
-	prev->next = new;
-}
-
-static __inline__ void list_add(qLogCell *new, qLogCell *head)
-{
-	__list_add(new, head, head->next);
-}
-
-static __inline__ void list_add_tail(qLogCell *new, qLogCell *head)
-{
-	__list_add(new, head->prev, head);
-}
-
-static __inline__ void __list_del(qLogCell * prev,
-				  qLogCell * next)
-{
-	next->prev = prev;
-	prev->next = next;
-}
-
-static __inline__ void list_del(qLogCell *entry)
-{
-	__list_del(entry->prev, entry->next);
-}
-
-/**
- * list_empty - tests whether a list is empty
- * @head: the list to test.
- */
-static __inline__ int list_empty(qLogCell *head)
-{
-	return head->next == head;
-}
-
-/**
- * list_entry - get the struct for this entry
- * @ptr:	the &struct list_head pointer.
- * @type:	the type of the struct this is embedded in.
- * @member:	the name of the list_struct within the struct.
- */
-#define list_entry(ptr, type, member) \
-	((type *)((char *)(ptr)-(unsigned long)(&((type *)0)->member)))
-
-/**
- * list_for_each_prev	-	iterate over a list in reverse order
- * @pos:	the &struct list_head to use as a loop counter.
- * @head:	the head for your list.
- */
-#define list_for_each_prev(pos, head) \
-	for (pos = (head)->prev; pos != (head); \
-        	pos = pos->prev)
- 
-static int logState = RECOVERY;
-
-
-
-
+int sqlite3LoggerOpenPhaseOne(BtShared*  pBt, Logger **ppLogger);
+int sqlite3LoggerOpenPhaseTwo(sqlite3_vfs *pVfs, const char* zPathname,int nPathname,Logger *pLogger, int vfsFlags);
+int sqlite3LogCursor(BtCursor *pCur, int iDb, int iTable, int wrFlag, KeyInfo* pKeyInfo);
+int sqlite3LogPayload(BtCursor* pCur,const BtreePayload *pX, int appendBias, int seekResult);
+void sqlite3Log(Logger *pLogger, void *log, enum opcode op);
+int sqlite3LogForceAtCommit(Logger *pLogger);
+int sqlite3LogiCell(BtCursor* pCur, int iCellDepth, int iCellIdx, u32 pPagePgno);
+void sqlite3LogFileInit(Logger *pLogger);
+int sqlite3LogCreateTable(BtShared* p, int flags);
 #endif

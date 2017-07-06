@@ -4612,6 +4612,7 @@ int sqlite3PagerFlush(Pager *pPager){
 int sqlite3PagerOpen(
   sqlite3_vfs *pVfs,       /* The virtual file system to use */
   Pager **ppPager,         /* OUT: Return the Pager structure here */
+  Logger *pLogger,         /* OUT: Return the Pager structure here */
   const char *zFilename,   /* Name of the database file to open */
   int nExtra,              /* Extra bytes append to each in-memory page */
   int flags,               /* flags controlling this file */
@@ -4739,6 +4740,7 @@ int sqlite3PagerOpen(
     memcpy(&pPager->zWal[nPathname], "-wal\000", 4+1);
     sqlite3FileSuffix3(pPager->zFilename, pPager->zWal);
 #endif
+    sqlite3LoggerOpenPhaseTwo(pVfs,zPathname, nPathname, pLogger, vfsFlags);
     sqlite3DbFree(0, zPathname);
   }
   pPager->pVfs = pVfs;
@@ -7402,7 +7404,6 @@ int sqlite3PagerOpenWal(
 
     rc = pagerOpenWal(pPager);
     if( rc==SQLITE_OK ){
-      logState = WORK;
       pPager->journalMode = PAGER_JOURNALMODE_WAL;
       pPager->eState = PAGER_OPEN;
     }

@@ -15,7 +15,7 @@
 # The toplevel directory of the source tree.  This is the directory
 # that contains this "Makefile.in" and the "configure.in" script.
 #
-TOP = /home/sysadmin/Public/lab/sqlite-btree-level-physiological-log
+TOP = /home/sysadmin/sqlite-btree-level-physiological-log
 
 # C Compiler and options for use in building executables that
 # will run on the platform that is doing the build.
@@ -54,12 +54,12 @@ LIBTCL =
 
 # Compiler options needed for programs that use the readline() library.
 #
-READLINE_FLAGS = -DHAVE_READLINE=1 -I/usr/include/readline
+READLINE_FLAGS = -DHAVE_READLINE=0 
 READLINE_FLAGS += -DHAVE_EDITLINE=0
 
 # The library that programs using readline() must link against.
 #
-LIBREADLINE = -lreadline -lncurses 
+LIBREADLINE = 
 
 # Should the database engine be compiled threadsafe
 #
@@ -210,6 +210,7 @@ SRC = \
   $(TOP)/src/btree.c \
   $(TOP)/src/log.c \
   $(TOP)/src/log.h \
+  $(TOP)/src/list.h \
   $(TOP)/src/btree.h \
   $(TOP)/src/btreeInt.h \
   $(TOP)/src/build.c \
@@ -493,6 +494,7 @@ TESTSRC2 = \
 HDR = \
    $(TOP)/src/btree.h \
    $(TOP)/src/log.h \
+   $(TOP)/src/list.h \
    $(TOP)/src/btreeInt.h \
    $(TOP)/src/hash.h \
    $(TOP)/src/hwtime.h \

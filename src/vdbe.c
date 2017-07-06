@@ -3467,9 +3467,8 @@ case OP_OpenWrite:
 #endif
   //ARIES
   //CURSOR DATA
-  pCur->uc.pCursor->lLog.iTable = p2;
-  pCur->uc.pCursor->dLog.pgno = p2;
   rc = sqlite3BtreeCursor(pX, p2, wrFlag, pKeyInfo, pCur->uc.pCursor);
+  sqlite3LogCursor(pCur->uc.pCursor,iDb, p2, wrFlag, pKeyInfo);
   pCur->pKeyInfo = pKeyInfo;
   /* Set the VdbeCursor.isTable variable. Previous versions of
   ** SQLite used to check if the root-page flags were sane at this point
@@ -4431,11 +4430,6 @@ case OP_InsertInt: {
   //ARIES
   //Insert log need
   //#have to change lLog, pLog const * 
-  pC->uc.pCursor->lLog.nKey = x.nKey;
-  pC->uc.pCursor->lLog.nData = x.nData;
-  pC->uc.pCursor->lLog.nZero = x.nZero;
-  pC->uc.pCursor->lLog.pData = x.pData;
-  pC->uc.pCursor->lLog.nMem = x.nMem;
   rc = sqlite3BtreeInsert(pC->uc.pCursor, &x,
                           (pOp->p5 & OPFLAG_APPEND)!=0, seekResult
   );
@@ -5094,12 +5088,6 @@ case OP_IdxInsert: {        /* in2 */
     x.pKey = pIn2->z;
     x.aMem = aMem + pOp->p3;
     x.nMem = (u16)pOp->p4.i;
-
-    pC->uc.pCursor->lLog.nKey = x.nKey;
-    pC->uc.pCursor->lLog.nData = x.nData;
-    pC->uc.pCursor->lLog.nZero = x.nZero;
-    pC->uc.pCursor->lLog.pData = x.pData;
-    pC->uc.pCursor->lLog.nMem = x.nMem;
 
 	//ARIES
 	//Insert log need for INDEX

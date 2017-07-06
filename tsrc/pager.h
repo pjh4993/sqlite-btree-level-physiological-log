@@ -25,6 +25,7 @@
 #ifndef SQLITE_DEFAULT_JOURNAL_SIZE_LIMIT
   #define SQLITE_DEFAULT_JOURNAL_SIZE_LIMIT -1
 #endif
+#include "log.h"
 
 /*
 ** The type used to represent a page number.  The first page in a file
@@ -116,6 +117,7 @@ typedef struct PgHdr DbPage;
 int sqlite3PagerOpen(
   sqlite3_vfs*,
   Pager **ppPager,
+  Logger *pLogger,
   const char*,
   int,
   int,

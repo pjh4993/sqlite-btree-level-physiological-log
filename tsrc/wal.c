@@ -243,7 +243,8 @@
 #ifndef SQLITE_OMIT_WAL
 
 #include "wal.h"
-
+#include "btree.h"
+#include "btreeInt.h"
 /*
 ** Trace output macros
 */
@@ -1842,6 +1843,7 @@ static int walCheckpoint(
           testcase( IS_BIG_INT(szDb) );
           rc = sqlite3OsTruncate(pWal->pDbFd, szDb);
           if( rc==SQLITE_OK && sync_flags ){
+            sqlite3LogFileInit(db->aDb[0].pBt->pBt->pLogger);
             rc = sqlite3OsSync(pWal->pDbFd, sync_flags);
           }
         }

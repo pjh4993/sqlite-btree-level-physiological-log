@@ -1040,6 +1040,7 @@ KeyInfo *sqlite3KeyInfoAlloc(sqlite3 *db, int N, int X){
     p->nXField = (u16)X;
     p->enc = ENC(db);
     p->db = db;
+    p->xCompare = UNKNOWN;
     p->nRef = 1;
     memset(&p[1], 0, nExtra);
   }else{

@@ -1988,6 +1988,7 @@ struct KeyInfo {
   sqlite3 *db;        /* The database connection */
   u8 *aSortOrder;     /* Sort order for each column. */
   CollSeq *aColl[1];  /* Collating sequence for each term of the key */
+  enum compare xCompare;
 };
 
 /*

@@ -3099,7 +3099,7 @@ opendb_out:
   //ARIES
   //analysis log and do recovery
   rc = sqlite3LogAnalysis(db->aDb[0].pBt->pBt->pLogger);
-  sqlite3LogRecovery(db->aDb[0].pBt,db);
+  sqlite3LogRecovery(db->aDb[0].pBt->pBt->pLogger,db->aDb[0].pBt);
 
   sqlite3_free(zOpen);
 

@@ -14,6 +14,7 @@
 */
 #include "sqliteInt.h"
 #include "vdbeInt.h"
+#include "list.h"
 
 /*
 ** Create a new virtual database engine.
@@ -4322,6 +4323,16 @@ RecordCompare sqlite3VdbeFindCompare(UnpackedRecord *p){
   ** The easiest way to enforce this limit is to consider only records with
   ** 13 fields or less. If the first field is an integer, the maximum legal
   ** header size is (12*5 + 1 + 1) bytes.  */
+  if(p->pKeyInfo->xCompare != UNKNOWN){
+    switch(p->pKeyInfo->xCompare){
+      case INT:
+        return vdbeRecordCompareInt;
+      case STRING:
+        return vdbeRecordCompareString;
+      case RECORD:
+        return sqlite3VdbeRecordCompare;
+    }
+  }
   if( (p->pKeyInfo->nField + p->pKeyInfo->nXField)<=13 ){
     int flags = p->aMem[0].flags;
     if( p->pKeyInfo->aSortOrder[0] ){
@@ -4332,6 +4343,7 @@ RecordCompare sqlite3VdbeFindCompare(UnpackedRecord *p){
       p->r2 = 1;
     }
     if( (flags & MEM_Int) ){
+      p->pKeyInfo->xCompare = INT;
       return vdbeRecordCompareInt;
     }
     testcase( flags & MEM_Real );
@@ -4339,10 +4351,11 @@ RecordCompare sqlite3VdbeFindCompare(UnpackedRecord *p){
     testcase( flags & MEM_Blob );
     if( (flags & (MEM_Real|MEM_Null|MEM_Blob))==0 && p->pKeyInfo->aColl[0]==0 ){
       assert( flags & MEM_Str );
+      p->pKeyInfo->xCompare = STRING;
       return vdbeRecordCompareString;
     }
   }
-
+  p->pKeyInfo->xCompare = RECORD;
   return sqlite3VdbeRecordCompare;
 }
 
