@@ -30,22 +30,35 @@ int sqlite3LoggerOpenPhaseTwo(sqlite3_vfs *pVfs,const char* zPathname,int nPathn
     //create file for logger
     int fout = 0;                    /* VFS flags returned by xOpen() */
     int rc;
-    pLogger->zFile = (char*)sqlite3Malloc(nPathname+6);
-    pLogger->fd = (sqlite3_file*)sqlite3MallocZero(pVfs->szOsFile);
-    memcpy(pLogger->zFile, zPathname, nPathname);
-    memcpy(&pLogger->zFile[nPathname], "-log\000", 4+2);
-    pLogger->syncFlags = 2;
-    rc = sqlite3OsOpen(pVfs, pLogger->zFile, pLogger->fd, vfsFlags, &fout);
+    if(pVfs != 0){
+        pLogger->pVfs = pVfs;
+        pLogger->vfsFlags = vfsFlags;
+        pLogger->zFile = (char*)sqlite3Malloc(nPathname+6);
+        pLogger->fd = (sqlite3_file*)sqlite3MallocZero(pVfs->szOsFile);
+        memcpy(pLogger->zFile, zPathname, nPathname);
+        memcpy(&pLogger->zFile[nPathname], "-log\000", 4+2);
+        pLogger->syncFlags = 2;
+    }
+    rc = sqlite3OsOpen(pLogger->pVfs, pLogger->zFile, pLogger->fd, pLogger->vfsFlags, &fout);
     sqlite3OsRead(pLogger->fd,&pLogger->hdr,HDR_SIZE,0);
     pLogger->lastLsn = pLogger->hdr.stLsn; 
 }
 
+void sqlite3LoggerClose(Logger *pLogger){
+    if(pLogger->fd == 0)
+        return;
+    sqlite3OsClose(pLogger->fd);
+    sqlite3_free(pLogger->zFile);
+    sqlite3_free(pLogger->fd);
+    sqlite3_free(pLogger);
+}
+
 void* serialize(void *log, enum opcode op, int *size){
-    void *data;
+    void *data = 0;
     void *tmp;
     switch(op){
         case INSERT:
-            printf("sqlite3Insert\n");
+            //printf("sqlite3Insert\n");
             *size = (sizeof(struct IdxInsertLog)
                     +sizeof(BtreePayload)
                     +((struct IdxInsertLog*)log)->pX->nData
@@ -53,10 +66,10 @@ void* serialize(void *log, enum opcode op, int *size){
             tmp = data  = sqlite3Malloc(*size);
             memcpy(tmp, (struct IdxInsertLog *)log, sizeof(struct IdxInsertLog));
             memcpy(tmp+=sizeof(struct IdxInsertLog), ((struct IdxInsertLog*)log)->pX, sizeof(BtreePayload));
-            memcpy(tmp+=sizeof(BtreePayload),((struct IdxInsertLog*)log)->pX->pData,((struct IdxInsertLog*)log)->pX->nKey+((struct IdxInsertLog*)log)->pX->nData);
+            memcpy(tmp+=sizeof(BtreePayload),((struct IdxInsertLog*)log)->pX->pData,((struct IdxInsertLog*)log)->pX->nZero+((struct IdxInsertLog*)log)->pX->nData);
             return data;
         case IDXINSERT:
-            printf("sqlite3IndexInsert\n");
+            //printf("sqlite3IndexInsert\n");
             *size = (sizeof(struct IdxInsertLog)
                     +sizeof(KeyInfo)
                     +sizeof(BtreePayload)+((struct IdxInsertLog*)log)->pX->nKey);
@@ -67,15 +80,20 @@ void* serialize(void *log, enum opcode op, int *size){
             memcpy(tmp+=sizeof(BtreePayload),((struct IdxInsertLog*)log)->pX->pKey,((struct IdxInsertLog*)log)->pX->nKey);
             return data;
         case DELETE:
-            printf("sqlite3Delete\n");
+            //printf("sqlite3Delete\n");
             *size = (sizeof(struct IdxDeleteLog));
             tmp = data = sqlite3Malloc(*size);
             memcpy(tmp , (struct IdxDeleteLog *)log, sizeof(struct IdxDeleteLog));
             return data;
         case COMMIT:
-            printf("sqlite3Commit\n");
+            //printf("sqlite3Commit\n");
             *size = 0;
             return NULL;
+        case CREATETABLE:
+            *size = (sizeof(struct CreateLog));
+            tmp = data = sqlite3Malloc(*size);
+            memcpy(tmp , (struct CreateLog *)log, sizeof(struct CreateLog));
+            return data;
     }
 };
 
@@ -108,13 +126,15 @@ void deserialize(void* log, enum opcode op){
     }
 }
 
+int sqlite3LogInit(BtCursor* pCur){
+    memset(&pCur->idxInsLog,0,sizeof(struct IdxInsertLog));
+    memset(&pCur->idxDelLog,0,sizeof(struct IdxDeleteLog));
+};
+
 int sqlite3LogCursor(BtCursor* pCur, int iDb, int iTable, int wrFlag, KeyInfo* pKeyInfo){
-    memset(&pCur->idxInsLog,0,sizeof(pCur->idxInsLog));
-    memset(&pCur->idxInsLog,0,sizeof(pCur->idxDelLog));
-    if(wrFlag){
-        pCur->idxInsLog = (struct IdxInsertLog){.iDb = iDb, .iTable = iTable, .wrFlag = wrFlag, .pKeyInfo = pKeyInfo}; 
-        pCur->idxDelLog = (struct IdxDeleteLog){.iTable = iTable, .wrFlag = wrFlag};
-    }
+    static int vers = 0;
+    pCur->idxInsLog = (struct IdxInsertLog){.vers = vers, .iDb = iDb, .iTable = iTable, .wrFlag = wrFlag, .pKeyInfo = pKeyInfo}; 
+    pCur->idxDelLog = (struct IdxDeleteLog){.vers = vers, .iTable = iTable, .wrFlag = wrFlag};
 };
 
 int sqlite3LogPayload(BtCursor* pCur, const BtreePayload *pX, int appendBias, int seekResult){
@@ -129,9 +149,14 @@ int sqlite3LogiCell(BtCursor* pCur, int iCellDepth, int iCellIdx, u32 pPagePgno)
     pCur->idxDelLog.pPagePgno = pPagePgno;
 };
 
+int sqlite3LogCreateTable(BtShared* p, int flags){
+    p->cLog.flags = flags;
+};
+
 void free_qLogCell(qLogCell* m_qLogCell){
-    sqlite3_free(m_qLogCell->m_logCell->data);
-    sqlite3_free(m_qLogCell->m_logCell);
+    int rc;
+    sqlite3_free((void*)m_qLogCell->m_logCell->data);
+    sqlite3_free(m_qLogCell);
     //memset(m_qLogCell->m_logCell->data,0,m_qLogCell->m_logCell->data_size);
     //memset(m_qLogCell->m_logCell,0,sizeof(qLogCell)+sizeof(logCell));
 };
@@ -143,8 +168,8 @@ void sqlite3Log(Logger *pLogger, void *log, enum opcode op){
     logCell *m_logCell;
     qLogCell *m_qLogCell;
     struct list_head *tmp1, *tmp2;
-    m_logCell = pPtr = sqlite3Malloc(sizeof(logCell)+sizeof(qLogCell));
-    m_qLogCell = pPtr + sizeof(logCell);
+    m_qLogCell = pPtr = sqlite3MallocZero(sizeof(logCell)+sizeof(qLogCell));
+    m_logCell = pPtr + sizeof(qLogCell);
 
     m_logCell->op = op;
     m_logCell->data = serialize(log, op, &m_logCell->data_size);
@@ -177,8 +202,10 @@ int sqlite3LogAnalysis(Logger *pLogger){
     while(1){
         m_logCell = sqlite3Malloc(sizeof(logCell));
         sqlite3OsRead(pLogger->fd,m_logCell,sizeof(logCell),offset);
-        if(m_logCell->op == EXIT)
+        if(m_logCell->op == EXIT){
+            sqlite3_free(m_logCell);
             break;
+        }
         m_qLogCell = sqlite3Malloc(sizeof(qLogCell));
         m_qLogCell->m_logCell = m_logCell;
         add_to_logqueue(pLogger,m_qLogCell);
@@ -187,14 +214,12 @@ int sqlite3LogAnalysis(Logger *pLogger){
         offset+=m_logCell->data_size;
     }
     pLogger->lastLsn = offset;
+    return SQLITE_OK;
 };
 
 void sqlite3LogFileInit(Logger *pLogger){
-    void *tmp;
-    tmp = sqlite3MallocZero(pLogger->lastLsn);
-    sqlite3OsWrite(pLogger->fd,tmp,pLogger->lastLsn,0);
-    sqlite3OsSync(pLogger->fd,pLogger->syncFlags);
-    sqlite3_free(tmp);
+    sqlite3OsDelete(pLogger->pVfs,pLogger->zFile,0);
+    sqlite3LoggerOpenPhaseTwo(0,0,0,pLogger,0);
 }
 
 void sqlite3LogRecovery(Logger *pLogger ,Btree* pBtree){
@@ -205,8 +230,13 @@ void sqlite3LogRecovery(Logger *pLogger ,Btree* pBtree){
 
     struct IdxInsertLog *iil;
     struct IdxDeleteLog *idl;
-    BtCursor *btCsr = sqlite3Malloc(sizeof(BtCursor));
+    struct CreateLog *cl;
+    BtCursor *btCsr;
     int rc;
+
+    if(list_empty(&pLogger->q))
+        return;
+    btCsr= sqlite3Malloc(sizeof(BtCursor));
     pLogger->state = OFF;
     sqlite3BtreeBeginTrans(pBtree,4);
     list_for_each_prev_safe(tmp1,tmp2,&pLogger->q){
@@ -240,6 +270,10 @@ void sqlite3LogRecovery(Logger *pLogger ,Btree* pBtree){
                 sqlite3BtreeDelete(btCsr,idl->flags);
             case COMMIT:
                 break;
+            case CREATETABLE:
+                cl = m_logCell->data;
+                sqlite3BtreeCreateTable(pBtree,&rc,cl->flags);
+                break;
         }
         sqlite3BtreeCloseCursor(btCsr);
         del_from_logqueue(m_qLogCell);
@@ -250,6 +284,7 @@ void sqlite3LogRecovery(Logger *pLogger ,Btree* pBtree){
     pBtree->pBt->inTransaction = TRANS_WRITE;
 	pLogger->p_check = LOG_LIMIT;
     sqlite3BtreeCommit(pBtree);
+    sqlite3LogFileInit(pLogger);
 
 	pLogger->p_check = 0;
     pLogger->state = ON;

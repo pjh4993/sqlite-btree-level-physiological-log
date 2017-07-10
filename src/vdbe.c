@@ -230,6 +230,7 @@ static VdbeCursor *allocateCursor(
       pCx->uc.pCursor = (BtCursor*)
           &pMem->z[ROUND8(sizeof(VdbeCursor))+2*sizeof(u32)*nField];
       sqlite3BtreeCursorZero(pCx->uc.pCursor);
+      sqlite3LogInit(pCx->uc.pCursor);
     }
   }
   return pCx;

@@ -3,7 +3,7 @@
 #define LOG_LIMIT 4096
 #include "list.h"
 
-enum opcode {CREATETABLE, CREATEINDEX, EXIT, INSERT, IDXINSERT, DELETE, IDXDELETE, COMMIT};
+enum opcode {EXIT , CREATETABLE, CREATEINDEX, INSERT, IDXINSERT, DELETE, IDXDELETE, COMMIT};
 enum compare {UNKNOWN,INT, STRING, RECORD};
 enum loggerState {ON, OFF};
 
@@ -21,6 +21,7 @@ struct CreateLog{
 };
 
 struct IdxInsertLog{
+    int vers;
     int iDb;
     int iTable;
     int wrFlag;
@@ -31,6 +32,7 @@ struct IdxInsertLog{
 };
 
 struct IdxDeleteLog{
+    int vers;
     int iTable;
     int wrFlag;
     int iCellIdx;
@@ -40,6 +42,8 @@ struct IdxDeleteLog{
 };
 
 struct LOGGER{
+    sqlite3_vfs *pVfs;
+    int vfsFlags;
     sqlite3_file* fd;
 	char *zFile;
     struct list_head q;
@@ -71,4 +75,6 @@ int sqlite3LogForceAtCommit(Logger *pLogger);
 int sqlite3LogiCell(BtCursor* pCur, int iCellDepth, int iCellIdx, u32 pPagePgno);
 void sqlite3LogFileInit(Logger *pLogger);
 int sqlite3LogCreateTable(BtShared* p, int flags);
+void sqlite3LoggerClose(Logger *pLogger);
+int sqlite3LogInit(BtCursor* pCur);
 #endif

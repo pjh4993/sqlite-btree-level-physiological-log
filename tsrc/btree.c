@@ -2549,6 +2549,7 @@ int sqlite3BtreeClose(Btree *p){
     */
     assert( !pBt->pCursor );
     sqlite3PagerClose(pBt->pPager, p->db);
+    sqlite3LoggerClose(pBt->pLogger);
     if( pBt->xFreeSchema && pBt->pSchema ){
       pBt->xFreeSchema(pBt->pSchema);
     }
@@ -7966,6 +7967,8 @@ int sqlite3BtreeInsert(
   int appendBias,                /* True if this is likely an append */
   int seekResult                 /* Result of prior MovetoUnpacked() call */
 ){
+  if(pCur->pgnoRoot != pCur->idxInsLog.iTable || pCur->pKeyInfo != pCur->idxInsLog.pKeyInfo)
+      sqlite3LogCursor(pCur, 0, pCur->pgnoRoot, 4, pCur->pKeyInfo);
   sqlite3LogPayload(pCur, pX, appendBias, seekResult);
   int res;
   int rc;
@@ -8010,6 +8013,7 @@ int sqlite3BtreeInsert(
     rc = saveAllCursors(pBt, pCur->pgnoRoot, pCur);
     if( rc ) return rc;
   }
+
 
   if( pCur->pKeyInfo==0 ){
     assert( pX->pKey==0 );
@@ -8203,6 +8207,10 @@ int sqlite3BtreeDelete(BtCursor *pCur, u8 flags){
   pCell = findCell(pPage, iCellIdx);
   
   sqlite3LogiCell(pCur, iCellDepth, iCellIdx, pPage->pgno);
+
+  
+
+  sqlite3Log(p->pBt->pLogger, &pCur->idxDelLog, DELETE);
 
   btreeParseCell(pPage,iCellIdx,&info);
 
@@ -8493,6 +8501,8 @@ int sqlite3BtreeCreateTable(Btree *p, int *piTable, int flags){
   int rc;
   sqlite3BtreeEnter(p);
   rc = btreeCreateTable(p, piTable, flags);
+  sqlite3LogCreateTable(p->pBt, flags);
+  sqlite3Log(p->pBt->pLogger, &p->pBt->cLog, CREATETABLE);
   sqlite3BtreeLeave(p);
   return rc;
 }
