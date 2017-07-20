@@ -4,7 +4,7 @@
 #include "list.h"
 
 enum opcode {EXIT , CREATETABLE, CREATEINDEX, INSERT, IDXINSERT, DELETE, IDXDELETE, COMMIT};
-enum compare {UNKNOWN,INT, STRING, RECORD};
+enum compare {UNKNOWN,INT, STRING, RECORD, WALINT, WALSTRING, WALRECORD};
 enum loggerState {ON, OFF};
 
 typedef struct LOGGER Logger;
@@ -14,6 +14,7 @@ typedef struct LOGHDR logHdr;
 
 struct LOGHDR{
     int stLsn;
+    int vers;
 };
 
 struct CreateLog{
@@ -42,14 +43,12 @@ struct IdxDeleteLog{
 };
 
 struct LOGGER{
-    sqlite3_vfs *pVfs;
-    int vfsFlags;
-    sqlite3_file* fd;
+    void *log_buffer;
+    int log_fd;
 	char *zFile;
     struct list_head q;
     logHdr hdr;
 	int p_check;
-    int syncFlags;
     unsigned int lastLsn;
     enum loggerState state;
 };
@@ -77,4 +76,5 @@ void sqlite3LogFileInit(Logger *pLogger);
 int sqlite3LogCreateTable(BtShared* p, int flags);
 void sqlite3LoggerClose(Logger *pLogger);
 int sqlite3LogInit(BtCursor* pCur);
+int sqlite3LogCheckPoint(Logger *pLogger);
 #endif

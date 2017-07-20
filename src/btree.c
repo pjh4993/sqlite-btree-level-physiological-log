@@ -3853,7 +3853,7 @@ int sqlite3BtreeCommitPhaseTwo(Btree *p, int bCleanup){
     p->iDataVersion--;  /* Compensate for pPager->iDataVersion++; */
     pBt->inTransaction = TRANS_READ;
     btreeClearHasContent(pBt);
-    //sqlite3LogCheckPoint(pLogger);
+    sqlite3LogCheckPoint(pLogger);
   }
 
   btreeEndTransaction(p);
@@ -7967,8 +7967,8 @@ int sqlite3BtreeInsert(
   int appendBias,                /* True if this is likely an append */
   int seekResult                 /* Result of prior MovetoUnpacked() call */
 ){
-  if(pCur->pgnoRoot != pCur->idxInsLog.iTable || pCur->pKeyInfo != pCur->idxInsLog.pKeyInfo)
-      sqlite3LogCursor(pCur, 0, pCur->pgnoRoot, 4, pCur->pKeyInfo);
+  sqlite3LogInit(pCur);
+  sqlite3LogCursor(pCur, 0, pCur->pgnoRoot, pCur->curFlags?4:0,pCur->pKeyInfo);
   sqlite3LogPayload(pCur, pX, appendBias, seekResult);
   int res;
   int rc;
@@ -8206,6 +8206,8 @@ int sqlite3BtreeDelete(BtCursor *pCur, u8 flags){
   pPage = pCur->apPage[iCellDepth];
   pCell = findCell(pPage, iCellIdx);
   
+  sqlite3LogInit(pCur);
+  sqlite3LogCursor(pCur, 0, pCur->pgnoRoot, 4,pCur->pKeyInfo);
   sqlite3LogiCell(pCur, iCellDepth, iCellIdx, pPage->pgno);
 
   

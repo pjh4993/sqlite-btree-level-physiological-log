@@ -4323,16 +4323,14 @@ RecordCompare sqlite3VdbeFindCompare(UnpackedRecord *p){
   ** The easiest way to enforce this limit is to consider only records with
   ** 13 fields or less. If the first field is an integer, the maximum legal
   ** header size is (12*5 + 1 + 1) bytes.  */
-  if(p->pKeyInfo->xCompare != UNKNOWN){
     switch(p->pKeyInfo->xCompare){
-      case INT:
-        return vdbeRecordCompareInt;
-      case STRING:
-        return vdbeRecordCompareString;
-      case RECORD:
-        return sqlite3VdbeRecordCompare;
+        case WALINT:
+            return vdbeRecordCompareInt;
+        case WALSTRING:
+            return vdbeRecordCompareString;
+        case WALRECORD:
+            return sqlite3VdbeRecordCompare;
     }
-  }
   if( (p->pKeyInfo->nField + p->pKeyInfo->nXField)<=13 ){
     int flags = p->aMem[0].flags;
     if( p->pKeyInfo->aSortOrder[0] ){

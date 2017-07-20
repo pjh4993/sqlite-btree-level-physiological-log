@@ -4,6 +4,7 @@
 #include "sqliteInt.h"
 #include "log.h"
 #define HDR_SIZE sizeof(logHdr)
+#define LOG_SIZE 1024 * 1024 * 4
 
 static inline void add_to_logqueue(Logger *pLogger, qLogCell * p)
 {
@@ -31,25 +32,31 @@ int sqlite3LoggerOpenPhaseTwo(sqlite3_vfs *pVfs,const char* zPathname,int nPathn
     int fout = 0;                    /* VFS flags returned by xOpen() */
     int rc;
     if(pVfs != 0){
-        pLogger->pVfs = pVfs;
-        pLogger->vfsFlags = vfsFlags;
         pLogger->zFile = (char*)sqlite3Malloc(nPathname+6);
-        pLogger->fd = (sqlite3_file*)sqlite3MallocZero(pVfs->szOsFile);
         memcpy(pLogger->zFile, zPathname, nPathname);
         memcpy(&pLogger->zFile[nPathname], "-log\000", 4+2);
-        pLogger->syncFlags = 2;
     }
-    rc = sqlite3OsOpen(pLogger->pVfs, pLogger->zFile, pLogger->fd, pLogger->vfsFlags, &fout);
-    sqlite3OsRead(pLogger->fd,&pLogger->hdr,HDR_SIZE,0);
-    pLogger->lastLsn = pLogger->hdr.stLsn; 
+    pLogger->log_fd = open(pLogger->zFile, O_RDWR, 0644);
+    if(pLogger->log_fd == -1){
+        pLogger->log_fd = open(pLogger->zFile, O_RDWR | O_CREAT, 0644);
+        ftruncate(pLogger->log_fd, LOG_SIZE);
+        pLogger->hdr.vers = 1;
+    }
+    //read log hdr
+    pLogger->log_buffer = (void*) mmap(NULL, LOG_SIZE, PROT_READ|PROT_WRITE,MAP_SHARED,pLogger->log_fd,0);
+    if(pLogger->hdr.vers == 0){
+        memcpy(&pLogger->hdr,pLogger->log_buffer, sizeof(logHdr));
+        pLogger->lastLsn = pLogger->hdr.stLsn + sizeof(logHdr); 
+    }
+    pLogger->log_buffer = mremap(pLogger->log_buffer,LOG_SIZE, LOG_SIZE*pLogger->hdr.vers, MREMAP_MAYMOVE);
+    
 }
 
 void sqlite3LoggerClose(Logger *pLogger){
-    if(pLogger->fd == 0)
+    if(pLogger->log_fd == 0)
         return;
-    sqlite3OsClose(pLogger->fd);
+    close(pLogger->log_fd);
     sqlite3_free(pLogger->zFile);
-    sqlite3_free(pLogger->fd);
     sqlite3_free(pLogger);
 }
 
@@ -113,6 +120,7 @@ void deserialize(void* log, enum opcode op){
         case IDXINSERT:
             iil = log;
             iil->pKeyInfo = log + sizeof(struct IdxInsertLog);
+            iil->pKeyInfo->xCompare+=3;
             iil->pX = log + sizeof(struct IdxInsertLog) + sizeof(KeyInfo);
             tmp = (log + sizeof(struct IdxInsertLog) + sizeof(KeyInfo) + sizeof(BtreePayload));
             memcpy((void*)&iil->pX->pKey,
@@ -179,18 +187,31 @@ void sqlite3Log(Logger *pLogger, void *log, enum opcode op){
 
     if(op == COMMIT){
         int iOffset = pLogger->lastLsn;
+        int tmp = pLogger->hdr.vers;
+        int rc = 0;
         list_for_each_prev_safe(tmp1,tmp2,&pLogger->q){
             m_qLogCell = list_entry(tmp1, qLogCell, q);
             m_logCell = m_qLogCell->m_logCell;
+            while(iOffset + sizeof(logCell) + m_logCell->data_size > LOG_SIZE*pLogger->hdr.vers){
+                fallocate(pLogger->log_fd, 0, LOG_SIZE*pLogger->hdr.vers, LOG_SIZE);
+                pLogger->hdr.vers++;
+                pLogger->log_buffer = mremap(pLogger->log_buffer,LOG_SIZE*(pLogger->hdr.vers - 1), LOG_SIZE*pLogger->hdr.vers, MREMAP_MAYMOVE);
+            }
             m_logCell->nextLsn = iOffset+(sizeof(logCell) + m_logCell->data_size);
-            sqlite3OsWrite(pLogger->fd,m_logCell,sizeof(logCell),iOffset);
-            sqlite3OsWrite(pLogger->fd,m_logCell->data,m_logCell->data_size,iOffset+=sizeof(logCell));
+            memcpy(pLogger->log_buffer + iOffset, m_logCell, sizeof(logCell));
+            iOffset += sizeof(logCell);
+            if(m_logCell->data != 0)
+                memcpy(pLogger->log_buffer + iOffset, m_logCell->data, m_logCell->data_size);
             iOffset+=m_logCell->data_size;
             del_from_logqueue(m_qLogCell);
             free_qLogCell(m_qLogCell);
         }
+        msync(pLogger->log_buffer + pLogger->lastLsn, iOffset - pLogger->lastLsn, MS_SYNC);
+        if(tmp != pLogger->hdr.vers){
+            memcpy(pLogger->log_buffer, &pLogger->hdr,sizeof(logHdr));
+            msync(pLogger->log_buffer,sizeof(logHdr),MS_SYNC);
+        }
         pLogger->lastLsn = iOffset;
-        sqlite3OsSync(pLogger->fd,pLogger->syncFlags);
     }
 };
 
@@ -198,10 +219,10 @@ int sqlite3LogAnalysis(Logger *pLogger){
     logCell *m_logCell;
     qLogCell *m_qLogCell;
     void *tmp;
-    int offset =  pLogger->hdr.stLsn;    
+    int offset =  pLogger->hdr.stLsn + sizeof(logHdr);    
     while(1){
         m_logCell = sqlite3Malloc(sizeof(logCell));
-        sqlite3OsRead(pLogger->fd,m_logCell,sizeof(logCell),offset);
+        memcpy(m_logCell,pLogger->log_buffer + offset,sizeof(logCell));
         if(m_logCell->op == EXIT){
             sqlite3_free(m_logCell);
             break;
@@ -210,15 +231,16 @@ int sqlite3LogAnalysis(Logger *pLogger){
         m_qLogCell->m_logCell = m_logCell;
         add_to_logqueue(pLogger,m_qLogCell);
         m_logCell->data = sqlite3Malloc(m_logCell->data_size);
-        sqlite3OsRead(pLogger->fd,m_logCell->data, m_logCell->data_size,offset+=sizeof(logCell));
+        offset+=sizeof(logCell);
+        memcpy( m_logCell->data,pLogger->log_buffer + offset, m_logCell->data_size);
         offset+=m_logCell->data_size;
     }
-    pLogger->lastLsn = offset;
+    pLogger->lastLsn = offset - sizeof(logHdr);
     return SQLITE_OK;
 };
 
 void sqlite3LogFileInit(Logger *pLogger){
-    sqlite3OsDelete(pLogger->pVfs,pLogger->zFile,0);
+    close(pLogger->log_fd);
     sqlite3LoggerOpenPhaseTwo(0,0,0,pLogger,0);
 }
 
@@ -308,11 +330,9 @@ int sqlite3LogRollback(Logger *pLogger){
 };
 
 int sqlite3LogCheckPoint(Logger *pLogger){
-    if(pLogger->state == ON){
-        pLogger->hdr.stLsn = pLogger->lastLsn;
-        sqlite3OsWrite(pLogger->fd,&pLogger->hdr,HDR_SIZE,0);
-        sqlite3OsSync(pLogger->fd,pLogger->syncFlags);
-    }
+    pLogger->hdr.stLsn = pLogger->lastLsn - sizeof(logHdr);
+    memcpy(pLogger->log_buffer, &pLogger->hdr,sizeof(logHdr));
+    msync(pLogger->log_buffer, sizeof(logHdr),MS_SYNC);
 };
 
 

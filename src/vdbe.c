@@ -230,7 +230,6 @@ static VdbeCursor *allocateCursor(
       pCx->uc.pCursor = (BtCursor*)
           &pMem->z[ROUND8(sizeof(VdbeCursor))+2*sizeof(u32)*nField];
       sqlite3BtreeCursorZero(pCx->uc.pCursor);
-      sqlite3LogInit(pCx->uc.pCursor);
     }
   }
   return pCx;
@@ -3469,7 +3468,6 @@ case OP_OpenWrite:
   //ARIES
   //CURSOR DATA
   rc = sqlite3BtreeCursor(pX, p2, wrFlag, pKeyInfo, pCur->uc.pCursor);
-  sqlite3LogCursor(pCur->uc.pCursor,iDb, p2, wrFlag, pKeyInfo);
   pCur->pKeyInfo = pKeyInfo;
   /* Set the VdbeCursor.isTable variable. Previous versions of
   ** SQLite used to check if the root-page flags were sane at this point
