@@ -1981,6 +1981,7 @@ struct FKey {
 ** for the rowid at the end.
 */
 struct KeyInfo {
+  enum compare xCompare;
   u32 nRef;           /* Number of references to this KeyInfo object */
   u8 enc;             /* Text encoding - one of the SQLITE_UTF* values */
   u16 nField;         /* Number of key columns in the index */
@@ -1988,7 +1989,6 @@ struct KeyInfo {
   sqlite3 *db;        /* The database connection */
   u8 *aSortOrder;     /* Sort order for each column. */
   CollSeq *aColl[1];  /* Collating sequence for each term of the key */
-  enum compare xCompare;
 };
 
 /*

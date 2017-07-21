@@ -15,6 +15,7 @@
 ** accessed by users of the library.
 */
 #include "sqliteInt.h"
+#include "log.h"
 
 #ifdef SQLITE_ENABLE_FTS3
 # include "fts3.h"
@@ -1995,7 +1996,9 @@ int sqlite3WalDefaultHook(
   const char *zDb,       /* Database */
   int nFrame             /* Size of WAL */
 ){
-  if( nFrame>=SQLITE_PTR_TO_INT(pClientData) ){
+  Logger *pLogger = db->aDb[0].pBt->pBt->pLogger;
+  //if(pLogger->p_check >=LOG_LIMIT ){
+  if(0){
     sqlite3BeginBenignMalloc();
     sqlite3_wal_checkpoint(db, zDb);
     sqlite3EndBenignMalloc();
@@ -2023,7 +2026,9 @@ int sqlite3_wal_autocheckpoint(sqlite3 *db, int nFrame){
 #ifdef SQLITE_ENABLE_API_ARMOR
   if( !sqlite3SafetyCheckOk(db) ) return SQLITE_MISUSE_BKPT;
 #endif
-  if( nFrame>0 ){
+  Logger *pLogger = db->aDb[0].pBt->pBt->pLogger;
+  //if(pLogger->p_check = LOG_LIMIT){
+  if(0){
     sqlite3_wal_hook(db, sqlite3WalDefaultHook, SQLITE_INT_TO_PTR(nFrame));
   }else{
     sqlite3_wal_hook(db, 0, 0);

@@ -4,7 +4,7 @@
 #include "sqliteInt.h"
 #include "log.h"
 #define HDR_SIZE sizeof(logHdr)
-#define LOG_SIZE 1024 * 1024 * 4
+#define LOG_SIZE 1024 * 1024 * 100
 
 static inline void add_to_logqueue(Logger *pLogger, qLogCell * p)
 {
@@ -165,8 +165,6 @@ void free_qLogCell(qLogCell* m_qLogCell){
     int rc;
     sqlite3_free((void*)m_qLogCell->m_logCell->data);
     sqlite3_free(m_qLogCell);
-    //memset(m_qLogCell->m_logCell->data,0,m_qLogCell->m_logCell->data_size);
-    //memset(m_qLogCell->m_logCell,0,sizeof(qLogCell)+sizeof(logCell));
 };
 
 void sqlite3Log(Logger *pLogger, void *log, enum opcode op){
@@ -333,6 +331,7 @@ int sqlite3LogCheckPoint(Logger *pLogger){
     pLogger->hdr.stLsn = pLogger->lastLsn - sizeof(logHdr);
     memcpy(pLogger->log_buffer, &pLogger->hdr,sizeof(logHdr));
     msync(pLogger->log_buffer, sizeof(logHdr),MS_SYNC);
+    pLogger->p_check = 0;
 };
 
 

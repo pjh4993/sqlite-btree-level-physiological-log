@@ -3845,6 +3845,8 @@ int sqlite3BtreeCommitPhaseTwo(Btree *p, int bCleanup){
     BtShared *pBt = p->pBt;
     assert( pBt->inTransaction==TRANS_WRITE );
     assert( pBt->nTransaction>0 );
+
+    sqlite3LogCheckPoint(pLogger);
     rc = sqlite3PagerCommitPhaseTwo(pBt->pPager);
     if( rc!=SQLITE_OK && bCleanup==0 ){
       sqlite3BtreeLeave(p);
@@ -3853,7 +3855,6 @@ int sqlite3BtreeCommitPhaseTwo(Btree *p, int bCleanup){
     p->iDataVersion--;  /* Compensate for pPager->iDataVersion++; */
     pBt->inTransaction = TRANS_READ;
     btreeClearHasContent(pBt);
-    sqlite3LogCheckPoint(pLogger);
   }
 
   btreeEndTransaction(p);
