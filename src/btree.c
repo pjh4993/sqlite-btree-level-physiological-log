@@ -2284,8 +2284,8 @@ int sqlite3BtreeOpen(
       rc = SQLITE_NOMEM_BKPT;
       goto btree_open_out;
     }
-	rc = sqlite3LoggerOpenPhaseOne(pBt, &pBt->pLogger);
-    rc = sqlite3PagerOpen(pVfs, &pBt->pPager,pBt->pLogger, zFilename,
+
+    rc = sqlite3PagerOpen(pVfs, &pBt->pPager, zFilename,
                           sizeof(MemPage), flags, vfsFlags, pageReinit);
     if( rc==SQLITE_OK ){
       sqlite3PagerSetMmapLimit(pBt->pPager, db->szMmap);
@@ -2549,7 +2549,7 @@ int sqlite3BtreeClose(Btree *p){
     */
     assert( !pBt->pCursor );
     sqlite3PagerClose(pBt->pPager, p->db);
-    sqlite3LoggerClose(pBt->pLogger);
+    sqlite3LoggerClose(pBt->pPager->pLogger);
     if( pBt->xFreeSchema && pBt->pSchema ){
       pBt->xFreeSchema(pBt->pSchema);
     }
@@ -3733,10 +3733,11 @@ static int autoVacuumCommit(BtShared *pBt){
 */
 
 int sqlite3BtreeCommitPhaseOne(Btree *p, const char *zMaster){
-  Logger *pLogger = p->pBt->pLogger;
+  Logger *pLogger = p->pBt->pPager->pLogger;
   int rc = SQLITE_OK;
   if( p->inTrans==TRANS_WRITE ){
-    if(p->pBt->pPager->pWal != 0 && pLogger->p_check < LOG_LIMIT)
+    sqlite3LogForceAtCommit(pLogger);
+    if(pLogger->log_fd > 0 && pLogger->p_check < LOG_LIMIT)
 	  return rc;
     BtShared *pBt = p->pBt;
     sqlite3BtreeEnter(p);
@@ -3827,11 +3828,10 @@ static void btreeEndTransaction(Btree *p){
 
 int sqlite3BtreeCommitPhaseTwo(Btree *p, int bCleanup){
 
-  Logger *pLogger = p->pBt->pLogger;
+  Logger *pLogger = p->pBt->pPager->pLogger;
   if( p->inTrans==TRANS_NONE ) return SQLITE_OK;
   if( p->inTrans==TRANS_WRITE ){
-    sqlite3LogForceAtCommit(pLogger);
-    if(p->pBt->pPager->pWal != 0 && pLogger->p_check < LOG_LIMIT){
+    if(pLogger->log_fd > 0 && pLogger->p_check < LOG_LIMIT){
 	  return SQLITE_OK;
     }
 
@@ -3846,7 +3846,6 @@ int sqlite3BtreeCommitPhaseTwo(Btree *p, int bCleanup){
     assert( pBt->inTransaction==TRANS_WRITE );
     assert( pBt->nTransaction>0 );
 
-    sqlite3LogCheckPoint(pLogger);
     rc = sqlite3PagerCommitPhaseTwo(pBt->pPager);
     if( rc!=SQLITE_OK && bCleanup==0 ){
       sqlite3BtreeLeave(p);
@@ -3972,6 +3971,7 @@ int sqlite3BtreeRollback(Btree *p, int tripCode, int writeOnly){
     int rc2;
 
     assert( TRANS_WRITE==pBt->inTransaction );
+    sqlite3LogRollback(pBt->pPager->pLogger);
     rc2 = sqlite3PagerRollback(pBt->pPager);
     if( rc2!=SQLITE_OK ){
       rc = rc2;
@@ -7971,6 +7971,7 @@ int sqlite3BtreeInsert(
   sqlite3LogInit(pCur);
   sqlite3LogCursor(pCur, 0, pCur->pgnoRoot, pCur->curFlags?4:0,pCur->pKeyInfo);
   sqlite3LogPayload(pCur, pX, appendBias, seekResult);
+  sqlite3LogiPage(pCur, pCur->iPage,pCur->iPage==-1?-1:pCur->apPage[pCur->iPage]->pgno);
   int res;
   int rc;
   int loc = seekResult;          /* -1: before desired location  +1: after */
@@ -8034,8 +8035,9 @@ int sqlite3BtreeInsert(
       rc = sqlite3BtreeMovetoUnpacked(pCur, 0, pX->nKey, appendBias, &loc);
       if( rc ) return rc;
     }
-    sqlite3Log(pBt->pLogger,&pCur->idxInsLog,INSERT);
+    sqlite3Log(pBt->pPager->pLogger,&pCur->idxInsLog,INSERT);
   }else if( loc==0 ){
+    sqlite3LogiPage(pCur, pCur->iPage,pCur->iPage==-1?-1:pCur->apPage[pCur->iPage]->pgno);
     if( pX->nMem ){
       UnpackedRecord r;
       r.pKeyInfo = pCur->pKeyInfo;
@@ -8050,8 +8052,11 @@ int sqlite3BtreeInsert(
     }else{
       rc = btreeMoveto(pCur, pX->pKey, pX->nKey, appendBias, &loc);
     }
-    sqlite3Log(pBt->pLogger,&pCur->idxInsLog,IDXINSERT);
+    sqlite3Log(pBt->pPager->pLogger,&pCur->idxInsLog,IDXINSERT);
     if( rc ) return rc;
+  }else{
+    sqlite3LogiPage(pCur, pCur->iPage,pCur->iPage==-1?-1:pCur->apPage[pCur->iPage]->pgno);
+    sqlite3Log(pBt->pPager->pLogger,&pCur->idxInsLog,UPDATE);
   }
   assert( pCur->eState==CURSOR_VALID || (pCur->eState==CURSOR_INVALID && loc) );
 
@@ -8209,11 +8214,11 @@ int sqlite3BtreeDelete(BtCursor *pCur, u8 flags){
   
   sqlite3LogInit(pCur);
   sqlite3LogCursor(pCur, 0, pCur->pgnoRoot, 4,pCur->pKeyInfo);
-  sqlite3LogiCell(pCur, iCellDepth, iCellIdx, pPage->pgno);
+  sqlite3LogiCell(pCur, iCellDepth, iCellIdx, pPage->pgno, flags);
 
   
+  sqlite3Log(p->pBt->pPager->pLogger, &pCur->idxDelLog, pCur->pKeyInfo == 0 ? DELETE:IDXDELETE);
 
-  sqlite3Log(p->pBt->pLogger, &pCur->idxDelLog, DELETE);
 
   btreeParseCell(pPage,iCellIdx,&info);
 
@@ -8505,7 +8510,7 @@ int sqlite3BtreeCreateTable(Btree *p, int *piTable, int flags){
   sqlite3BtreeEnter(p);
   rc = btreeCreateTable(p, piTable, flags);
   sqlite3LogCreateTable(p->pBt, flags);
-  sqlite3Log(p->pBt->pLogger, &p->pBt->cLog, CREATETABLE);
+  sqlite3Log(p->pBt->pPager->pLogger, &p->pBt->cLog, CREATETABLE);
   sqlite3BtreeLeave(p);
   return rc;
 }

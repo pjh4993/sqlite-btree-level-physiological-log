@@ -1996,11 +1996,12 @@ int sqlite3WalDefaultHook(
   const char *zDb,       /* Database */
   int nFrame             /* Size of WAL */
 ){
-  Logger *pLogger = db->aDb[0].pBt->pBt->pLogger;
-  //if(pLogger->p_check >=LOG_LIMIT ){
-  if(0){
+  Logger *pLogger = db->aDb[0].pBt->pBt->pPager->pLogger;
+  if(pLogger->p_check >= LOG_LIMIT){
     sqlite3BeginBenignMalloc();
     sqlite3_wal_checkpoint(db, zDb);
+    if(pLogger->log_fd > 0) 
+        sqlite3LogCheckPoint(pLogger);
     sqlite3EndBenignMalloc();
   }
   return SQLITE_OK;
@@ -2026,9 +2027,7 @@ int sqlite3_wal_autocheckpoint(sqlite3 *db, int nFrame){
 #ifdef SQLITE_ENABLE_API_ARMOR
   if( !sqlite3SafetyCheckOk(db) ) return SQLITE_MISUSE_BKPT;
 #endif
-  Logger *pLogger = db->aDb[0].pBt->pBt->pLogger;
-  //if(pLogger->p_check = LOG_LIMIT){
-  if(0){
+  if( nFrame>0 ){
     sqlite3_wal_hook(db, sqlite3WalDefaultHook, SQLITE_INT_TO_PTR(nFrame));
   }else{
     sqlite3_wal_hook(db, 0, 0);
@@ -3103,8 +3102,10 @@ opendb_out:
 
   //ARIES
   //analysis log and do recovery
-  rc = sqlite3LogAnalysis(db->aDb[0].pBt->pBt->pLogger);
-  sqlite3LogRecovery(db->aDb[0].pBt->pBt->pLogger,db->aDb[0].pBt);
+
+  sqlite3LogAnalysis(db->aDb[0].pBt->pBt->pPager->pLogger);
+
+  sqlite3LogRecovery(db->aDb[0].pBt->pBt->pPager->pLogger,db->aDb[0].pBt);
 
   sqlite3_free(zOpen);
 

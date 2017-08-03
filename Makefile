@@ -579,6 +579,7 @@ DBFUZZ_OPT =
 # are what get build when you type just "make" with no arguments.
 #
 all:	sqlite3.h libsqlite3.la sqlite3$(TEXE) $(HAVE_TCL:1=libtclsqlite3.la)
+	cp sqlite3 ../sqlite-query/btree
 
 Makefile: $(TOP)/Makefile.in
 	./config.status

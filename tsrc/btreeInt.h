@@ -410,7 +410,6 @@ struct Btree {
 */
 struct BtShared {
   Pager *pPager;        /* The page cache */
-  Logger *pLogger;		/* The Logger (for ARIES) */
   sqlite3 *db;          /* Database connection currently using this Btree */
   BtCursor *pCursor;    /* A list of all open cursors */
   MemPage *pPage1;      /* First page of the database */

@@ -708,6 +708,7 @@ struct Pager {
   Wal *pWal;                  /* Write-ahead log used by "journal_mode=wal" */
   char *zWal;                 /* File name for write-ahead log */
 #endif
+  Logger *pLogger;
 };
 
 /*
@@ -4612,7 +4613,6 @@ int sqlite3PagerFlush(Pager *pPager){
 int sqlite3PagerOpen(
   sqlite3_vfs *pVfs,       /* The virtual file system to use */
   Pager **ppPager,         /* OUT: Return the Pager structure here */
-  Logger *pLogger,         /* OUT: Return the Pager structure here */
   const char *zFilename,   /* Name of the database file to open */
   int nExtra,              /* Extra bytes append to each in-memory page */
   int flags,               /* flags controlling this file */
@@ -4668,6 +4668,8 @@ int sqlite3PagerOpen(
     rc = sqlite3OsFullPathname(pVfs, zFilename, nPathname, zPathname);
     nPathname = sqlite3Strlen30(zPathname);
     z = zUri = &zFilename[sqlite3Strlen30(zFilename)+1];
+
+
     while( *z ){
       z += sqlite3Strlen30(z)+1;
       z += sqlite3Strlen30(z)+1;
@@ -4725,6 +4727,9 @@ int sqlite3PagerOpen(
   pPager->zFilename =    (char*)(pPtr += journalFileSize);
   assert( EIGHT_BYTE_ALIGNMENT(pPager->jfd) );
 
+  sqlite3LoggerOpenPhaseOne(&pPager->pLogger);
+
+
   /* Fill in the Pager.zFilename and Pager.zJournal buffers, if required. */
   if( zPathname ){
     assert( nPathname>0 );
@@ -4740,7 +4745,7 @@ int sqlite3PagerOpen(
     memcpy(&pPager->zWal[nPathname], "-wal\000", 4+1);
     sqlite3FileSuffix3(pPager->zFilename, pPager->zWal);
 #endif
-    sqlite3LoggerOpenPhaseTwo(pVfs,zPathname, nPathname, pLogger, vfsFlags);
+    sqlite3LoggerOpenPhaseTwo(pVfs,zPathname,nPathname,pPager->pLogger);
     sqlite3DbFree(0, zPathname);
   }
   pPager->pVfs = pVfs;
@@ -7402,7 +7407,14 @@ int sqlite3PagerOpenWal(
     /* Close any rollback journal previously open */
     sqlite3OsClose(pPager->jfd);
 
+
+    sqlite3LoggerOpenPhaseOne(&pPager->pLogger);
+
     rc = pagerOpenWal(pPager);
+
+    sqlite3LoggerOpenPhaseTwo(0,pPager->zFilename, sqlite3Strlen30(pPager->zFilename), pPager->pLogger);
+
+
     if( rc==SQLITE_OK ){
       pPager->journalMode = PAGER_JOURNALMODE_WAL;
       pPager->eState = PAGER_OPEN;

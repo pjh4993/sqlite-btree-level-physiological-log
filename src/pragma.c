@@ -12,6 +12,7 @@
 ** This file contains code used to implement the PRAGMA command.
 */
 #include "sqliteInt.h"
+#include "log.h"
 
 #if !defined(SQLITE_ENABLE_LOCKING_STYLE)
 #  if defined(__APPLE__)
@@ -462,8 +463,11 @@ void sqlite3Pragma(
       assert( sqlite3SchemaMutexHeld(db, iDb, 0) );
       pDb->pSchema->cache_size = size;
       sqlite3BtreeSetCacheSize(pDb->pBt, pDb->pSchema->cache_size);
+      pDb->pBt->pBt->pPager->pLogger->p_check = LOG_LIMIT;
     }
+
     break;
+
   }
 #endif /* !SQLITE_OMIT_PAGER_PRAGMAS && !SQLITE_OMIT_DEPRECATED */
 
@@ -491,7 +495,9 @@ void sqlite3Pragma(
       if( SQLITE_NOMEM==sqlite3BtreeSetPageSize(pBt, db->nextPagesize,-1,0) ){
         sqlite3OomFault(db);
       }
+      pDb->pBt->pBt->pPager->pLogger->p_check = LOG_LIMIT;
     }
+
     break;
   }
 
@@ -515,6 +521,8 @@ void sqlite3Pragma(
       for(ii=0; ii<db->nDb; ii++){
         sqlite3BtreeSecureDelete(db->aDb[ii].pBt, b);
       }
+
+      pDb->pBt->pBt->pPager->pLogger->p_check = LOG_LIMIT;
     }
     b = sqlite3BtreeSecureDelete(pBt, b);
     returnSingleInt(v, b);
@@ -587,6 +595,8 @@ void sqlite3Pragma(
       }
       pPager = sqlite3BtreePager(pDb->pBt);
       eMode = sqlite3PagerLockingMode(pPager, eMode);
+
+      pDb->pBt->pBt->pPager->pLogger->p_check = LOG_LIMIT;
     }
 
     assert( eMode==PAGER_LOCKINGMODE_NORMAL
@@ -635,6 +645,7 @@ void sqlite3Pragma(
       }
     }
     sqlite3VdbeAddOp2(v, OP_ResultRow, 1, 1);
+    pDb->pBt->pBt->pPager->pLogger->p_check = LOG_LIMIT;
     break;
   }
 
@@ -754,6 +765,8 @@ void sqlite3Pragma(
       int size = sqlite3Atoi(zRight);
       pDb->pSchema->cache_size = size;
       sqlite3BtreeSetCacheSize(pDb->pBt, pDb->pSchema->cache_size);
+
+      pDb->pBt->pBt->pPager->pLogger->p_check = LOG_LIMIT;
     }
     break;
   }
@@ -1952,6 +1965,8 @@ void sqlite3Pragma(
 #endif
 
   } /* End of the PRAGMA switch */
+
+
 
 pragma_out:
   sqlite3DbFree(db, zLeft);
