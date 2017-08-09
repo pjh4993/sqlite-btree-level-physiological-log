@@ -3100,13 +3100,6 @@ opendb_out:
   }
 #endif
 
-  //ARIES
-  //analysis log and do recovery
-
-  sqlite3LogAnalysis(db->aDb[0].pBt->pBt->pPager->pLogger);
-
-  sqlite3LogRecovery(db->aDb[0].pBt->pBt->pPager->pLogger,db->aDb[0].pBt);
-
   sqlite3_free(zOpen);
 
   return rc & 0xff;

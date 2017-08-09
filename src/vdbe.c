@@ -3465,8 +3465,6 @@ case OP_OpenWrite:
 #ifdef SQLITE_DEBUG
   pCur->wrFlag = wrFlag;
 #endif
-  //ARIES
-  //CURSOR DATA
   rc = sqlite3BtreeCursor(pX, p2, wrFlag, pKeyInfo, pCur->uc.pCursor);
   pCur->pKeyInfo = pKeyInfo;
   /* Set the VdbeCursor.isTable variable. Previous versions of

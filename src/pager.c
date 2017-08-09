@@ -4727,9 +4727,6 @@ int sqlite3PagerOpen(
   pPager->zFilename =    (char*)(pPtr += journalFileSize);
   assert( EIGHT_BYTE_ALIGNMENT(pPager->jfd) );
 
-  sqlite3LoggerOpenPhaseOne(&pPager->pLogger);
-
-
   /* Fill in the Pager.zFilename and Pager.zJournal buffers, if required. */
   if( zPathname ){
     assert( nPathname>0 );
@@ -4745,7 +4742,6 @@ int sqlite3PagerOpen(
     memcpy(&pPager->zWal[nPathname], "-wal\000", 4+1);
     sqlite3FileSuffix3(pPager->zFilename, pPager->zWal);
 #endif
-    sqlite3LoggerOpenPhaseTwo(pVfs,zPathname,nPathname,pPager->pLogger);
     sqlite3DbFree(0, zPathname);
   }
   pPager->pVfs = pVfs;
@@ -7407,13 +7403,9 @@ int sqlite3PagerOpenWal(
     /* Close any rollback journal previously open */
     sqlite3OsClose(pPager->jfd);
 
-
-    sqlite3LoggerOpenPhaseOne(&pPager->pLogger);
-
     rc = pagerOpenWal(pPager);
 
-    sqlite3LoggerOpenPhaseTwo(0,pPager->zFilename, sqlite3Strlen30(pPager->zFilename), pPager->pLogger);
-
+    sqlite3LoggerOpenPhaseTwo(pPager, pPager->pLogger);
 
     if( rc==SQLITE_OK ){
       pPager->journalMode = PAGER_JOURNALMODE_WAL;

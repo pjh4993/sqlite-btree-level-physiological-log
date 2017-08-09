@@ -214,6 +214,7 @@
 **      *     zero or more pages numbers of leaves
 */
 #include "sqliteInt.h"
+#include "log.h"
 
 
 /* The following value is the maximum cell size assuming a maximum page
@@ -360,6 +361,13 @@ struct Btree {
 #ifndef SQLITE_OMIT_SHARED_CACHE
   BtLock lock;       /* Object used to lock page 1 */
 #endif
+  int idx_aries;                  /*ARIES, unique index number of Btree.*/ 
+  union {
+      struct BtOpenLog bt_open_log;
+      struct BtIbtLog bt_iBt_log;
+      struct BtFlagLog bt_flag_log;
+      struct BtSaveLog bt_save_log;
+  } al;
 };
 
 /*
@@ -444,8 +452,7 @@ struct BtShared {
   Btree *pWriter;       /* Btree with currently open write transaction */
 #endif
   u8 *pTmpSpace;        /* Temp space sufficient to hold a single cell */
-
-  createLog cLog;
+  Logger *pLogger;
 };
 
 /*
@@ -527,9 +534,16 @@ struct BtCursor {
   void *padding1;           /* Make object size a multiple of 16 */
   u16 aiIdx[BTCURSOR_MAX_DEPTH];        /* Current index in apPage[i] */
   MemPage *apPage[BTCURSOR_MAX_DEPTH];  /* Pages from root to current page */
-
-  idxInsertLog idxInsLog;
-  idxDeleteLog idxDelLog;
+  int idx_aries;                  /*ARIES, unique index number of BtCursor. 
+                                    VdbeCursor has union uc which has pCursor array but it's size is dynamic.
+                                    So we use unique index for BtCursor.*/
+  union {
+      struct CsrOpenLog csr_open_log;
+      struct CsrIcsrLog csr_icsr_log;
+      struct CsrUnpackedLog csr_unpacked_log;
+      struct CsrInsertLog csr_insert_log;
+      struct CsrFlagLog csr_flag_log;
+  } al;
 };
 
 /*

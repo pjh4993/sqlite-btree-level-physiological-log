@@ -99,53 +99,22 @@ void* serialize(void *log, enum opcode op, int *size){
     op = op >> 4;
     switch(op){
         case bt_open:
-            *size = sizeof(struct BtOpenLog);
-            if(TYPE(log, struct BtOpenLog)->zFilename != 0x0)
-                *size+=sqlite3Strlen30(TYPE(log, struct BtOpenLog)->zFilename); 
-            tmp = data  = sqlite3Malloc(*size);
-            memcpy(tmp, TYPE(log, struct BtOpenLog), sizeof(struct BtOpenLog));
-            return data;
+            break;
         case bt_ibt:
-            *size = sizeof(struct BtIbtLog);
-            tmp = data  = sqlite3Malloc(*size);
-            memcpy(tmp, TYPE(log, struct BtIbtLog), sizeof(struct BtIbtLog));
-            return data;
+            break;
         case bt_flag:
-            *size = sizeof(struct BtFlagLog);
-            tmp = data  = sqlite3Malloc(*size);
-            memcpy(tmp, TYPE(log, struct BtFlagLog), sizeof(struct BtFlagLog));
-            return data;
+            break;
         case bt_save:
-            *size = sizeof(struct BtSaveLog);
-            tmp = data  = sqlite3Malloc(*size);
-            memcpy(tmp, TYPE(log, struct BtSaveLog), sizeof(struct BtSaveLog));
-            return data;
+            break;
         case csr_open:
-            *size = sizeof(struct CsrOpenLog);
-            if(TYPE(log, struct CsrOpenLog)->pKeyInfo != 0x0)
-               *size += (sizeof(KeyInfo) + TYPE(log, struct CsrOpenLog)->pKeyInfo->nField*sizeof(u8)
-                       +sqlite3Strlen30(TYPE(log, struct CsrOpenLog)->pKeyInfo->aColl[0]->name)); 
             break;
         case csr_icsr:
-            *size = sizeof(struct CsrIcsrLog);
-            tmp = data  = sqlite3Malloc(*size);
-            memcpy(tmp, TYPE(log, struct CsrIcsrLog), sizeof(struct CsrIcsrLog));
-            return data;
+            break;
         case csr_insert:
-            *size = sizeof(struct CsrInsertLog);
-            if(TYPE(log, struct CsrInsertLog)->pX != 0x)
-                *size+=(sizeof(BtreePayload) + TYPE(log, struct CsrInsertLog)->pX->nMem * sizeof(Mem));
             break;
         case csr_flag:
-            *size = sizeof(struct CsrFlagLog);
-            tmp = data  = sqlite3Malloc(*size);
-            memcpy(tmp, TYPE(log, struct CsrFlagLog), sizeof(struct CsrFlagLog));
-            return data;
+            break;
         case csr_unpacked:
-            *size = sizeof(struct CsrUnpackedLog) 
-                + sizeof(KeyInfo) + TYPE(log, struct CsrUnpackedLog)->pIdxKey->pKeyInfo->nField*sizeof(u8)
-                + sqlite3Strlen30(TYPE(log, struct CsrOpenLog)->pKeyInfo->aColl[0]->name); 
-            tmp = data  = sqlite3Malloc(*size);
             break;
     }
 };
