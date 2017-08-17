@@ -1997,7 +1997,7 @@ int sqlite3WalDefaultHook(
   int nFrame             /* Size of WAL */
 ){
   Logger *pLogger = db->aDb[0].pBt->pBt->pPager->pLogger;
-  if(pLogger->p_check >= LOG_LIMIT){
+  if(pLogger->p_check >= LOG_LIMIT || pLogger->sync){
     sqlite3BeginBenignMalloc();
     sqlite3_wal_checkpoint(db, zDb);
     if(pLogger->log_fd > 0) 
@@ -2395,6 +2395,7 @@ static int createCollation(
   pColl->pUser = pCtx;
   pColl->xDel = xDel;
   pColl->enc = (u8)(enc2 | (enc & SQLITE_UTF16_ALIGNED));
+  pColl->enc2 = (u8)enc2;
   sqlite3Error(db, SQLITE_OK);
   return SQLITE_OK;
 }
@@ -3100,15 +3101,8 @@ opendb_out:
   }
 #endif
 
-  //ARIES
-  //analysis log and do recovery
-
-  sqlite3LogAnalysis(db->aDb[0].pBt->pBt->pPager->pLogger);
-
-  sqlite3LogRecovery(db->aDb[0].pBt->pBt->pPager->pLogger,db->aDb[0].pBt);
-
   sqlite3_free(zOpen);
-
+  sqlite3LogAnalysis(db->aDb[0].pBt->pBt->pLogger);
   return rc & 0xff;
 }
 

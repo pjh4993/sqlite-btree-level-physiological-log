@@ -20,7 +20,7 @@ TOP = /home/sysadmin/sqlite-btree-level-physiological-log
 # C Compiler and options for use in building executables that
 # will run on the platform that is doing the build.
 #
-BCC = gcc  -g -O0
+BCC = gcc  -gdwarf-2 -g3 -O0
 
 # TCC is the C Compile and options for use in building executables that 
 # will run on the target platform.  (BCC and TCC are usually the
@@ -29,7 +29,7 @@ BCC = gcc  -g -O0
 # on the "make" command-line.  Ex:  "make CC=clang CFLAGS=-fsanitize=undefined"
 #
 CC = gcc
-CFLAGS =   -g -O0 -DSQLITE_OS_UNIX=1
+CFLAGS =   -gdwarf-2 -g3 -O0 -DSQLITE_OS_UNIX=1
 TCC = ${CC} ${CFLAGS} -I. -I${TOP}/src -I${TOP}/ext/rtree -I${TOP}/ext/icu
 TCC += -I${TOP}/ext/fts3 -I${TOP}/ext/async -I${TOP}/ext/session
 
@@ -732,7 +732,7 @@ btmutex.lo:	$(TOP)/src/btmutex.c $(HDR)
 btree.lo:	$(TOP)/src/btree.c $(HDR) $(TOP)/src/pager.h $(TOP)/src/log.h
 	$(LTCOMPILE) $(TEMP_STORE) -c $(TOP)/src/btree.c
 
-log.lo:	$(TOP)/src/log.c $(HDR) $(TOP)/src/log.h $(TOP)/src/btree.h
+log.lo:	$(TOP)/src/log.c $(HDR) $(TOP)/src/log.h $(TOP)/src/btree.h $(TOP)/src/pager.h
 	$(LTCOMPILE) $(TEMP_STORE) -c $(TOP)/src/log.c
 
 build.lo:	$(TOP)/src/build.c $(HDR)

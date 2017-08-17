@@ -7405,7 +7405,6 @@ int sqlite3PagerOpenWal(
 
     rc = pagerOpenWal(pPager);
 
-    sqlite3LoggerOpenPhaseTwo(pPager, pPager->pLogger);
 
     if( rc==SQLITE_OK ){
       pPager->journalMode = PAGER_JOURNALMODE_WAL;

@@ -748,6 +748,7 @@ void sqlite3BtreeClearCursor(BtCursor *pCur){
   sqlite3_free(pCur->pKey);
   pCur->pKey = 0;
   pCur->eState = CURSOR_INVALID;
+  sqlite3LogCursorClear(pCur);
 }
 
 /*
@@ -851,6 +852,7 @@ int sqlite3BtreeCursorHasMoved(BtCursor *pCur){
 int sqlite3BtreeCursorRestore(BtCursor *pCur, int *pDifferentRow){
   int rc;
 
+  sqlite3LogCursorRestore(pCur);
   assert( pCur!=0 );
   assert( pCur->eState!=CURSOR_VALID );
   rc = restoreCursorPosition(pCur);
@@ -2149,6 +2151,7 @@ int sqlite3BtreeOpen(
   int flags,              /* Options */
   int vfsFlags            /* Flags passed through to sqlite3_vfs.xOpen() */
 ){
+  static int idx_aries;
   BtShared *pBt = 0;             /* Shared part of btree structure */
   Btree *p;                      /* Handle to return */
   sqlite3_mutex *mutexOpen = 0;  /* Prevents a race condition. Ticket #3537 */
@@ -2191,6 +2194,7 @@ int sqlite3BtreeOpen(
   if( !p ){
     return SQLITE_NOMEM_BKPT;
   }
+  p->idx_aries = idx_aries++;
   p->inTrans = TRANS_NONE;
   p->db = db;
 #ifndef SQLITE_OMIT_SHARED_CACHE
@@ -2299,8 +2303,11 @@ int sqlite3BtreeOpen(
     sqlite3PagerSetBusyhandler(pBt->pPager, btreeInvokeBusyHandler, pBt);
     p->pBt = pBt;
   
+    sqlite3LoggerOpenPhaseOne(p);
+    sqlite3LoggerOpenPhaseTwo(p->pBt->pPager,p->pBt->pLogger);
     pBt->pCursor = 0;
     pBt->pPage1 = 0;
+    pBt->pPager->pLogger = pBt->pLogger;
     if( sqlite3PagerIsreadonly(pBt->pPager) ) pBt->btsFlags |= BTS_READ_ONLY;
 #ifdef SQLITE_SECURE_DELETE
     pBt->btsFlags |= BTS_SECURE_DELETE;
@@ -2336,6 +2343,7 @@ int sqlite3BtreeOpen(
       pBt->incrVacuum = (get4byte(&zDbHeader[36 + 7*4])?1:0);
 #endif
     }
+    sqlite3LogBtreeOpen(p, zFilename, flags, vfsFlags);
     rc = sqlite3PagerSetPagesize(pBt->pPager, &pBt->pageSize, nReserve);
     if( rc ) goto btree_open_out;
     pBt->usableSize = pBt->pageSize - nReserve;
@@ -2514,6 +2522,7 @@ static void freeTempSpace(BtShared *pBt){
 ** Close an open database and invalidate all cursors.
 */
 int sqlite3BtreeClose(Btree *p){
+  sqlite3LogBtreeClose(p);
   BtShared *pBt = p->pBt;
   BtCursor *pCur;
 
@@ -2885,6 +2894,10 @@ static int lockBtree(BtShared *pBt){
     if( page1[19]==2 && (pBt->btsFlags & BTS_NO_WAL)==0 ){
       int isOpen = 0;
       rc = sqlite3PagerOpenWal(pBt->pPager, &isOpen);
+      if(pBt->pPager->pLogger->sync){
+        sqlite3PagerCommitPhaseOne(pBt->pPager,0,0);
+        sqlite3PagerCommitPhaseTwo(pBt->pPager);
+      }
       if( rc!=SQLITE_OK ){
         goto page1_init_failed;
       }else{
@@ -3148,6 +3161,7 @@ int sqlite3BtreeBeginTrans(Btree *p, int wrflag){
   BtShared *pBt = p->pBt;
   int rc = SQLITE_OK;
 
+  sqlite3LogBtreeBeginTrans(p, wrflag);
   sqlite3BtreeEnter(p);
   btreeIntegrity(p);
 
@@ -3736,8 +3750,8 @@ int sqlite3BtreeCommitPhaseOne(Btree *p, const char *zMaster){
   Logger *pLogger = p->pBt->pPager->pLogger;
   int rc = SQLITE_OK;
   if( p->inTrans==TRANS_WRITE ){
-    sqlite3LogForceAtCommit(pLogger);
-    if(pLogger->log_fd > 0 && pLogger->p_check < LOG_LIMIT)
+    sqlite3LogForceAtCommit(p);
+    if(pLogger != 0x0 && pLogger->log_fd > 0 && pLogger->p_check < LOG_LIMIT)
 	  return rc;
     BtShared *pBt = p->pBt;
     sqlite3BtreeEnter(p);
@@ -3831,7 +3845,7 @@ int sqlite3BtreeCommitPhaseTwo(Btree *p, int bCleanup){
   Logger *pLogger = p->pBt->pPager->pLogger;
   if( p->inTrans==TRANS_NONE ) return SQLITE_OK;
   if( p->inTrans==TRANS_WRITE ){
-    if(pLogger->log_fd > 0 && pLogger->p_check < LOG_LIMIT){
+    if(pLogger != 0x0 && pLogger->log_fd > 0 && pLogger->p_check < LOG_LIMIT){
 	  return SQLITE_OK;
     }
 
@@ -4049,6 +4063,7 @@ int sqlite3BtreeBeginStmt(Btree *p, int iStatement){
 */
 int sqlite3BtreeSavepoint(Btree *p, int op, int iSavepoint){
   int rc = SQLITE_OK;
+  sqlite3LogBtreeSavepoint(p,op,iSavepoint);
   if( p && p->inTrans==TRANS_WRITE ){
     BtShared *pBt = p->pBt;
     assert( op==SAVEPOINT_RELEASE || op==SAVEPOINT_ROLLBACK );
@@ -4121,6 +4136,7 @@ static int btreeCursor(
   struct KeyInfo *pKeyInfo,              /* First arg to comparison function */
   BtCursor *pCur                         /* Space for new cursor */
 ){
+  static unsigned int idx_aries = 0;
   BtShared *pBt = p->pBt;                /* Shared b-tree handle */
   BtCursor *pX;                          /* Looping over other all cursors */
 
@@ -4142,7 +4158,7 @@ static int btreeCursor(
   assert( wrFlag==0 || p->inTrans==TRANS_WRITE );
   assert( pBt->pPage1 && pBt->pPage1->aData );
   assert( wrFlag==0 || (pBt->btsFlags & BTS_READ_ONLY)==0 );
-
+  
   if( wrFlag ){
     allocateTempSpace(pBt);
     if( pBt->pTmpSpace==0 ) return SQLITE_NOMEM_BKPT;
@@ -4159,6 +4175,7 @@ static int btreeCursor(
   pCur->pKeyInfo = pKeyInfo;
   pCur->pBtree = p;
   pCur->pBt = pBt;
+  pCur->idx_aries = idx_aries++;
   pCur->curFlags = wrFlag ? BTCF_WriteFlag : 0;
   pCur->curPagerFlags = wrFlag ? 0 : PAGER_GET_READONLY;
   /* If there are two or more cursors on the same btree, then all such
@@ -4172,6 +4189,7 @@ static int btreeCursor(
   pCur->pNext = pBt->pCursor;
   pBt->pCursor = pCur;
   pCur->eState = CURSOR_INVALID;
+
   return SQLITE_OK;
 }
 int sqlite3BtreeCursor(
@@ -4187,6 +4205,9 @@ int sqlite3BtreeCursor(
   }else{
     sqlite3BtreeEnter(p);
     rc = btreeCursor(p, iTable, wrFlag, pKeyInfo, pCur);
+    /*ARIES, Log BtreeCursor*/
+    if(rc == SQLITE_OK)
+        sqlite3LogCursorOpen(wrFlag, pCur, p);
     sqlite3BtreeLeave(p);
   }
   return rc;
@@ -4246,6 +4267,7 @@ int sqlite3BtreeCloseCursor(BtCursor *pCur){
     unlockBtreeIfUnused(pBt);
     sqlite3_free(pCur->aOverflow);
     /* sqlite3_free(pCur); */
+    sqlite3LogCursorClose(pCur);
     sqlite3BtreeLeave(pBtree);
   }
   return SQLITE_OK;
@@ -4306,6 +4328,7 @@ i64 sqlite3BtreeIntegerKey(BtCursor *pCur){
   assert( pCur->eState==CURSOR_VALID );
   assert( pCur->curIntKey );
   getCellInfo(pCur);
+  sqlite3LogCursorIntegerKey(pCur);
   return pCur->info.nKey;
 }
 
@@ -4322,6 +4345,7 @@ u32 sqlite3BtreePayloadSize(BtCursor *pCur){
   assert( cursorHoldsMutex(pCur) );
   assert( pCur->eState==CURSOR_VALID );
   getCellInfo(pCur);
+  sqlite3LogCursorIntegerKey(pCur);
   return pCur->info.nPayload;
 }
 
@@ -5002,6 +5026,7 @@ int sqlite3BtreeFirst(BtCursor *pCur, int *pRes){
       rc = moveToLeftmost(pCur);
     }
   }
+  sqlite3LogCursorFirst(pCur);
   return rc;
 }
 
@@ -5047,6 +5072,7 @@ int sqlite3BtreeLast(BtCursor *pCur, int *pRes){
    
     }
   }
+  sqlite3LogCursorLast(pCur);
   return rc;
 }
 
@@ -5110,6 +5136,8 @@ int sqlite3BtreeMovetoUnpacked(
       return SQLITE_OK;
     }
   }
+
+  sqlite3LogCursorUnpacked(pCur, pIdxKey, intKey, biasRight);
 
   if( pIdxKey ){
     xRecordCompare = sqlite3VdbeFindCompare(pIdxKey);
@@ -5310,6 +5338,7 @@ int sqlite3BtreeEof(BtCursor *pCur){
   ** have been deleted? This API will need to change to return an error code
   ** as well as the boolean result value.
   */
+  sqlite3LogCursorEof(pCur);
   return (CURSOR_VALID!=pCur->eState);
 }
 
@@ -5403,6 +5432,7 @@ static SQLITE_NOINLINE int btreeNext(BtCursor *pCur, int *pRes){
 }
 int sqlite3BtreeNext(BtCursor *pCur, int *pRes){
   MemPage *pPage;
+  int rc;
   assert( cursorOwnsBtShared(pCur) );
   assert( pRes!=0 );
   assert( *pRes==0 || *pRes==1 );
@@ -5410,16 +5440,25 @@ int sqlite3BtreeNext(BtCursor *pCur, int *pRes){
   pCur->info.nSize = 0;
   pCur->curFlags &= ~(BTCF_ValidNKey|BTCF_ValidOvfl);
   *pRes = 0;
-  if( pCur->eState!=CURSOR_VALID ) return btreeNext(pCur, pRes);
+  if( pCur->eState!=CURSOR_VALID ){ 
+    rc = btreeNext(pCur, pRes);
+    sqlite3LogCursorNext(pCur);
+    return rc;
+  }
   pPage = pCur->apPage[pCur->iPage];
   if( (++pCur->aiIdx[pCur->iPage])>=pPage->nCell ){
     pCur->aiIdx[pCur->iPage]--;
-    return btreeNext(pCur, pRes);
+    rc = btreeNext(pCur, pRes);
+    sqlite3LogCursorNext(pCur);
+    return rc;
   }
   if( pPage->leaf ){
+    sqlite3LogCursorNext(pCur);
     return SQLITE_OK;
   }else{
-    return moveToLeftmost(pCur);
+    rc = moveToLeftmost(pCur);
+    sqlite3LogCursorNext(pCur);
+    return rc;
   }
 }
 
@@ -5504,6 +5543,7 @@ static SQLITE_NOINLINE int btreePrevious(BtCursor *pCur, int *pRes){
   return rc;
 }
 int sqlite3BtreePrevious(BtCursor *pCur, int *pRes){
+  int rc;
   assert( cursorOwnsBtShared(pCur) );
   assert( pRes!=0 );
   assert( *pRes==0 || *pRes==1 );
@@ -5515,9 +5555,12 @@ int sqlite3BtreePrevious(BtCursor *pCur, int *pRes){
    || pCur->aiIdx[pCur->iPage]==0
    || pCur->apPage[pCur->iPage]->leaf==0
   ){
-    return btreePrevious(pCur, pRes);
+    rc = btreePrevious(pCur, pRes);
+    sqlite3LogCursorPrev(pCur);
+    return rc;
   }
   pCur->aiIdx[pCur->iPage]--;
+  sqlite3LogCursorPrev(pCur);
   return SQLITE_OK;
 }
 
@@ -7968,10 +8011,8 @@ int sqlite3BtreeInsert(
   int appendBias,                /* True if this is likely an append */
   int seekResult                 /* Result of prior MovetoUnpacked() call */
 ){
-  sqlite3LogInit(pCur);
-  sqlite3LogCursor(pCur, 0, pCur->pgnoRoot, pCur->curFlags?4:0,pCur->pKeyInfo);
-  sqlite3LogPayload(pCur, pX, appendBias, seekResult);
-  sqlite3LogiPage(pCur, pCur->iPage,pCur->iPage==-1?-1:pCur->apPage[pCur->iPage]->pgno);
+
+  sqlite3LogCursorInsert(pCur, pX, appendBias, seekResult);
   int res;
   int rc;
   int loc = seekResult;          /* -1: before desired location  +1: after */
@@ -7980,6 +8021,7 @@ int sqlite3BtreeInsert(
   MemPage *pPage;
   Btree *p = pCur->pBtree;
   BtShared *pBt = p->pBt;
+  Logger *pLogger = pBt->pLogger;
   unsigned char *oldCell;
   unsigned char *newCell = 0;
   if( pCur->eState==CURSOR_FAULT ){
@@ -8033,11 +8075,10 @@ int sqlite3BtreeInsert(
       loc = -1;
     }else if( loc==0 ){
       rc = sqlite3BtreeMovetoUnpacked(pCur, 0, pX->nKey, appendBias, &loc);
+      sqlite3LogRollbackTop(pLogger);
       if( rc ) return rc;
     }
-    sqlite3Log(pBt->pPager->pLogger,&pCur->idxInsLog,INSERT);
   }else if( loc==0 ){
-    sqlite3LogiPage(pCur, pCur->iPage,pCur->iPage==-1?-1:pCur->apPage[pCur->iPage]->pgno);
     if( pX->nMem ){
       UnpackedRecord r;
       r.pKeyInfo = pCur->pKeyInfo;
@@ -8049,14 +8090,12 @@ int sqlite3BtreeInsert(
       r.r2 = 0;
       r.eqSeen = 0;
       rc = sqlite3BtreeMovetoUnpacked(pCur, &r, 0, appendBias, &loc);
+      sqlite3LogRollbackTop(pLogger);
     }else{
       rc = btreeMoveto(pCur, pX->pKey, pX->nKey, appendBias, &loc);
+      sqlite3LogRollbackTop(pLogger);
     }
-    sqlite3Log(pBt->pPager->pLogger,&pCur->idxInsLog,IDXINSERT);
     if( rc ) return rc;
-  }else{
-    sqlite3LogiPage(pCur, pCur->iPage,pCur->iPage==-1?-1:pCur->apPage[pCur->iPage]->pgno);
-    sqlite3Log(pBt->pPager->pLogger,&pCur->idxInsLog,UPDATE);
   }
   assert( pCur->eState==CURSOR_VALID || (pCur->eState==CURSOR_INVALID && loc) );
 
@@ -8196,6 +8235,7 @@ int sqlite3BtreeDelete(BtCursor *pCur, u8 flags){
   CellInfo info;                       /* Size of the cell being deleted */
   int bSkipnext = 0;                   /* Leaf cursor in SKIPNEXT state */
   u8 bPreserve = flags & BTREE_SAVEPOSITION;  /* Keep cursor valid */
+  sqlite3LogCursorDelete(pCur, flags);
 
   assert( cursorOwnsBtShared(pCur) );
   assert( pBt->inTransaction==TRANS_WRITE );
@@ -8211,15 +8251,6 @@ int sqlite3BtreeDelete(BtCursor *pCur, u8 flags){
   iCellIdx = pCur->aiIdx[iCellDepth];
   pPage = pCur->apPage[iCellDepth];
   pCell = findCell(pPage, iCellIdx);
-  
-  sqlite3LogInit(pCur);
-  sqlite3LogCursor(pCur, 0, pCur->pgnoRoot, 4,pCur->pKeyInfo);
-  sqlite3LogiCell(pCur, iCellDepth, iCellIdx, pPage->pgno, flags);
-
-  
-  sqlite3Log(p->pBt->pPager->pLogger, &pCur->idxDelLog, pCur->pKeyInfo == 0 ? DELETE:IDXDELETE);
-
-
   btreeParseCell(pPage,iCellIdx,&info);
 
 
@@ -8506,11 +8537,10 @@ static int btreeCreateTable(Btree *p, int *piTable, int createTabFlags){
   return SQLITE_OK;
 }
 int sqlite3BtreeCreateTable(Btree *p, int *piTable, int flags){
+  sqlite3LogBtreeCreate(p, flags);  
   int rc;
   sqlite3BtreeEnter(p);
   rc = btreeCreateTable(p, piTable, flags);
-  sqlite3LogCreateTable(p->pBt, flags);
-  sqlite3Log(p->pBt->pPager->pLogger, &p->pBt->cLog, CREATETABLE);
   sqlite3BtreeLeave(p);
   return rc;
 }
@@ -8588,6 +8618,7 @@ cleardatabasepage_out:
 */
 int sqlite3BtreeClearTable(Btree *p, int iTable, int *pnChange){
   int rc;
+  sqlite3LogBtreeClear(p,iTable);
   BtShared *pBt = p->pBt;
   sqlite3BtreeEnter(p);
   assert( p->inTrans==TRANS_WRITE );
@@ -8718,6 +8749,7 @@ static int btreeDropTable(Btree *p, Pgno iTable, int *piMoved){
 }
 int sqlite3BtreeDropTable(Btree *p, int iTable, int *piMoved){
   int rc;
+  sqlite3LogBtreeDrop(p, iTable);
   sqlite3BtreeEnter(p);
   rc = btreeDropTable(p, iTable, piMoved);
   sqlite3BtreeLeave(p);
@@ -9704,6 +9736,7 @@ int sqlite3BtreePutData(BtCursor *pCsr, u32 offset, u32 amt, void *z){
 ** Mark this cursor as an incremental blob cursor.
 */
 void sqlite3BtreeIncrblobCursor(BtCursor *pCur){
+  sqlite3LogCursorIncrBlob(pCur);
   pCur->curFlags |= BTCF_Incrblob;
   pCur->pBtree->hasIncrblobCur = 1;
 }

@@ -463,7 +463,8 @@ void sqlite3Pragma(
       assert( sqlite3SchemaMutexHeld(db, iDb, 0) );
       pDb->pSchema->cache_size = size;
       sqlite3BtreeSetCacheSize(pDb->pBt, pDb->pSchema->cache_size);
-      pDb->pBt->pBt->pPager->pLogger->p_check = LOG_LIMIT;
+      if(pDb->pBt->pBt->pPager->pLogger != 0x0)
+          pDb->pBt->pBt->pPager->pLogger->p_check = LOG_LIMIT;
     }
 
     break;
@@ -495,7 +496,8 @@ void sqlite3Pragma(
       if( SQLITE_NOMEM==sqlite3BtreeSetPageSize(pBt, db->nextPagesize,-1,0) ){
         sqlite3OomFault(db);
       }
-      pDb->pBt->pBt->pPager->pLogger->p_check = LOG_LIMIT;
+      if(pDb->pBt->pBt->pPager->pLogger != 0x0)
+          pDb->pBt->pBt->pPager->pLogger->p_check = LOG_LIMIT;
     }
 
     break;
@@ -522,7 +524,8 @@ void sqlite3Pragma(
         sqlite3BtreeSecureDelete(db->aDb[ii].pBt, b);
       }
 
-      pDb->pBt->pBt->pPager->pLogger->p_check = LOG_LIMIT;
+      if(pDb->pBt->pBt->pPager->pLogger != 0x0)
+          pDb->pBt->pBt->pPager->pLogger->p_check = LOG_LIMIT;
     }
     b = sqlite3BtreeSecureDelete(pBt, b);
     returnSingleInt(v, b);
@@ -596,7 +599,8 @@ void sqlite3Pragma(
       pPager = sqlite3BtreePager(pDb->pBt);
       eMode = sqlite3PagerLockingMode(pPager, eMode);
 
-      pDb->pBt->pBt->pPager->pLogger->p_check = LOG_LIMIT;
+      if(pDb->pBt->pBt->pPager->pLogger != 0x0)
+          pDb->pBt->pBt->pPager->pLogger->p_check = LOG_LIMIT;
     }
 
     assert( eMode==PAGER_LOCKINGMODE_NORMAL
@@ -645,7 +649,8 @@ void sqlite3Pragma(
       }
     }
     sqlite3VdbeAddOp2(v, OP_ResultRow, 1, 1);
-    pDb->pBt->pBt->pPager->pLogger->p_check = LOG_LIMIT;
+    if(pDb->pBt->pBt->pPager->pLogger != 0x0)
+        pDb->pBt->pBt->pPager->pLogger->p_check = LOG_LIMIT;
     break;
   }
 
@@ -766,7 +771,8 @@ void sqlite3Pragma(
       pDb->pSchema->cache_size = size;
       sqlite3BtreeSetCacheSize(pDb->pBt, pDb->pSchema->cache_size);
 
-      pDb->pBt->pBt->pPager->pLogger->p_check = LOG_LIMIT;
+      if(pDb->pBt->pBt->pPager->pLogger != 0x0)
+          pDb->pBt->pBt->pPager->pLogger->p_check = LOG_LIMIT;
     }
     break;
   }

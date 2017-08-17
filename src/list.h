@@ -140,6 +140,9 @@ static __inline__ void list_splice(struct list_head *list, struct list_head *hea
 #define list_entry(ptr, type, member) \
 	((type *)((char *)(ptr)-(unsigned long)(&((type *)0)->member)))
 
+#define list_top(head, type, member) \
+    list_entry((head)->next, type, member)
+
 /**
  * list_for_each	-	iterate over a list
  * @pos:	the &struct list_head to use as a loop counter.

@@ -7,7 +7,7 @@
 ADDR	vdbe.h	160;"	d
 AGGREGATE	sqliteInt.h	1619;"	d
 AGGREGATE2	sqliteInt.h	1622;"	d
-ALLBITS	sqliteInt.h	2482;"	d
+ALLBITS	sqliteInt.h	2483;"	d
 ALWAYS	sqliteInt.h	423;"	d
 ALWAYS	sqliteInt.h	426;"	d
 ALWAYS	sqliteInt.h	429;"	d
@@ -27,7 +27,7 @@ AutoincInfo	sqliteInt.h	/^typedef struct AutoincInfo AutoincInfo;$/;"	t	typeref:
 AuxData	vdbeInt.h	/^struct AuxData {$/;"	s
 AuxData	vdbeInt.h	/^typedef struct AuxData AuxData;$/;"	t	typeref:struct:AuxData
 BAD_INTPTR_T	test_windirent.h	71;"	d
-BEGINTRANS	log.h	/^    DROP, CLEAR, BEGINTRANS, COMMIT,$/;"	e	enum:opcode
+BEGINTRANS	log.h	/^    DROP = 0x10, BTREE_CLEAR, BEGINTRANS, COMMIT,$/;"	e	enum:opcode
 BEGIN_TIMER	shell.c	236;"	d	file:
 BEGIN_TIMER	shell.c	313;"	d	file:
 BEGIN_TIMER	shell.c	318;"	d	file:
@@ -43,7 +43,7 @@ BITVEC_TELEM	bitvec.c	51;"	d	file:
 BITVEC_USIZE	bitvec.c	44;"	d	file:
 BLOBSIZE	test_onefile.c	90;"	d	file:
 BLOCKSIZE	test_onefile.c	89;"	d	file:
-BMS	sqliteInt.h	2475;"	d
+BMS	sqliteInt.h	2476;"	d
 BTALLOC_ANY	btree.c	50;"	d	file:
 BTALLOC_EXACT	btree.c	51;"	d	file:
 BTALLOC_LE	btree.c	52;"	d	file:
@@ -53,9 +53,7 @@ BTCF_Multiple	btreeInt.h	557;"	d
 BTCF_ValidNKey	btreeInt.h	553;"	d
 BTCF_ValidOvfl	btreeInt.h	554;"	d
 BTCF_WriteFlag	btreeInt.h	552;"	d
-BTCURSOR	log.h	4;"	d
 BTCURSOR_MAX_DEPTH	btreeInt.h	491;"	d
-BTREE	log.h	3;"	d
 BTREE_APPLICATION_ID	btree.h	152;"	d
 BTREE_AUTOVACUUM_FULL	btree.h	33;"	d
 BTREE_AUTOVACUUM_INCR	btree.h	34;"	d
@@ -63,7 +61,8 @@ BTREE_AUTOVACUUM_NONE	btree.h	32;"	d
 BTREE_AUXDELETE	btree.h	254;"	d
 BTREE_BLOBKEY	btree.h	115;"	d
 BTREE_BULKLOAD	btree.h	197;"	d
-BTREE_CLOSE	log.h	/^    BTREE_CLOSE, ENDTRANS, CREATE, $/;"	e	enum:opcode
+BTREE_CLEAR	log.h	/^    DROP = 0x10, BTREE_CLEAR, BEGINTRANS, COMMIT,$/;"	e	enum:opcode
+BTREE_CLOSE	log.h	/^    BTREE_CLOSE = 0x20, CREATE, $/;"	e	enum:opcode
 BTREE_DATA_VERSION	btree.h	153;"	d
 BTREE_DEFAULT_CACHE_SIZE	btree.h	147;"	d
 BTREE_FILE_FORMAT	btree.h	146;"	d
@@ -75,7 +74,7 @@ BTREE_INTKEY	btree.h	114;"	d
 BTREE_LARGEST_ROOT_PAGE	btree.h	148;"	d
 BTREE_MEMORY	btree.h	61;"	d
 BTREE_OMIT_JOURNAL	btree.h	60;"	d
-BTREE_OPEN	log.h	/^    BTREE_OPEN,$/;"	e	enum:opcode
+BTREE_OPEN	log.h	/^    BTREE_OPEN = 0x01,$/;"	e	enum:opcode
 BTREE_SAVEPOSITION	btree.h	253;"	d
 BTREE_SCHEMA_VERSION	btree.h	145;"	d
 BTREE_SEEK_EQ	btree.h	198;"	d
@@ -147,12 +146,10 @@ CC_VARALPHA	tokenize.c	34;"	d	file:
 CC_VARNUM	tokenize.c	35;"	d	file:
 CC_X	tokenize.c	29;"	d	file:
 CCurHint	wherecode.c	/^struct CCurHint {$/;"	s	file:
-CHECK_PAGE	pager.c	1238;"	d	file:
-CHECK_PAGE	pager.c	1249;"	d	file:
+CHECK_PAGE	pager.c	1239;"	d	file:
+CHECK_PAGE	pager.c	1250;"	d	file:
 CKCNSTRNT_COLUMN	insert.c	1092;"	d	file:
 CKCNSTRNT_ROWID	insert.c	1093;"	d	file:
-CLAER	log.h	/^    CSR_CLOSE, NEXT, PREV, FIRST, LAST, CSR_EOF, INTEGERKEY, CLAER, RESTORE, INCRBLOB, $/;"	e	enum:opcode
-CLEAR	log.h	/^    DROP, CLEAR, BEGINTRANS, COMMIT,$/;"	e	enum:opcode
 CLEARBIT	bitvec.c	304;"	d	file:
 CODEC1	pager.c	415;"	d	file:
 CODEC1	pager.c	421;"	d	file:
@@ -170,12 +167,13 @@ COLNAME_N	vdbe.h	150;"	d
 COLNAME_NAME	vdbe.h	139;"	d
 COLNAME_TABLE	vdbe.h	142;"	d
 COLUMN_MASK	fkey.c	1047;"	d	file:
-COMMIT	log.h	/^    DROP, CLEAR, BEGINTRANS, COMMIT,$/;"	e	enum:opcode
-CORRUPT_DB	sqliteInt.h	3268;"	d
-CREATE	log.h	/^    BTREE_CLOSE, ENDTRANS, CREATE, $/;"	e	enum:opcode
-CSR_CLOSE	log.h	/^    CSR_CLOSE, NEXT, PREV, FIRST, LAST, CSR_EOF, INTEGERKEY, CLAER, RESTORE, INCRBLOB, $/;"	e	enum:opcode
-CSR_EOF	log.h	/^    CSR_CLOSE, NEXT, PREV, FIRST, LAST, CSR_EOF, INTEGERKEY, CLAER, RESTORE, INCRBLOB, $/;"	e	enum:opcode
-CSR_OPEN	log.h	/^    CSR_OPEN,$/;"	e	enum:opcode
+COMMIT	log.h	/^    DROP = 0x10, BTREE_CLEAR, BEGINTRANS, COMMIT,$/;"	e	enum:opcode
+CORRUPT_DB	sqliteInt.h	3269;"	d
+CREATE	log.h	/^    BTREE_CLOSE = 0x20, CREATE, $/;"	e	enum:opcode
+CSR_CLEAR	log.h	/^    CSR_CLOSE, NEXT = 0x110, PREV, FIRST, LAST, CSR_EOF, INTEGERKEY, CSR_CLEAR, RESTORE, INCRBLOB, $/;"	e	enum:opcode
+CSR_CLOSE	log.h	/^    CSR_CLOSE, NEXT = 0x110, PREV, FIRST, LAST, CSR_EOF, INTEGERKEY, CSR_CLEAR, RESTORE, INCRBLOB, $/;"	e	enum:opcode
+CSR_EOF	log.h	/^    CSR_CLOSE, NEXT = 0x110, PREV, FIRST, LAST, CSR_EOF, INTEGERKEY, CSR_CLEAR, RESTORE, INCRBLOB, $/;"	e	enum:opcode
+CSR_OPEN	log.h	/^    CSR_OPEN = 0x100,$/;"	e	enum:opcode
 CTIMEOPT_VAL	ctime.c	34;"	d	file:
 CTIMEOPT_VAL_	ctime.c	33;"	d	file:
 CTRL_FREE	mem5.c	84;"	d	file:
@@ -224,20 +222,20 @@ DB_Empty	sqliteInt.h	1169;"	d
 DB_SchemaLoaded	sqliteInt.h	1167;"	d
 DB_UnresetViews	sqliteInt.h	1168;"	d
 DEFAULT_SECTOR_SIZE	test_multiplex.c	69;"	d	file:
-DELETE	log.h	/^    DELETE, $/;"	e	enum:opcode
+DELETE	log.h	/^    DELETE = 0x130, $/;"	e	enum:opcode
 DEVSYM_MAX_PATHNAME	test_devsym.c	25;"	d	file:
 DEVSYM_VFS_NAME	test_devsym.c	30;"	d	file:
 DFUNCTION	sqliteInt.h	1607;"	d
 DIR	test_windirent.h	/^struct DIR {$/;"	s
 DIR	test_windirent.h	/^typedef struct DIR DIR;$/;"	t	typeref:struct:DIR
-DIRECT_MODE	pager.c	6142;"	d	file:
+DIRECT_MODE	pager.c	6140;"	d	file:
 DIRENT	test_fs.c	81;"	d	file:
 DIRENT	test_windirent.h	/^struct DIRENT {$/;"	s
 DIRENT	test_windirent.h	/^typedef struct DIRENT DIRENT;$/;"	t	typeref:struct:DIRENT
 DOTLOCK_SUFFIX	os_unix.c	2069;"	d	file:
 DO_OS_MALLOC_TEST	os.c	66;"	d	file:
 DO_OS_MALLOC_TEST	os.c	73;"	d	file:
-DROP	log.h	/^    DROP, CLEAR, BEGINTRANS, COMMIT,$/;"	e	enum:opcode
+DROP	log.h	/^    DROP = 0x10, BTREE_CLEAR, BEGINTRANS, COMMIT,$/;"	e	enum:opcode
 DateTime	date.c	/^struct DateTime {$/;"	s	file:
 DateTime	date.c	/^typedef struct DateTime DateTime;$/;"	t	typeref:struct:DateTime	file:
 Db	sqliteInt.h	/^struct Db {$/;"	s
@@ -255,16 +253,16 @@ DbHasAnyProperty	sqliteInt.h	1153;"	d
 DbHasProperty	sqliteInt.h	1152;"	d
 DbHookCmd	tclsqlite.c	/^static void DbHookCmd($/;"	f	file:
 DbMain	tclsqlite.c	/^static int SQLITE_TCLAPI DbMain($/;"	f	file:
-DbMaskAllZero	sqliteInt.h	2858;"	d
-DbMaskAllZero	sqliteInt.h	2865;"	d
-DbMaskNonZero	sqliteInt.h	2859;"	d
-DbMaskNonZero	sqliteInt.h	2866;"	d
-DbMaskSet	sqliteInt.h	2857;"	d
-DbMaskSet	sqliteInt.h	2864;"	d
-DbMaskTest	sqliteInt.h	2855;"	d
-DbMaskTest	sqliteInt.h	2862;"	d
-DbMaskZero	sqliteInt.h	2856;"	d
-DbMaskZero	sqliteInt.h	2863;"	d
+DbMaskAllZero	sqliteInt.h	2859;"	d
+DbMaskAllZero	sqliteInt.h	2866;"	d
+DbMaskNonZero	sqliteInt.h	2860;"	d
+DbMaskNonZero	sqliteInt.h	2867;"	d
+DbMaskSet	sqliteInt.h	2858;"	d
+DbMaskSet	sqliteInt.h	2865;"	d
+DbMaskTest	sqliteInt.h	2856;"	d
+DbMaskTest	sqliteInt.h	2863;"	d
+DbMaskZero	sqliteInt.h	2857;"	d
+DbMaskZero	sqliteInt.h	2864;"	d
 DbObjCmd	tclsqlite.c	/^static int SQLITE_TCLAPI DbObjCmd($/;"	f	file:
 DbObjCmdAdaptor	tclsqlite.c	/^static int SQLITE_TCLAPI DbObjCmdAdaptor($/;"	f	file:
 DbPage	pager.h	/^typedef struct PgHdr DbPage;$/;"	t	typeref:struct:PgHdr
@@ -290,44 +288,43 @@ DistinctCtx	select.c	/^typedef struct DistinctCtx DistinctCtx;$/;"	t	typeref:str
 EIGHT_BYTE_ALIGNMENT	sqliteInt.h	827;"	d
 EIGHT_BYTE_ALIGNMENT	sqliteInt.h	829;"	d
 ENC	sqliteInt.h	1404;"	d
-ENDTRANS	log.h	/^    BTREE_CLOSE, ENDTRANS, CREATE, $/;"	e	enum:opcode
 END_TIMER	shell.c	237;"	d	file:
 END_TIMER	shell.c	314;"	d	file:
 END_TIMER	shell.c	319;"	d	file:
 ENVIRONMENT_VARIABLE1_NAME	test_sqllog.c	95;"	d	file:
 ENVIRONMENT_VARIABLE2_NAME	test_sqllog.c	96;"	d	file:
 ENVIRONMENT_VARIABLE3_NAME	test_sqllog.c	97;"	d	file:
-EP_Agg	sqliteInt.h	2326;"	d
-EP_Alias	sqliteInt.h	2347;"	d
-EP_CanBeNull	sqliteInt.h	2345;"	d
-EP_Collate	sqliteInt.h	2333;"	d
-EP_ConstFunc	sqliteInt.h	2344;"	d
-EP_DblQuoted	sqliteInt.h	2331;"	d
-EP_Distinct	sqliteInt.h	2329;"	d
-EP_Error	sqliteInt.h	2328;"	d
-EP_FromJoin	sqliteInt.h	2325;"	d
-EP_Generic	sqliteInt.h	2334;"	d
-EP_InfixFunc	sqliteInt.h	2332;"	d
-EP_IntValue	sqliteInt.h	2335;"	d
-EP_Leaf	sqliteInt.h	2348;"	d
-EP_MemToken	sqliteInt.h	2341;"	d
-EP_NoReduce	sqliteInt.h	2342;"	d
-EP_Propagate	sqliteInt.h	2353;"	d
-EP_Reduced	sqliteInt.h	2338;"	d
-EP_Resolved	sqliteInt.h	2327;"	d
-EP_Skip	sqliteInt.h	2337;"	d
-EP_Static	sqliteInt.h	2340;"	d
-EP_Subquery	sqliteInt.h	2346;"	d
-EP_TokenOnly	sqliteInt.h	2339;"	d
-EP_Unlikely	sqliteInt.h	2343;"	d
-EP_VarSelect	sqliteInt.h	2330;"	d
-EP_xIsSelect	sqliteInt.h	2336;"	d
+EP_Agg	sqliteInt.h	2327;"	d
+EP_Alias	sqliteInt.h	2348;"	d
+EP_CanBeNull	sqliteInt.h	2346;"	d
+EP_Collate	sqliteInt.h	2334;"	d
+EP_ConstFunc	sqliteInt.h	2345;"	d
+EP_DblQuoted	sqliteInt.h	2332;"	d
+EP_Distinct	sqliteInt.h	2330;"	d
+EP_Error	sqliteInt.h	2329;"	d
+EP_FromJoin	sqliteInt.h	2326;"	d
+EP_Generic	sqliteInt.h	2335;"	d
+EP_InfixFunc	sqliteInt.h	2333;"	d
+EP_IntValue	sqliteInt.h	2336;"	d
+EP_Leaf	sqliteInt.h	2349;"	d
+EP_MemToken	sqliteInt.h	2342;"	d
+EP_NoReduce	sqliteInt.h	2343;"	d
+EP_Propagate	sqliteInt.h	2354;"	d
+EP_Reduced	sqliteInt.h	2339;"	d
+EP_Resolved	sqliteInt.h	2328;"	d
+EP_Skip	sqliteInt.h	2338;"	d
+EP_Static	sqliteInt.h	2341;"	d
+EP_Subquery	sqliteInt.h	2347;"	d
+EP_TokenOnly	sqliteInt.h	2340;"	d
+EP_Unlikely	sqliteInt.h	2344;"	d
+EP_VarSelect	sqliteInt.h	2331;"	d
+EP_xIsSelect	sqliteInt.h	2337;"	d
 EXCLUSIVE_LOCK	os.h	89;"	d
-EXIT	log.h	/^    EXIT, $/;"	e	enum:opcode
-EXPRDUP_REDUCE	sqliteInt.h	2387;"	d
-EXPR_FULLSIZE	sqliteInt.h	2379;"	d
-EXPR_REDUCEDSIZE	sqliteInt.h	2380;"	d
-EXPR_TOKENONLYSIZE	sqliteInt.h	2381;"	d
+EXIT	log.h	/^    EXIT = 0x00, $/;"	e	enum:opcode
+EXPRDUP_REDUCE	sqliteInt.h	2388;"	d
+EXPR_FULLSIZE	sqliteInt.h	2380;"	d
+EXPR_REDUCEDSIZE	sqliteInt.h	2381;"	d
+EXPR_TOKENONLYSIZE	sqliteInt.h	2382;"	d
 EchoModule	test8.c	/^struct EchoModule {$/;"	s	file:
 EchoModule	test8.c	/^typedef struct EchoModule EchoModule;$/;"	t	typeref:struct:EchoModule	file:
 EntropyGatherer	os_win.c	/^struct EntropyGatherer {$/;"	s	file:
@@ -338,15 +335,15 @@ ExpandBlob	vdbeInt.h	544;"	d
 ExpandBlob	vdbeInt.h	547;"	d
 Expr	sqliteInt.h	/^struct Expr {$/;"	s
 Expr	sqliteInt.h	/^typedef struct Expr Expr;$/;"	t	typeref:struct:Expr
-ExprClearProperty	sqliteInt.h	2362;"	d
-ExprHasAllProperty	sqliteInt.h	2360;"	d
-ExprHasProperty	sqliteInt.h	2359;"	d
+ExprClearProperty	sqliteInt.h	2363;"	d
+ExprHasAllProperty	sqliteInt.h	2361;"	d
+ExprHasProperty	sqliteInt.h	2360;"	d
 ExprList	sqliteInt.h	/^struct ExprList {$/;"	s
 ExprList	sqliteInt.h	/^typedef struct ExprList ExprList;$/;"	t	typeref:struct:ExprList
 ExprList_item	sqliteInt.h	/^  struct ExprList_item { \/* For each expression in the list *\/$/;"	s	struct:ExprList
-ExprSetProperty	sqliteInt.h	2361;"	d
-ExprSetVVAProperty	sqliteInt.h	2369;"	d
-ExprSetVVAProperty	sqliteInt.h	2371;"	d
+ExprSetProperty	sqliteInt.h	2362;"	d
+ExprSetVVAProperty	sqliteInt.h	2370;"	d
+ExprSetVVAProperty	sqliteInt.h	2372;"	d
 ExprSpan	sqliteInt.h	/^struct ExprSpan {$/;"	s
 ExprSpan	sqliteInt.h	/^typedef struct ExprSpan ExprSpan;$/;"	t	typeref:struct:ExprSpan
 F1	tclsqlite.c	3575;"	d	file:
@@ -359,7 +356,10 @@ FAULT_INJECT_TRANSIENT	test_vfs.c	66;"	d	file:
 FILEHANDLEID	pager.c	134;"	d	file:
 FILE_ATTRIBUTE_MASK	os_win.c	236;"	d	file:
 FILE_FLAG_MASK	os_win.c	232;"	d	file:
-FIRST	log.h	/^    CSR_CLOSE, NEXT, PREV, FIRST, LAST, CSR_EOF, INTEGERKEY, CLAER, RESTORE, INCRBLOB, $/;"	e	enum:opcode
+FIND_IBT	log.c	9;"	d	file:
+FIND_ICOL	log.c	13;"	d	file:
+FIND_ICSR	log.c	11;"	d	file:
+FIRST	log.h	/^    CSR_CLOSE, NEXT = 0x110, PREV, FIRST, LAST, CSR_EOF, INTEGERKEY, CSR_CLEAR, RESTORE, INCRBLOB, $/;"	e	enum:opcode
 FKey	sqliteInt.h	/^struct FKey {$/;"	s
 FKey	sqliteInt.h	/^typedef struct FKey FKey;$/;"	t	typeref:struct:FKey
 FLAG_INTERN	printf.c	62;"	d	file:
@@ -422,42 +422,42 @@ HAVE_PREAD	os_unix.c	76;"	d	file:
 HAVE_PWRITE	os_unix.c	77;"	d	file:
 HAVE_READLINK	vxworks.h	30;"	d
 HAVE_UTIME	vxworks.h	25;"	d
-HDR_SIZE	log.c	6;"	d	file:
-HasRowid	sqliteInt.h	1886;"	d
+HDR_SIZE	log.c	7;"	d	file:
+HasRowid	sqliteInt.h	1887;"	d
 Hash	hash.h	/^struct Hash {$/;"	s
 Hash	hash.h	/^typedef struct Hash Hash;$/;"	t	typeref:struct:Hash
 HashElem	hash.h	/^struct HashElem {$/;"	s
 HashElem	hash.h	/^typedef struct HashElem HashElem;$/;"	t	typeref:struct:HashElem
-INCRBLOB	log.h	/^    CSR_CLOSE, NEXT, PREV, FIRST, LAST, CSR_EOF, INTEGERKEY, CLAER, RESTORE, INCRBLOB, $/;"	e	enum:opcode
+INCRBLOB	log.h	/^    CSR_CLOSE, NEXT = 0x110, PREV, FIRST, LAST, CSR_EOF, INTEGERKEY, CSR_CLEAR, RESTORE, INCRBLOB, $/;"	e	enum:opcode
 INCRINIT_NORMAL	vdbesort.c	2078;"	d	file:
 INCRINIT_ROOT	vdbesort.c	2080;"	d	file:
 INCRINIT_TASK	vdbesort.c	2079;"	d	file:
 INIT_LIST_HEAD	list.h	24;"	d
 INO_T_DEFINED	test_windirent.h	46;"	d
-INSERT	log.h	/^    INSERT, $/;"	e	enum:opcode
+INSERT	log.h	/^    INSERT = 0x120, $/;"	e	enum:opcode
 INST_MAX_PATHNAME	test_osinst.c	86;"	d	file:
 INT	log.h	/^enum compare {UNKNOWN,INT, STRING, RECORD, WALINT, WALSTRING, WALRECORD};$/;"	e	enum:compare
 INT16_TYPE	sqliteInt.h	651;"	d
 INT16_TYPE	sqliteInt.h	653;"	d
 INT8_TYPE	sqliteInt.h	665;"	d
 INT8_TYPE	sqliteInt.h	667;"	d
-INTEGERKEY	log.h	/^    CSR_CLOSE, NEXT, PREV, FIRST, LAST, CSR_EOF, INTEGERKEY, CLAER, RESTORE, INCRBLOB, $/;"	e	enum:opcode
+INTEGERKEY	log.h	/^    CSR_CLOSE, NEXT = 0x110, PREV, FIRST, LAST, CSR_EOF, INTEGERKEY, CSR_CLEAR, RESTORE, INCRBLOB, $/;"	e	enum:opcode
 INT_464269060799999	date.c	405;"	d	file:
 INVALID_FILE_ATTRIBUTES	os_win.c	228;"	d	file:
 INVALID_SET_FILE_POINTER	os_win.c	2522;"	d	file:
-IN_DECLARE_VTAB	sqliteInt.h	3005;"	d
-IN_DECLARE_VTAB	sqliteInt.h	3007;"	d
-IN_INDEX_EPH	sqliteInt.h	4193;"	d
-IN_INDEX_INDEX_ASC	sqliteInt.h	4194;"	d
-IN_INDEX_INDEX_DESC	sqliteInt.h	4195;"	d
-IN_INDEX_LOOP	sqliteInt.h	4202;"	d
-IN_INDEX_MEMBERSHIP	sqliteInt.h	4201;"	d
-IN_INDEX_NOOP	sqliteInt.h	4196;"	d
-IN_INDEX_NOOP_OK	sqliteInt.h	4200;"	d
-IN_INDEX_ROWID	sqliteInt.h	4192;"	d
+IN_DECLARE_VTAB	sqliteInt.h	3006;"	d
+IN_DECLARE_VTAB	sqliteInt.h	3008;"	d
+IN_INDEX_EPH	sqliteInt.h	4194;"	d
+IN_INDEX_INDEX_ASC	sqliteInt.h	4195;"	d
+IN_INDEX_INDEX_DESC	sqliteInt.h	4196;"	d
+IN_INDEX_LOOP	sqliteInt.h	4203;"	d
+IN_INDEX_MEMBERSHIP	sqliteInt.h	4202;"	d
+IN_INDEX_NOOP	sqliteInt.h	4197;"	d
+IN_INDEX_NOOP_OK	sqliteInt.h	4201;"	d
+IN_INDEX_ROWID	sqliteInt.h	4193;"	d
 IOMETHODS	os_unix.c	4965;"	d	file:
-IOTRACE	sqliteInt.h	4246;"	d
-IOTRACE	sqliteInt.h	4250;"	d
+IOTRACE	sqliteInt.h	4247;"	d
+IOTRACE	sqliteInt.h	4251;"	d
 ISAUTOVACUUM	btreeInt.h	672;"	d
 ISAUTOVACUUM	btreeInt.h	674;"	d
 IS_BIG_INT	sqliteInt.h	486;"	d
@@ -472,7 +472,7 @@ IdList_item	sqliteInt.h	/^  struct IdList_item {$/;"	s	struct:IdList
 IdxCover	expr.c	/^struct IdxCover {$/;"	s	file:
 IfNotOmitAV	btree.c	61;"	d	file:
 IfNotOmitAV	btree.c	63;"	d	file:
-IgnorableOrderby	sqliteInt.h	2779;"	d
+IgnorableOrderby	sqliteInt.h	2780;"	d
 ImportCtx	shell.c	/^struct ImportCtx {$/;"	s	file:
 ImportCtx	shell.c	/^typedef struct ImportCtx ImportCtx;$/;"	t	typeref:struct:ImportCtx	file:
 InLoop	whereInt.h	/^      struct InLoop {$/;"	s	struct:WhereLevel::__anon24::__anon25
@@ -493,14 +493,14 @@ IntegrityCk	btreeInt.h	/^typedef struct IntegrityCk IntegrityCk;$/;"	t	typeref:s
 InterpAndScript	test_superlock.c	/^struct InterpAndScript {$/;"	s	file:
 InterpAndScript	test_superlock.c	/^typedef struct InterpAndScript InterpAndScript;$/;"	t	typeref:struct:InterpAndScript	file:
 IsDigit	shell.c	136;"	d	file:
-IsHiddenColumn	sqliteInt.h	1874;"	d
-IsHiddenColumn	sqliteInt.h	1877;"	d
-IsHiddenColumn	sqliteInt.h	1880;"	d
-IsOrdinaryHiddenColumn	sqliteInt.h	1875;"	d
-IsOrdinaryHiddenColumn	sqliteInt.h	1878;"	d
-IsOrdinaryHiddenColumn	sqliteInt.h	1881;"	d
+IsHiddenColumn	sqliteInt.h	1875;"	d
+IsHiddenColumn	sqliteInt.h	1878;"	d
+IsHiddenColumn	sqliteInt.h	1881;"	d
+IsOrdinaryHiddenColumn	sqliteInt.h	1876;"	d
+IsOrdinaryHiddenColumn	sqliteInt.h	1879;"	d
+IsOrdinaryHiddenColumn	sqliteInt.h	1882;"	d
 IsPowerOfTwo	sqliteInt.h	941;"	d
-IsPrimaryKeyIndex	sqliteInt.h	2116;"	d
+IsPrimaryKeyIndex	sqliteInt.h	2117;"	d
 IsSpace	shell.c	135;"	d	file:
 IsStat3	analyze.c	147;"	d	file:
 IsStat3	analyze.c	150;"	d	file:
@@ -509,41 +509,41 @@ IsStat34	analyze.c	157;"	d	file:
 IsStat4	analyze.c	146;"	d	file:
 IsStat4	analyze.c	149;"	d	file:
 IsStat4	analyze.c	152;"	d	file:
-IsUniqueIndex	sqliteInt.h	2119;"	d
-IsVirtual	sqliteInt.h	1862;"	d
-IsVirtual	sqliteInt.h	1864;"	d
+IsUniqueIndex	sqliteInt.h	2120;"	d
+IsVirtual	sqliteInt.h	1863;"	d
+IsVirtual	sqliteInt.h	1865;"	d
 JOURNAL_FILE	test_onefile.c	126;"	d	file:
-JOURNAL_HDR_SZ	pager.c	775;"	d	file:
-JOURNAL_PG_SZ	pager.c	769;"	d	file:
-JT_CROSS	sqliteInt.h	2544;"	d
-JT_ERROR	sqliteInt.h	2549;"	d
-JT_INNER	sqliteInt.h	2543;"	d
-JT_LEFT	sqliteInt.h	2546;"	d
+JOURNAL_HDR_SZ	pager.c	776;"	d	file:
+JOURNAL_PG_SZ	pager.c	770;"	d	file:
+JT_CROSS	sqliteInt.h	2545;"	d
+JT_ERROR	sqliteInt.h	2550;"	d
+JT_INNER	sqliteInt.h	2544;"	d
+JT_LEFT	sqliteInt.h	2547;"	d
 JT_MAX_PATHNAME	test_journal.c	104;"	d	file:
-JT_NATURAL	sqliteInt.h	2545;"	d
-JT_OUTER	sqliteInt.h	2548;"	d
-JT_RIGHT	sqliteInt.h	2547;"	d
+JT_NATURAL	sqliteInt.h	2546;"	d
+JT_OUTER	sqliteInt.h	2549;"	d
+JT_RIGHT	sqliteInt.h	2548;"	d
 JT_VFS_NAME	test_journal.c	109;"	d	file:
 JtGlobal	test_journal.c	/^struct JtGlobal {$/;"	s	file:
 KeyClass	sqliteInt.h	/^typedef struct KeyClass KeyClass;$/;"	t	typeref:struct:KeyClass
 KeyInfo	sqliteInt.h	/^struct KeyInfo {$/;"	s
 KeyInfo	sqliteInt.h	/^typedef struct KeyInfo KeyInfo;$/;"	t	typeref:struct:KeyInfo
 LARGEST_INT64	sqliteInt.h	803;"	d
-LAST	log.h	/^    CSR_CLOSE, NEXT, PREV, FIRST, LAST, CSR_EOF, INTEGERKEY, CLAER, RESTORE, INCRBLOB, $/;"	e	enum:opcode
+LAST	log.h	/^    CSR_CLOSE, NEXT = 0x110, PREV, FIRST, LAST, CSR_EOF, INTEGERKEY, CSR_CLEAR, RESTORE, INCRBLOB, $/;"	e	enum:opcode
 LIKEFUNC	sqliteInt.h	1616;"	d
 LINKVAR	test_config.c	723;"	d	file:
 LIST_HEAD	list.h	21;"	d
 LIST_HEAD_INIT	list.h	19;"	d
-LOCATE_NOERR	sqliteInt.h	3723;"	d
-LOCATE_VIEW	sqliteInt.h	3722;"	d
+LOCATE_NOERR	sqliteInt.h	3724;"	d
+LOCATE_VIEW	sqliteInt.h	3723;"	d
 LOCKFILE_EXCLUSIVE_LOCK	os_win.c	3040;"	d	file:
 LOCKFILE_FAIL_IMMEDIATELY	os_win.c	3036;"	d	file:
 LOGCELL	log.h	/^struct LOGCELL{$/;"	s
 LOGGER	log.h	/^struct LOGGER{$/;"	s
 LOGHDR	log.h	/^struct LOGHDR{$/;"	s
 LOGMAX	mem5.c	78;"	d	file:
-LOG_LIMIT	log.h	2;"	d
-LOG_SIZE	log.c	7;"	d	file:
+LOG_LIMIT	log.h	3;"	d
+LOG_SIZE	log.c	8;"	d	file:
 LONGDOUBLE_TYPE	sqliteInt.h	513;"	d
 LONGDOUBLE_TYPE	sqliteInt.h	671;"	d
 LPDIR	test_windirent.h	/^typedef DIR *LPDIR;$/;"	t
@@ -558,8 +558,8 @@ LookasideSlot	sqliteInt.h	/^typedef struct LookasideSlot LookasideSlot;$/;"	t	ty
 M	date.c	/^  int Y, M, D;        \/* Year, month, and day *\/$/;"	m	struct:DateTime	file:
 MALLOC_LOG_FRAMES	test_malloc.c	743;"	d	file:
 MALLOC_LOG_KEYINTS	test_malloc.c	744;"	d	file:
-MASKBIT	sqliteInt.h	2480;"	d
-MASKBIT32	sqliteInt.h	2481;"	d
+MASKBIT	sqliteInt.h	2481;"	d
+MASKBIT32	sqliteInt.h	2482;"	d
 MASTER_NAME	sqliteInt.h	919;"	d
 MASTER_ROOT	sqliteInt.h	925;"	d
 MAX	sqliteInt.h	610;"	d
@@ -585,13 +585,13 @@ MD5Transform	tclsqlite.c	/^static void MD5Transform(uint32 buf[4], const uint32 
 MD5Update	tclsqlite.c	/^void MD5Update(MD5Context *ctx, const unsigned char *buf, unsigned int len){$/;"	f	file:
 MEM5LINK	mem5.c	143;"	d	file:
 MEMCELLSIZE	vdbeInt.h	217;"	d
-MEMDB	pager.c	784;"	d	file:
-MEMDB	pager.c	786;"	d	file:
+MEMDB	pager.c	785;"	d	file:
+MEMDB	pager.c	787;"	d	file:
 MEMJOURNAL_DFLT_FILECHUNKSIZE	memjournal.c	47;"	d	file:
-MEMTYPE_HEAP	sqliteInt.h	4291;"	d
-MEMTYPE_LOOKASIDE	sqliteInt.h	4292;"	d
-MEMTYPE_PCACHE	sqliteInt.h	4294;"	d
-MEMTYPE_SCRATCH	sqliteInt.h	4293;"	d
+MEMTYPE_HEAP	sqliteInt.h	4292;"	d
+MEMTYPE_LOOKASIDE	sqliteInt.h	4293;"	d
+MEMTYPE_PCACHE	sqliteInt.h	4295;"	d
+MEMTYPE_SCRATCH	sqliteInt.h	4294;"	d
 MEM_AffMask	vdbeInt.h	236;"	d
 MEM_Agg	vdbeInt.h	253;"	d
 MEM_Blob	vdbeInt.h	235;"	d
@@ -638,7 +638,7 @@ MULTIPLEX_CTRL_SET_CHUNK_SIZE	test_multiplex.h	46;"	d
 MULTIPLEX_CTRL_SET_MAX_CHUNKS	test_multiplex.h	47;"	d
 MUTEX_LOGIC	mutex.h	67;"	d
 MUTEX_LOGIC	mutex.h	69;"	d
-MV_UNPACKED	log.h	/^    MV_UNPACKED$/;"	e	enum:opcode
+MV_UNPACKED	log.h	/^    MV_UNPACKED = 0x140$/;"	e	enum:opcode
 MX_CELL	btreeInt.h	230;"	d
 MX_CELL_SIZE	btreeInt.h	223;"	d
 MX_CHUNK_NUMBER	test_delete.c	34;"	d	file:
@@ -673,24 +673,24 @@ Module	sqliteInt.h	/^struct Module {$/;"	s
 Module	sqliteInt.h	/^typedef struct Module Module;$/;"	t	typeref:struct:Module
 NAME_MAX	test_windirent.h	56;"	d
 NAME_MAX	test_windirent.h	58;"	d
-NB	btree.c	6780;"	d	file:
+NB	btree.c	6787;"	d	file:
 NCSIZE	mem2.c	74;"	d	file:
-NC_AllowAgg	sqliteInt.h	2625;"	d
-NC_HasAgg	sqliteInt.h	2629;"	d
-NC_IdxExpr	sqliteInt.h	2630;"	d
-NC_InAggFunc	sqliteInt.h	2628;"	d
-NC_IsCheck	sqliteInt.h	2627;"	d
-NC_MinMaxAgg	sqliteInt.h	2632;"	d
-NC_PartIdx	sqliteInt.h	2626;"	d
-NC_VarSelect	sqliteInt.h	2631;"	d
+NC_AllowAgg	sqliteInt.h	2626;"	d
+NC_HasAgg	sqliteInt.h	2630;"	d
+NC_IdxExpr	sqliteInt.h	2631;"	d
+NC_InAggFunc	sqliteInt.h	2629;"	d
+NC_IsCheck	sqliteInt.h	2628;"	d
+NC_MinMaxAgg	sqliteInt.h	2633;"	d
+NC_PartIdx	sqliteInt.h	2627;"	d
+NC_VarSelect	sqliteInt.h	2632;"	d
 NDEBUG	sqliteInt.h	348;"	d
 NDEBUG	sqliteInt.h	351;"	d
 NDELAY	main.c	1447;"	d	file:
 NEVER	sqliteInt.h	424;"	d
 NEVER	sqliteInt.h	427;"	d
 NEVER	sqliteInt.h	430;"	d
-NEXT	log.h	/^    CSR_CLOSE, NEXT, PREV, FIRST, LAST, CSR_EOF, INTEGERKEY, CLAER, RESTORE, INCRBLOB, $/;"	e	enum:opcode
-NN	btree.c	6779;"	d	file:
+NEXT	log.h	/^    CSR_CLOSE, NEXT = 0x110, PREV, FIRST, LAST, CSR_EOF, INTEGERKEY, CSR_CLEAR, RESTORE, INCRBLOB, $/;"	e	enum:opcode
+NN	btree.c	6786;"	d	file:
 NO_LOCK	os.h	85;"	d
 NTDDI_WIN8	os_win.c	72;"	d	file:
 NTDDI_WINBLUE	os_win.c	76;"	d	file:
@@ -704,44 +704,44 @@ N_THREAD	test4.c	60;"	d	file:
 N_THREAD	test7.c	89;"	d	file:
 NameContext	sqliteInt.h	/^struct NameContext {$/;"	s
 NameContext	sqliteInt.h	/^typedef struct NameContext NameContext;$/;"	t	typeref:struct:NameContext
-OE_Abort	sqliteInt.h	1961;"	d
-OE_Cascade	sqliteInt.h	1969;"	d
-OE_Default	sqliteInt.h	1971;"	d
-OE_Fail	sqliteInt.h	1962;"	d
-OE_Ignore	sqliteInt.h	1963;"	d
-OE_None	sqliteInt.h	1959;"	d
-OE_Replace	sqliteInt.h	1964;"	d
-OE_Restrict	sqliteInt.h	1966;"	d
-OE_Rollback	sqliteInt.h	1960;"	d
-OE_SetDflt	sqliteInt.h	1968;"	d
-OE_SetNull	sqliteInt.h	1967;"	d
+OE_Abort	sqliteInt.h	1962;"	d
+OE_Cascade	sqliteInt.h	1970;"	d
+OE_Default	sqliteInt.h	1972;"	d
+OE_Fail	sqliteInt.h	1963;"	d
+OE_Ignore	sqliteInt.h	1964;"	d
+OE_None	sqliteInt.h	1960;"	d
+OE_Replace	sqliteInt.h	1965;"	d
+OE_Restrict	sqliteInt.h	1967;"	d
+OE_Rollback	sqliteInt.h	1961;"	d
+OE_SetDflt	sqliteInt.h	1969;"	d
+OE_SetNull	sqliteInt.h	1968;"	d
 OFF	log.h	/^enum loggerState {START, ON, OFF};$/;"	e	enum:loggerState
 OMIT_TEMPDB	sqliteInt.h	532;"	d
 OMIT_TEMPDB	sqliteInt.h	534;"	d
 ON	log.h	/^enum loggerState {START, ON, OFF};$/;"	e	enum:loggerState
-ONEPASS_MULTI	sqliteInt.h	3694;"	d
-ONEPASS_OFF	sqliteInt.h	3692;"	d
-ONEPASS_SINGLE	sqliteInt.h	3693;"	d
+ONEPASS_MULTI	sqliteInt.h	3695;"	d
+ONEPASS_OFF	sqliteInt.h	3693;"	d
+ONEPASS_SINGLE	sqliteInt.h	3694;"	d
 ONE_BYTE_INT	vdbeaux.c	3346;"	d	file:
 ONLY_IF_REALLOC_STRESS	sqliteInt.h	441;"	d
 ONLY_IF_REALLOC_STRESS	sqliteInt.h	443;"	d
 ONLY_IF_REALLOC_STRESS	sqliteInt.h	445;"	d
-OPFLAG_APPEND	sqliteInt.h	3036;"	d
-OPFLAG_AUXDELETE	sqliteInt.h	3049;"	d
-OPFLAG_BULKCSR	sqliteInt.h	3043;"	d
-OPFLAG_EPHEM	sqliteInt.h	3033;"	d
-OPFLAG_FORDELETE	sqliteInt.h	3045;"	d
-OPFLAG_ISNOOP	sqliteInt.h	3039;"	d
-OPFLAG_ISUPDATE	sqliteInt.h	3035;"	d
-OPFLAG_LASTROWID	sqliteInt.h	3034;"	d
-OPFLAG_LENGTHARG	sqliteInt.h	3041;"	d
-OPFLAG_NCHANGE	sqliteInt.h	3031;"	d
-OPFLAG_P2ISREG	sqliteInt.h	3046;"	d
-OPFLAG_PERMUTE	sqliteInt.h	3047;"	d
-OPFLAG_SAVEPOSITION	sqliteInt.h	3048;"	d
-OPFLAG_SEEKEQ	sqliteInt.h	3044;"	d
-OPFLAG_TYPEOFARG	sqliteInt.h	3042;"	d
-OPFLAG_USESEEKRESULT	sqliteInt.h	3037;"	d
+OPFLAG_APPEND	sqliteInt.h	3037;"	d
+OPFLAG_AUXDELETE	sqliteInt.h	3050;"	d
+OPFLAG_BULKCSR	sqliteInt.h	3044;"	d
+OPFLAG_EPHEM	sqliteInt.h	3034;"	d
+OPFLAG_FORDELETE	sqliteInt.h	3046;"	d
+OPFLAG_ISNOOP	sqliteInt.h	3040;"	d
+OPFLAG_ISUPDATE	sqliteInt.h	3036;"	d
+OPFLAG_LASTROWID	sqliteInt.h	3035;"	d
+OPFLAG_LENGTHARG	sqliteInt.h	3042;"	d
+OPFLAG_NCHANGE	sqliteInt.h	3032;"	d
+OPFLAG_P2ISREG	sqliteInt.h	3047;"	d
+OPFLAG_PERMUTE	sqliteInt.h	3048;"	d
+OPFLAG_SAVEPOSITION	sqliteInt.h	3049;"	d
+OPFLAG_SEEKEQ	sqliteInt.h	3045;"	d
+OPFLAG_TYPEOFARG	sqliteInt.h	3043;"	d
+OPFLAG_USESEEKRESULT	sqliteInt.h	3038;"	d
 OSTRACE	sqliteInt.h	454;"	d
 OSTRACE	sqliteInt.h	457;"	d
 OS_ACCESS	test_osinst.c	88;"	d	file:
@@ -815,8 +815,8 @@ PAGER_FLAGS_MASK	pager.h	108;"	d
 PAGER_FULLFSYNC	pager.h	105;"	d
 PAGER_GET_NOCONTENT	pager.h	89;"	d
 PAGER_GET_READONLY	pager.h	90;"	d
-PAGER_INCR	pager.c	731;"	d	file:
-PAGER_INCR	pager.c	733;"	d	file:
+PAGER_INCR	pager.c	732;"	d	file:
+PAGER_INCR	pager.c	734;"	d	file:
 PAGER_JOURNALMODE_DELETE	pager.h	79;"	d
 PAGER_JOURNALMODE_MEMORY	pager.h	83;"	d
 PAGER_JOURNALMODE_OFF	pager.h	81;"	d
@@ -827,15 +827,15 @@ PAGER_JOURNALMODE_WAL	pager.h	84;"	d
 PAGER_LOCKINGMODE_EXCLUSIVE	pager.h	69;"	d
 PAGER_LOCKINGMODE_NORMAL	pager.h	68;"	d
 PAGER_LOCKINGMODE_QUERY	pager.h	67;"	d
-PAGER_MAX_PGNO	pager.c	802;"	d	file:
+PAGER_MAX_PGNO	pager.c	803;"	d	file:
 PAGER_MEMORY	pager.h	62;"	d
 PAGER_MJ_PGNO	pager.h	54;"	d
 PAGER_OMIT_JOURNAL	pager.h	61;"	d
 PAGER_OPEN	pager.c	353;"	d	file:
 PAGER_READER	pager.c	354;"	d	file:
-PAGER_STAT_HIT	pager.c	718;"	d	file:
-PAGER_STAT_MISS	pager.c	719;"	d	file:
-PAGER_STAT_WRITE	pager.c	720;"	d	file:
+PAGER_STAT_HIT	pager.c	719;"	d	file:
+PAGER_STAT_MISS	pager.c	720;"	d	file:
+PAGER_STAT_WRITE	pager.c	721;"	d	file:
 PAGER_SYNCHRONOUS_EXTRA	pager.h	103;"	d
 PAGER_SYNCHRONOUS_FULL	pager.h	102;"	d
 PAGER_SYNCHRONOUS_MASK	pager.h	104;"	d
@@ -846,10 +846,10 @@ PAGER_WRITER_DBMOD	pager.c	357;"	d	file:
 PAGER_WRITER_FINISHED	pager.c	358;"	d	file:
 PAGER_WRITER_LOCKED	pager.c	355;"	d	file:
 PARENTVFS	test_vfs.c	156;"	d	file:
-PARSE_HDR_SZ	sqliteInt.h	2996;"	d
-PARSE_RECURSE_SZ	sqliteInt.h	2997;"	d
-PARSE_TAIL	sqliteInt.h	2999;"	d
-PARSE_TAIL_SZ	sqliteInt.h	2998;"	d
+PARSE_HDR_SZ	sqliteInt.h	2997;"	d
+PARSE_RECURSE_SZ	sqliteInt.h	2998;"	d
+PARSE_TAIL	sqliteInt.h	3000;"	d
+PARSE_TAIL_SZ	sqliteInt.h	2999;"	d
 PCACHE1_MIGHT_USE_GROUP_MUTEX	pcache1.c	224;"	d	file:
 PCACHE1_MIGHT_USE_GROUP_MUTEX	pcache1.c	228;"	d	file:
 PCACHE_DIRTYLIST_ADD	pcache.c	149;"	d	file:
@@ -874,7 +874,7 @@ PGHDR_WRITEABLE	pcache.h	51;"	d
 PGroup	pcache1.c	/^struct PGroup {$/;"	s	file:
 PGroup	pcache1.c	/^typedef struct PGroup PGroup;$/;"	t	typeref:struct:PGroup	file:
 PLS_HASHSIZE	test_wsd.c	22;"	d	file:
-PREV	log.h	/^    CSR_CLOSE, NEXT, PREV, FIRST, LAST, CSR_EOF, INTEGERKEY, CLAER, RESTORE, INCRBLOB, $/;"	e	enum:opcode
+PREV	log.h	/^    CSR_CLOSE, NEXT = 0x110, PREV, FIRST, LAST, CSR_EOF, INTEGERKEY, CSR_CLEAR, RESTORE, INCRBLOB, $/;"	e	enum:opcode
 PROXY_CONCHVERSION	os_unix.c	6709;"	d	file:
 PROXY_HEADERLEN	os_unix.c	6710;"	d	file:
 PROXY_HOSTIDLEN	os_unix.c	6670;"	d	file:
@@ -984,9 +984,11 @@ REARGUARD	mem2.c	69;"	d	file:
 RECORD	log.h	/^enum compare {UNKNOWN,INT, STRING, RECORD, WALINT, WALSTRING, WALRECORD};$/;"	e	enum:compare
 REGISTER_TRACE	vdbe.c	497;"	d	file:
 REGISTER_TRACE	vdbe.c	499;"	d	file:
+RELEASE_IBT	log.c	15;"	d	file:
+RELEASE_ICSR	log.c	17;"	d	file:
 RESERVED_BYTE	os.h	151;"	d
 RESERVED_LOCK	os.h	87;"	d
-RESTORE	log.h	/^    CSR_CLOSE, NEXT, PREV, FIRST, LAST, CSR_EOF, INTEGERKEY, CLAER, RESTORE, INCRBLOB, $/;"	e	enum:opcode
+RESTORE	log.h	/^    CSR_CLOSE, NEXT = 0x110, PREV, FIRST, LAST, CSR_EOF, INTEGERKEY, CSR_CLEAR, RESTORE, INCRBLOB, $/;"	e	enum:opcode
 ROUND8	sqliteInt.h	810;"	d
 ROUNDDOWN8	sqliteInt.h	815;"	d
 ROWSET_ALLOCATION_SIZE	rowset.c	70;"	d	file:
@@ -1000,7 +1002,7 @@ RowSet	rowset.c	/^struct RowSet {$/;"	s	file:
 RowSet	sqliteInt.h	/^typedef struct RowSet RowSet;$/;"	t	typeref:struct:RowSet
 RowSetChunk	rowset.c	/^struct RowSetChunk {$/;"	s	file:
 RowSetEntry	rowset.c	/^struct RowSetEntry {            $/;"	s	file:
-SAVEPOINT	log.h	/^    SAVEPOINT, $/;"	e	enum:opcode
+SAVEPOINT	log.h	/^    SAVEPOINT = 0x30, $/;"	e	enum:opcode
 SAVEPOINT_BEGIN	sqliteInt.h	1643;"	d
 SAVEPOINT_RELEASE	sqliteInt.h	1644;"	d
 SAVEPOINT_ROLLBACK	sqliteInt.h	1645;"	d
@@ -1021,24 +1023,24 @@ SEP_Tab	shell.c	699;"	d	file:
 SEP_Unit	shell.c	703;"	d	file:
 SETBIT	bitvec.c	303;"	d	file:
 SET_FULLSYNC	os.h	33;"	d
-SF_Aggregate	sqliteInt.h	2688;"	d
-SF_All	sqliteInt.h	2686;"	d
-SF_Compound	sqliteInt.h	2693;"	d
-SF_Converted	sqliteInt.h	2701;"	d
-SF_Distinct	sqliteInt.h	2685;"	d
-SF_Expanded	sqliteInt.h	2691;"	d
-SF_FixedLimit	sqliteInt.h	2699;"	d
-SF_HasAgg	sqliteInt.h	2689;"	d
-SF_HasTypeInfo	sqliteInt.h	2692;"	d
-SF_IncludeHidden	sqliteInt.h	2702;"	d
-SF_MaybeConvert	sqliteInt.h	2700;"	d
-SF_MinMaxAgg	sqliteInt.h	2697;"	d
-SF_MultiValue	sqliteInt.h	2695;"	d
-SF_NestedFrom	sqliteInt.h	2696;"	d
-SF_Recursive	sqliteInt.h	2698;"	d
-SF_Resolved	sqliteInt.h	2687;"	d
-SF_UsesEphemeral	sqliteInt.h	2690;"	d
-SF_Values	sqliteInt.h	2694;"	d
+SF_Aggregate	sqliteInt.h	2689;"	d
+SF_All	sqliteInt.h	2687;"	d
+SF_Compound	sqliteInt.h	2694;"	d
+SF_Converted	sqliteInt.h	2702;"	d
+SF_Distinct	sqliteInt.h	2686;"	d
+SF_Expanded	sqliteInt.h	2692;"	d
+SF_FixedLimit	sqliteInt.h	2700;"	d
+SF_HasAgg	sqliteInt.h	2690;"	d
+SF_HasTypeInfo	sqliteInt.h	2693;"	d
+SF_IncludeHidden	sqliteInt.h	2703;"	d
+SF_MaybeConvert	sqliteInt.h	2701;"	d
+SF_MinMaxAgg	sqliteInt.h	2698;"	d
+SF_MultiValue	sqliteInt.h	2696;"	d
+SF_NestedFrom	sqliteInt.h	2697;"	d
+SF_Recursive	sqliteInt.h	2699;"	d
+SF_Resolved	sqliteInt.h	2688;"	d
+SF_UsesEphemeral	sqliteInt.h	2691;"	d
+SF_Values	sqliteInt.h	2695;"	d
 SHARED_FIRST	os.h	152;"	d
 SHARED_LOCK	os.h	86;"	d
 SHARED_SIZE	os.h	153;"	d
@@ -1065,12 +1067,12 @@ SQLITE3_MUTEX_INITIALIZER	mutex_unix.c	57;"	d	file:
 SQLITE3_MUTEX_INITIALIZER	mutex_w32.c	55;"	d	file:
 SQLITE3_MUTEX_INITIALIZER	mutex_w32.c	58;"	d	file:
 SQLITEINT_H	sqliteInt.h	16;"	d
-SQLITE_AFF_BLOB	sqliteInt.h	1719;"	d
-SQLITE_AFF_INTEGER	sqliteInt.h	1722;"	d
-SQLITE_AFF_MASK	sqliteInt.h	1731;"	d
-SQLITE_AFF_NUMERIC	sqliteInt.h	1721;"	d
-SQLITE_AFF_REAL	sqliteInt.h	1723;"	d
-SQLITE_AFF_TEXT	sqliteInt.h	1720;"	d
+SQLITE_AFF_BLOB	sqliteInt.h	1720;"	d
+SQLITE_AFF_INTEGER	sqliteInt.h	1723;"	d
+SQLITE_AFF_MASK	sqliteInt.h	1732;"	d
+SQLITE_AFF_NUMERIC	sqliteInt.h	1722;"	d
+SQLITE_AFF_REAL	sqliteInt.h	1724;"	d
+SQLITE_AFF_TEXT	sqliteInt.h	1721;"	d
 SQLITE_ALLOW_COVERING_INDEX_SCAN	global.c	150;"	d	file:
 SQLITE_ASCII	sqliteInt.h	625;"	d
 SQLITE_AllOpts	sqliteInt.h	1469;"	d
@@ -1084,10 +1086,10 @@ SQLITE_BTREE_H	btree.h	17;"	d
 SQLITE_BYTEORDER	sqliteInt.h	774;"	d
 SQLITE_BYTEORDER	sqliteInt.h	781;"	d
 SQLITE_BYTEORDER	sqliteInt.h	792;"	d
-SQLITE_CANTOPEN_BKPT	sqliteInt.h	3356;"	d
+SQLITE_CANTOPEN_BKPT	sqliteInt.h	3357;"	d
 SQLITE_CORE	loadext.c	17;"	d	file:
 SQLITE_CORE	test_multiplex.c	57;"	d	file:
-SQLITE_CORRUPT_BKPT	sqliteInt.h	3354;"	d
+SQLITE_CORRUPT_BKPT	sqliteInt.h	3355;"	d
 SQLITE_CacheSpill	sqliteInt.h	1419;"	d
 SQLITE_CellSizeCk	sqliteInt.h	1446;"	d
 SQLITE_CkptFullFSync	sqliteInt.h	1418;"	d
@@ -1123,15 +1125,15 @@ SQLITE_DYNAMIC	sqliteInt.h	951;"	d
 SQLITE_DeferFKs	sqliteInt.h	1442;"	d
 SQLITE_DistinctOpt	sqliteInt.h	1461;"	d
 SQLITE_EBCDIC	sqliteInt.h	623;"	d
-SQLITE_ECEL_DUP	sqliteInt.h	3714;"	d
-SQLITE_ECEL_FACTOR	sqliteInt.h	3715;"	d
-SQLITE_ECEL_OMITREF	sqliteInt.h	3717;"	d
-SQLITE_ECEL_REF	sqliteInt.h	3716;"	d
+SQLITE_ECEL_DUP	sqliteInt.h	3715;"	d
+SQLITE_ECEL_FACTOR	sqliteInt.h	3716;"	d
+SQLITE_ECEL_OMITREF	sqliteInt.h	3718;"	d
+SQLITE_ECEL_REF	sqliteInt.h	3717;"	d
 SQLITE_ENABLE_EXPLAIN_COMMENTS	sqliteInt.h	358;"	d
 SQLITE_ENABLE_EXPLAIN_COMMENTS	sqliteInt.h	478;"	d
-SQLITE_ENABLE_FTS3	sqliteInt.h	3371;"	d
-SQLITE_ENABLE_FTS3	sqliteInt.h	3381;"	d
-SQLITE_ENABLE_FTS4	sqliteInt.h	3372;"	d
+SQLITE_ENABLE_FTS3	sqliteInt.h	3372;"	d
+SQLITE_ENABLE_FTS3	sqliteInt.h	3382;"	d
+SQLITE_ENABLE_FTS4	sqliteInt.h	3373;"	d
 SQLITE_ENABLE_LOCKING_STYLE	os_unix.c	68;"	d	file:
 SQLITE_ENABLE_LOCKING_STYLE	os_unix.c	70;"	d	file:
 SQLITE_ENABLE_LOCKING_STYLE	pragma.c	19;"	d	file:
@@ -1139,7 +1141,7 @@ SQLITE_ENABLE_LOCKING_STYLE	pragma.c	21;"	d	file:
 SQLITE_ENABLE_LOCKING_STYLE	test1.c	5741;"	d	file:
 SQLITE_ENABLE_LOCKING_STYLE	test_config.c	572;"	d	file:
 SQLITE_ENABLE_LOCKING_STYLE	vxworks.h	24;"	d
-SQLITE_ENABLE_MEMSYS3	sqliteInt.h	3477;"	d
+SQLITE_ENABLE_MEMSYS3	sqliteInt.h	3478;"	d
 SQLITE_ENABLE_STAT3	sqliteInt.h	880;"	d
 SQLITE_ENABLE_STAT3_OR_STAT4	sqliteInt.h	881;"	d
 SQLITE_ENABLE_STAT3_OR_STAT4	sqliteInt.h	883;"	d
@@ -1151,8 +1153,8 @@ SQLITE_EXTENSION_INIT2	sqlite3ext.h	556;"	d
 SQLITE_EXTENSION_INIT3	sqlite3ext.h	550;"	d
 SQLITE_EXTENSION_INIT3	sqlite3ext.h	557;"	d
 SQLITE_EnableTrigger	sqliteInt.h	1441;"	d
-SQLITE_FAULTINJECTOR_COUNT	sqliteInt.h	4174;"	d
-SQLITE_FAULTINJECTOR_MALLOC	sqliteInt.h	4173;"	d
+SQLITE_FAULTINJECTOR_COUNT	sqliteInt.h	4175;"	d
+SQLITE_FAULTINJECTOR_MALLOC	sqliteInt.h	4174;"	d
 SQLITE_FCNTL_DB_UNCHANGED	os.h	174;"	d
 SQLITE_FILE_HEADER	btreeInt.h	254;"	d
 SQLITE_FREE	mem1.c	63;"	d	file:
@@ -1184,26 +1186,27 @@ SQLITE_HAVE_OS_TRACE	sqliteInt.h	455;"	d
 SQLITE_HAVE_OS_TRACE	sqliteInt.h	458;"	d
 SQLITE_HOMEGROWN_RECURSIVE_MUTEX	vxworks.h	22;"	d
 SQLITE_HWTIME_H	hwtime.h	17;"	d
-SQLITE_IDXTYPE_APPDEF	sqliteInt.h	2111;"	d
-SQLITE_IDXTYPE_PRIMARYKEY	sqliteInt.h	2113;"	d
-SQLITE_IDXTYPE_UNIQUE	sqliteInt.h	2112;"	d
+SQLITE_IDXTYPE_APPDEF	sqliteInt.h	2112;"	d
+SQLITE_IDXTYPE_PRIMARYKEY	sqliteInt.h	2114;"	d
+SQLITE_IDXTYPE_UNIQUE	sqliteInt.h	2113;"	d
 SQLITE_INTARRAY_H	test_intarray.h	79;"	d
-SQLITE_INTEGRITY_CHECK_ERROR_MAX	pragma.c	1387;"	d	file:
+SQLITE_INTEGRITY_CHECK_ERROR_MAX	pragma.c	1393;"	d	file:
 SQLITE_INT_TO_PTR	sqliteInt.h	206;"	d
 SQLITE_INT_TO_PTR	sqliteInt.h	209;"	d
 SQLITE_INT_TO_PTR	sqliteInt.h	212;"	d
 SQLITE_INT_TO_PTR	sqliteInt.h	215;"	d
-SQLITE_IOERR_NOMEM_BKPT	sqliteInt.h	3361;"	d
-SQLITE_IOERR_NOMEM_BKPT	sqliteInt.h	3364;"	d
+SQLITE_IOERR_NOMEM_BKPT	sqliteInt.h	3362;"	d
+SQLITE_IOERR_NOMEM_BKPT	sqliteInt.h	3365;"	d
 SQLITE_IgnoreChecks	sqliteInt.h	1430;"	d
 SQLITE_InternChanges	sqliteInt.h	1415;"	d
-SQLITE_JUMPIFNULL	sqliteInt.h	1743;"	d
-SQLITE_KEEPNULL	sqliteInt.h	1742;"	d
+SQLITE_JUMPIFNULL	sqliteInt.h	1744;"	d
+SQLITE_KEEPNULL	sqliteInt.h	1743;"	d
 SQLITE_LITTLEENDIAN	sqliteInt.h	776;"	d
 SQLITE_LITTLEENDIAN	sqliteInt.h	783;"	d
 SQLITE_LITTLEENDIAN	sqliteInt.h	794;"	d
 SQLITE_LOCKFILEEX_FLAGS	os_win.c	3060;"	d	file:
 SQLITE_LOCKFILE_FLAGS	os_win.c	3051;"	d	file:
+SQLITE_LOGGING	log.h	2;"	d
 SQLITE_LegacyFileFmt	sqliteInt.h	1432;"	d
 SQLITE_LoadExtFunc	sqliteInt.h	1440;"	d
 SQLITE_LoadExtension	sqliteInt.h	1439;"	d
@@ -1253,7 +1256,7 @@ SQLITE_MAX_WORKER_THREADS	sqliteInt.h	575;"	d
 SQLITE_MAX_WORKER_THREADS	sqliteInt.h	581;"	d
 SQLITE_MAX_WORKER_THREADS	sqliteInt.h	582;"	d
 SQLITE_MINIMUM_FILE_DESCRIPTOR	os_unix.c	608;"	d	file:
-SQLITE_MISUSE_BKPT	sqliteInt.h	3355;"	d
+SQLITE_MISUSE_BKPT	sqliteInt.h	3356;"	d
 SQLITE_MIXED_ENDIAN_64BIT_FLOAT	sqliteInt.h	519;"	d
 SQLITE_MSVC_H	msvc.h	16;"	d
 SQLITE_MULTIPLEX_CHUNK_SIZE	test_multiplex.c	90;"	d	file:
@@ -1275,13 +1278,13 @@ SQLITE_NOINLINE	sqliteInt.h	224;"	d
 SQLITE_NOINLINE	sqliteInt.h	226;"	d
 SQLITE_NOINLINE	sqliteInt.h	228;"	d
 SQLITE_NOMATCH	func.c	607;"	d	file:
-SQLITE_NOMEM_BKPT	sqliteInt.h	3360;"	d
-SQLITE_NOMEM_BKPT	sqliteInt.h	3363;"	d
-SQLITE_NOTNULL	sqliteInt.h	1746;"	d
+SQLITE_NOMEM_BKPT	sqliteInt.h	3361;"	d
+SQLITE_NOMEM_BKPT	sqliteInt.h	3364;"	d
+SQLITE_NOTNULL	sqliteInt.h	1747;"	d
 SQLITE_NOWILDCARDMATCH	func.c	608;"	d	file:
-SQLITE_NULLEQ	sqliteInt.h	1745;"	d
+SQLITE_NULLEQ	sqliteInt.h	1746;"	d
 SQLITE_N_BTREE_META	btree.h	22;"	d
-SQLITE_N_COLCACHE	sqliteInt.h	2821;"	d
+SQLITE_N_COLCACHE	sqliteInt.h	2822;"	d
 SQLITE_N_LIMIT	sqliteInt.h	1175;"	d
 SQLITE_NoCkptOnClose	sqliteInt.h	1448;"	d
 SQLITE_NullCallback	sqliteInt.h	1424;"	d
@@ -1315,9 +1318,9 @@ SQLITE_OmitNoopJoin	sqliteInt.h	1466;"	d
 SQLITE_OrderByIdxJoin	sqliteInt.h	1463;"	d
 SQLITE_PAGER_H	pager.h	18;"	d
 SQLITE_POWERSAFE_OVERWRITE	sqliteInt.h	273;"	d
-SQLITE_PRINTF_INTERNAL	sqliteInt.h	3172;"	d
-SQLITE_PRINTF_MALLOCED	sqliteInt.h	3174;"	d
-SQLITE_PRINTF_SQLFUNC	sqliteInt.h	3173;"	d
+SQLITE_PRINTF_INTERNAL	sqliteInt.h	3173;"	d
+SQLITE_PRINTF_MALLOCED	sqliteInt.h	3175;"	d
+SQLITE_PRINTF_SQLFUNC	sqliteInt.h	3174;"	d
 SQLITE_PRINT_BUF_SIZE	printf.c	165;"	d	file:
 SQLITE_PTRSIZE	sqliteInt.h	731;"	d
 SQLITE_PTRSIZE	sqliteInt.h	734;"	d
@@ -1337,16 +1340,16 @@ SQLITE_RecoveryMode	sqliteInt.h	1433;"	d
 SQLITE_ReverseOrder	sqliteInt.h	1434;"	d
 SQLITE_SHELL_IS_UTF8	shell.c	5775;"	d	file:
 SQLITE_SHELL_IS_UTF8	shell.c	5777;"	d	file:
-SQLITE_SKIP_UTF8	sqliteInt.h	3338;"	d
+SQLITE_SKIP_UTF8	sqliteInt.h	3339;"	d
 SQLITE_SORTER_PMASZ	global.c	157;"	d	file:
-SQLITE_SO_ASC	sqliteInt.h	1701;"	d
-SQLITE_SO_DESC	sqliteInt.h	1702;"	d
-SQLITE_SO_UNDEFINED	sqliteInt.h	1703;"	d
+SQLITE_SO_ASC	sqliteInt.h	1702;"	d
+SQLITE_SO_DESC	sqliteInt.h	1703;"	d
+SQLITE_SO_UNDEFINED	sqliteInt.h	1704;"	d
 SQLITE_STAT4_SAMPLES	analyze.c	154;"	d	file:
 SQLITE_STAT4_SAMPLES	analyze.c	155;"	d	file:
 SQLITE_STAT4_SAMPLES	analyze.c	257;"	d	file:
 SQLITE_STMTJRNL_SPILL	global.c	169;"	d	file:
-SQLITE_STOREP2	sqliteInt.h	1744;"	d
+SQLITE_STOREP2	sqliteInt.h	1745;"	d
 SQLITE_SYNC_MASK	wal.h	26;"	d
 SQLITE_SYSTEM_MALLOC	sqliteInt.h	315;"	d
 SQLITE_ShortColNames	sqliteInt.h	1420;"	d
@@ -1426,20 +1429,20 @@ SQLITE_WriteSchema	sqliteInt.h	1428;"	d
 SQLLOG_NAMESZ	test_sqllog.c	100;"	d	file:
 SQLiteThread	sqliteInt.h	/^typedef struct SQLiteThread SQLiteThread;$/;"	t	typeref:struct:SQLiteThread
 SQLiteThread	threads.c	/^struct SQLiteThread {$/;"	s	file:
-SRT_Coroutine	sqliteInt.h	2785;"	d
-SRT_Discard	sqliteInt.h	2772;"	d
-SRT_DistFifo	sqliteInt.h	2774;"	d
-SRT_DistQueue	sqliteInt.h	2776;"	d
-SRT_EphemTab	sqliteInt.h	2784;"	d
-SRT_Except	sqliteInt.h	2770;"	d
-SRT_Exists	sqliteInt.h	2771;"	d
-SRT_Fifo	sqliteInt.h	2773;"	d
-SRT_Mem	sqliteInt.h	2782;"	d
-SRT_Output	sqliteInt.h	2781;"	d
-SRT_Queue	sqliteInt.h	2775;"	d
-SRT_Set	sqliteInt.h	2783;"	d
-SRT_Table	sqliteInt.h	2786;"	d
-SRT_Union	sqliteInt.h	2769;"	d
+SRT_Coroutine	sqliteInt.h	2786;"	d
+SRT_Discard	sqliteInt.h	2773;"	d
+SRT_DistFifo	sqliteInt.h	2775;"	d
+SRT_DistQueue	sqliteInt.h	2777;"	d
+SRT_EphemTab	sqliteInt.h	2785;"	d
+SRT_Except	sqliteInt.h	2771;"	d
+SRT_Exists	sqliteInt.h	2772;"	d
+SRT_Fifo	sqliteInt.h	2774;"	d
+SRT_Mem	sqliteInt.h	2783;"	d
+SRT_Output	sqliteInt.h	2782;"	d
+SRT_Queue	sqliteInt.h	2776;"	d
+SRT_Set	sqliteInt.h	2784;"	d
+SRT_Table	sqliteInt.h	2787;"	d
+SRT_Union	sqliteInt.h	2770;"	d
 SRVAL	vdbesort.c	456;"	d	file:
 START	log.h	/^enum loggerState {START, ON, OFF};$/;"	e	enum:loggerState
 STATIC_MUTEXES	test_mutex.c	27;"	d	file:
@@ -1448,8 +1451,8 @@ STAT_GET_NEQ	analyze.c	788;"	d	file:
 STAT_GET_NLT	analyze.c	789;"	d	file:
 STAT_GET_ROWID	analyze.c	787;"	d	file:
 STAT_GET_STAT1	analyze.c	786;"	d	file:
-STRACCUM_NOMEM	sqliteInt.h	3170;"	d
-STRACCUM_TOOBIG	sqliteInt.h	3171;"	d
+STRACCUM_NOMEM	sqliteInt.h	3171;"	d
+STRACCUM_TOOBIG	sqliteInt.h	3172;"	d
 STRING	log.h	/^enum compare {UNKNOWN,INT, STRING, RECORD, WALINT, WALSTRING, WALRECORD};$/;"	e	enum:compare
 STRINGVALUE	test_config.c	40;"	d	file:
 STRINGVALUE2	test_config.c	39;"	d	file:
@@ -1629,14 +1632,14 @@ TESTVFS_SYNC_MASK	test_vfs.c	125;"	d	file:
 TESTVFS_TRUNCATE_MASK	test_vfs.c	129;"	d	file:
 TESTVFS_UNLOCK_MASK	test_vfs.c	133;"	d	file:
 TESTVFS_WRITE_MASK	test_vfs.c	128;"	d	file:
-TF_Autoincrement	sqliteInt.h	1849;"	d
-TF_Ephemeral	sqliteInt.h	1847;"	d
-TF_HasPrimaryKey	sqliteInt.h	1848;"	d
-TF_NoVisibleRowid	sqliteInt.h	1852;"	d
-TF_OOOHidden	sqliteInt.h	1853;"	d
-TF_Readonly	sqliteInt.h	1846;"	d
-TF_Virtual	sqliteInt.h	1850;"	d
-TF_WithoutRowid	sqliteInt.h	1851;"	d
+TF_Autoincrement	sqliteInt.h	1850;"	d
+TF_Ephemeral	sqliteInt.h	1848;"	d
+TF_HasPrimaryKey	sqliteInt.h	1849;"	d
+TF_NoVisibleRowid	sqliteInt.h	1853;"	d
+TF_OOOHidden	sqliteInt.h	1854;"	d
+TF_Readonly	sqliteInt.h	1847;"	d
+TF_Virtual	sqliteInt.h	1851;"	d
+TF_WithoutRowid	sqliteInt.h	1852;"	d
 THREE_BYTE_INT	vdbeaux.c	3348;"	d	file:
 TIMER_ELAPSED	os_common.h	48;"	d
 TIMER_ELAPSED	os_common.h	52;"	d
@@ -1652,9 +1655,10 @@ TRACE_IDX_OUTPUTS	where.c	590;"	d	file:
 TRANS_NONE	btreeInt.h	380;"	d
 TRANS_READ	btreeInt.h	381;"	d
 TRANS_WRITE	btreeInt.h	382;"	d
-TRIGGER_AFTER	sqliteInt.h	3088;"	d
-TRIGGER_BEFORE	sqliteInt.h	3087;"	d
+TRIGGER_AFTER	sqliteInt.h	3089;"	d
+TRIGGER_BEFORE	sqliteInt.h	3088;"	d
 TWO_BYTE_INT	vdbeaux.c	3347;"	d	file:
+TYPE	log.c	19;"	d	file:
 TabResult	table.c	/^typedef struct TabResult {$/;"	s	file:
 TabResult	table.c	/^} TabResult;$/;"	t	typeref:struct:TabResult	file:
 Table	sqliteInt.h	/^struct Table {$/;"	s
@@ -1735,8 +1739,8 @@ UNUSED_PARAMETER2	sqliteInt.h	996;"	d
 UNUSED_VARIABLE_VALUE	os_win.c	176;"	d	file:
 UPDATE_MAX_BLOBSIZE	vdbe.c	115;"	d	file:
 UPDATE_MAX_BLOBSIZE	vdbe.c	117;"	d	file:
-USEFETCH	pager.c	794;"	d	file:
-USEFETCH	pager.c	796;"	d	file:
+USEFETCH	pager.c	795;"	d	file:
+USEFETCH	pager.c	797;"	d	file:
 USE_PREAD	os_unix.c	80;"	d	file:
 USE_PREAD	os_unix.c	84;"	d	file:
 USE_PREAD64	os_unix.c	81;"	d	file:
@@ -1809,7 +1813,7 @@ VfslogVfs	test_osinst.c	/^struct VfslogVfs {$/;"	s	file:
 VfslogVfs	test_osinst.c	/^typedef struct VfslogVfs VfslogVfs;$/;"	t	typeref:struct:VfslogVfs	file:
 VfslogVtab	test_osinst.c	/^struct VfslogVtab {$/;"	s	file:
 VfslogVtab	test_osinst.c	/^typedef struct VfslogVtab VfslogVtab;$/;"	t	typeref:struct:VfslogVtab	file:
-VisibleRowid	sqliteInt.h	1887;"	d
+VisibleRowid	sqliteInt.h	1888;"	d
 VtabCtx	sqliteInt.h	/^typedef struct VtabCtx VtabCtx;$/;"	t	typeref:struct:VtabCtx
 VtabCtx	vtab.c	/^struct VtabCtx {$/;"	s	file:
 WALINDEX_HDR_SIZE	wal.c	395;"	d	file:
@@ -1851,36 +1855,36 @@ WHERE_COLUMN_IN	whereInt.h	535;"	d
 WHERE_COLUMN_NULL	whereInt.h	536;"	d
 WHERE_COLUMN_RANGE	whereInt.h	534;"	d
 WHERE_CONSTRAINT	whereInt.h	537;"	d
-WHERE_DISTINCTBY	sqliteInt.h	2568;"	d
-WHERE_DISTINCT_NOOP	sqliteInt.h	2580;"	d
-WHERE_DISTINCT_ORDERED	sqliteInt.h	2582;"	d
-WHERE_DISTINCT_UNIQUE	sqliteInt.h	2581;"	d
-WHERE_DISTINCT_UNORDERED	sqliteInt.h	2583;"	d
-WHERE_DUPLICATES_OK	sqliteInt.h	2564;"	d
-WHERE_GROUPBY	sqliteInt.h	2567;"	d
+WHERE_DISTINCTBY	sqliteInt.h	2569;"	d
+WHERE_DISTINCT_NOOP	sqliteInt.h	2581;"	d
+WHERE_DISTINCT_ORDERED	sqliteInt.h	2583;"	d
+WHERE_DISTINCT_UNIQUE	sqliteInt.h	2582;"	d
+WHERE_DISTINCT_UNORDERED	sqliteInt.h	2584;"	d
+WHERE_DUPLICATES_OK	sqliteInt.h	2565;"	d
+WHERE_GROUPBY	sqliteInt.h	2568;"	d
 WHERE_IDX_ONLY	whereInt.h	541;"	d
 WHERE_INDEXED	whereInt.h	543;"	d
 WHERE_IN_ABLE	whereInt.h	545;"	d
 WHERE_IPK	whereInt.h	542;"	d
 WHERE_LOOP_XFER_SZ	whereInt.h	141;"	d
 WHERE_MULTI_OR	whereInt.h	547;"	d
-WHERE_ONEPASS_DESIRED	sqliteInt.h	2562;"	d
-WHERE_ONEPASS_MULTIROW	sqliteInt.h	2563;"	d
+WHERE_ONEPASS_DESIRED	sqliteInt.h	2563;"	d
+WHERE_ONEPASS_MULTIROW	sqliteInt.h	2564;"	d
 WHERE_ONEROW	whereInt.h	546;"	d
-WHERE_ORDERBY_LIMIT	sqliteInt.h	2572;"	d
-WHERE_ORDERBY_MAX	sqliteInt.h	2561;"	d
-WHERE_ORDERBY_MIN	sqliteInt.h	2560;"	d
-WHERE_ORDERBY_NORMAL	sqliteInt.h	2559;"	d
-WHERE_OR_SUBCLAUSE	sqliteInt.h	2565;"	d
+WHERE_ORDERBY_LIMIT	sqliteInt.h	2573;"	d
+WHERE_ORDERBY_MAX	sqliteInt.h	2562;"	d
+WHERE_ORDERBY_MIN	sqliteInt.h	2561;"	d
+WHERE_ORDERBY_NORMAL	sqliteInt.h	2560;"	d
+WHERE_OR_SUBCLAUSE	sqliteInt.h	2566;"	d
 WHERE_PARTIALIDX	whereInt.h	551;"	d
-WHERE_SEEK_TABLE	sqliteInt.h	2571;"	d
+WHERE_SEEK_TABLE	sqliteInt.h	2572;"	d
 WHERE_SKIPSCAN	whereInt.h	549;"	d
-WHERE_SORTBYGROUP	sqliteInt.h	2570;"	d
+WHERE_SORTBYGROUP	sqliteInt.h	2571;"	d
 WHERE_TOP_LIMIT	whereInt.h	538;"	d
 WHERE_UNQ_WANTED	whereInt.h	550;"	d
-WHERE_USE_LIMIT	sqliteInt.h	2575;"	d
+WHERE_USE_LIMIT	sqliteInt.h	2576;"	d
 WHERE_VIRTUALTABLE	whereInt.h	544;"	d
-WHERE_WANT_DISTINCT	sqliteInt.h	2569;"	d
+WHERE_WANT_DISTINCT	sqliteInt.h	2570;"	d
 WIN32_LEAN_AND_MEAN	tclsqlite.c	65;"	d	file:
 WIN32_LEAN_AND_MEAN	test_windirent.h	22;"	d
 WINCE_DELETION_ATTEMPTS	os_win.c	2624;"	d	file:
@@ -1909,9 +1913,10 @@ WO_MATCH	whereInt.h	517;"	d
 WO_NOOP	whereInt.h	523;"	d
 WO_OR	whereInt.h	520;"	d
 WO_SINGLE	whereInt.h	526;"	d
-WRC_Abort	sqliteInt.h	3306;"	d
-WRC_Continue	sqliteInt.h	3304;"	d
-WRC_Prune	sqliteInt.h	3305;"	d
+WRC_Abort	sqliteInt.h	3307;"	d
+WRC_Continue	sqliteInt.h	3305;"	d
+WRC_Prune	sqliteInt.h	3306;"	d
+WRITE	log.c	21;"	d	file:
 WRITE_LOCK	btreeInt.h	326;"	d
 WRITE_UTF16BE	utf.c	96;"	d	file:
 WRITE_UTF16LE	utf.c	84;"	d	file:
@@ -1961,8 +1966,8 @@ With	sqliteInt.h	/^typedef struct With With;$/;"	t	typeref:struct:With
 Wrapped	test_init.c	/^static struct Wrapped {$/;"	s	file:
 WriteBuffer	test6.c	/^struct WriteBuffer {$/;"	s	file:
 WriteBuffer	test6.c	/^typedef struct WriteBuffer WriteBuffer;$/;"	t	typeref:struct:WriteBuffer	file:
-XN_EXPR	sqliteInt.h	2125;"	d
-XN_ROWID	sqliteInt.h	2124;"	d
+XN_EXPR	sqliteInt.h	2126;"	d
+XN_ROWID	sqliteInt.h	2125;"	d
 Y	date.c	/^  int Y, M, D;        \/* Year, month, and day *\/$/;"	m	struct:DateTime	file:
 _BSD_SOURCE	sqliteInt.h	119;"	d
 _CRT_RAND_S	sqliteInt.h	58;"	d
@@ -2211,8 +2216,10 @@ anylist	parse.y	/^anylist ::= anylist ANY.$/;"	l
 anylist	parse.y	/^anylist ::= anylist LP anylist RP.$/;"	l
 apArg	sqliteInt.h	/^  sqlite3_value **apArg;   \/* The argument values *\/$/;"	m	struct:PrintfArguments
 apArg	vdbeInt.h	/^  Mem **apArg;            \/* Arguments to currently executing user function *\/$/;"	m	struct:Vdbe
+apBt	log.h	/^    Btree *apBt[10];$/;"	m	struct:LOGGER
 apCell	btree.c	/^  u8 **apCell;            \/* All cells begin balanced *\/$/;"	m	struct:CellArray	file:
 apColName	tclsqlite.c	/^  Tcl_Obj **apColName;            \/* Array of column names *\/$/;"	m	struct:DbEvalContext	file:
+apCsr	log.h	/^    BtCursor *apCsr[10];$/;"	m	struct:LOGGER
 apCsr	vdbeInt.h	/^  VdbeCursor **apCsr;     \/* Array of Vdbe cursors for parent frame *\/$/;"	m	struct:VdbeFrame
 apCsr	vdbeInt.h	/^  VdbeCursor **apCsr;     \/* One element of this array for each open cursor *\/$/;"	m	struct:Vdbe
 apHash	pcache1.c	/^  PgHdr1 **apHash;                    \/* Hash table for fast lookup by key *\/$/;"	m	struct:PCache1	file:
@@ -2241,12 +2248,12 @@ argv	test7.c	/^  const char *argv[100];   \/* result columns *\/$/;"	m	struct:Th
 argv	vdbeInt.h	/^  sqlite3_value *argv[1]; \/* Argument set *\/$/;"	m	struct:sqlite3_context
 ascii_read_one_field	shell.c	/^static char *SQLITE_CDECL ascii_read_one_field(ImportCtx *p){$/;"	f	file:
 assertCellInfo	btree.c	/^  static void assertCellInfo(BtCursor *pCur){$/;"	f	file:
-assertCellInfo	btree.c	4285;"	d	file:
+assertCellInfo	btree.c	4292;"	d	file:
 assertMutexHeld	notify.c	31;"	d	file:
 assertParentIndex	btree.c	/^static void assertParentIndex(MemPage *pParent, int iIdx, Pgno iChild){$/;"	f	file:
-assertParentIndex	btree.c	4827;"	d	file:
+assertParentIndex	btree.c	4834;"	d	file:
 assertTruncateConstraint	pager.c	/^static void assertTruncateConstraint(Pager *pPager){$/;"	f	file:
-assertTruncateConstraint	pager.c	3913;"	d	file:
+assertTruncateConstraint	pager.c	3914;"	d	file:
 assertTruncateConstraintCb	pager.c	/^static void assertTruncateConstraintCb(PgHdr *pPg){$/;"	f	file:
 assert_pager_state	pager.c	/^static int assert_pager_state(Pager *p){$/;"	f	file:
 attachBackupObject	backup.c	/^static void attachBackupObject(sqlite3_backup *p){$/;"	f	file:
@@ -2423,9 +2430,13 @@ blocking_step_proc	test_thread.c	/^static Tcl_ObjCmdProc blocking_step_proc;$/;"
 blocking_step_proc	test_thread.c	/^static int SQLITE_TCLAPI blocking_step_proc($/;"	f	file:
 booleanValue	shell.c	/^static int booleanValue(char *zArg){$/;"	f	file:
 broken_init	test_autoext.c	/^static int broken_init($/;"	f	file:
+bt_flag	log.h	/^enum logtype { bt_open, bt_ibt, bt_flag, bt_save, csr_open = 0x10, csr_icsr, csr_insert, csr_flag, csr_unpacked };$/;"	e	enum:logtype
 bt_flag_log	btreeInt.h	/^      struct BtFlagLog bt_flag_log;$/;"	m	union:Btree::__anon3	typeref:struct:Btree::__anon3::BtFlagLog
 bt_iBt_log	btreeInt.h	/^      struct BtIbtLog bt_iBt_log;$/;"	m	union:Btree::__anon3	typeref:struct:Btree::__anon3::BtIbtLog
+bt_ibt	log.h	/^enum logtype { bt_open, bt_ibt, bt_flag, bt_save, csr_open = 0x10, csr_icsr, csr_insert, csr_flag, csr_unpacked };$/;"	e	enum:logtype
+bt_open	log.h	/^enum logtype { bt_open, bt_ibt, bt_flag, bt_save, csr_open = 0x10, csr_icsr, csr_insert, csr_flag, csr_unpacked };$/;"	e	enum:logtype
 bt_open_log	btreeInt.h	/^      struct BtOpenLog bt_open_log;$/;"	m	union:Btree::__anon3	typeref:struct:Btree::__anon3::BtOpenLog
+bt_save	log.h	/^enum logtype { bt_open, bt_ibt, bt_flag, bt_save, csr_open = 0x10, csr_icsr, csr_insert, csr_flag, csr_unpacked };$/;"	e	enum:logtype
 bt_save_log	btreeInt.h	/^      struct BtSaveLog bt_save_log;$/;"	m	union:Btree::__anon3	typeref:struct:Btree::__anon3::BtSaveLog
 btree	whereInt.h	/^    } btree;$/;"	m	union:WhereLoop::__anon26	typeref:struct:WhereLoop::__anon26::__anon27
 btreeClearHasContent	btree.c	/^static void btreeClearHasContent(BtShared *pBt){$/;"	f	file:
@@ -2812,10 +2823,15 @@ create_table	parse.y	/^create_table ::= createkw temp(T) TABLE ifnotexists(E) nm
 create_table_args	parse.y	/^create_table_args ::= AS select(S). {$/;"	l
 create_table_args	parse.y	/^create_table_args ::= LP columnlist conslist_opt(X) RP(E) table_options(F). {$/;"	l
 create_vtab	parse.y	/^create_vtab ::= createkw VIRTUAL TABLE ifnotexists(E)$/;"	l
+csr_flag	log.h	/^enum logtype { bt_open, bt_ibt, bt_flag, bt_save, csr_open = 0x10, csr_icsr, csr_insert, csr_flag, csr_unpacked };$/;"	e	enum:logtype
 csr_flag_log	btreeInt.h	/^      struct CsrFlagLog csr_flag_log;$/;"	m	union:BtCursor::__anon4	typeref:struct:BtCursor::__anon4::CsrFlagLog
+csr_icsr	log.h	/^enum logtype { bt_open, bt_ibt, bt_flag, bt_save, csr_open = 0x10, csr_icsr, csr_insert, csr_flag, csr_unpacked };$/;"	e	enum:logtype
 csr_icsr_log	btreeInt.h	/^      struct CsrIcsrLog csr_icsr_log;$/;"	m	union:BtCursor::__anon4	typeref:struct:BtCursor::__anon4::CsrIcsrLog
+csr_insert	log.h	/^enum logtype { bt_open, bt_ibt, bt_flag, bt_save, csr_open = 0x10, csr_icsr, csr_insert, csr_flag, csr_unpacked };$/;"	e	enum:logtype
 csr_insert_log	btreeInt.h	/^      struct CsrInsertLog csr_insert_log;$/;"	m	union:BtCursor::__anon4	typeref:struct:BtCursor::__anon4::CsrInsertLog
+csr_open	log.h	/^enum logtype { bt_open, bt_ibt, bt_flag, bt_save, csr_open = 0x10, csr_icsr, csr_insert, csr_flag, csr_unpacked };$/;"	e	enum:logtype
 csr_open_log	btreeInt.h	/^      struct CsrOpenLog csr_open_log;$/;"	m	union:BtCursor::__anon4	typeref:struct:BtCursor::__anon4::CsrOpenLog
+csr_unpacked	log.h	/^enum logtype { bt_open, bt_ibt, bt_flag, bt_save, csr_open = 0x10, csr_icsr, csr_insert, csr_flag, csr_unpacked };$/;"	e	enum:logtype
 csr_unpacked_log	btreeInt.h	/^      struct CsrUnpackedLog csr_unpacked_log;$/;"	m	union:BtCursor::__anon4	typeref:struct:BtCursor::__anon4::CsrUnpackedLog
 csv_read_one_field	shell.c	/^static char *SQLITE_CDECL csv_read_one_field(ImportCtx *p){$/;"	f	file:
 ctimeFunc	date.c	/^static void ctimeFunc($/;"	f	file:
@@ -2860,6 +2876,7 @@ db	analyze.c	/^  sqlite3 *db;$/;"	m	struct:analysisInfo	file:
 db	btreeInt.h	/^  sqlite3 *db;          \/* Database connection currently using this Btree *\/$/;"	m	struct:BtShared
 db	btreeInt.h	/^  sqlite3 *db;       \/* The database connection holding this btree *\/$/;"	m	struct:Btree
 db	dbstat.c	/^  sqlite3 *db;$/;"	m	struct:StatTable	file:
+db	log.h	/^    sqlite3 *db;$/;"	m	struct:LOGGER
 db	pragma.c	/^  sqlite3 *db;              \/* The database connection to which it belongs *\/$/;"	m	struct:PragmaVtab	file:
 db	rowset.c	/^  sqlite3 *db;                   \/* The database connection *\/$/;"	m	struct:RowSet	file:
 db	shell.c	/^  sqlite3 *db;           \/* The database *\/$/;"	m	struct:ShellState	file:
@@ -2972,7 +2989,7 @@ demoWrite	test_demovfs.c	/^static int demoWrite($/;"	f	file:
 depth	test_rtree.c	/^  double depth;$/;"	m	struct:Cube	file:
 dequote	test_osinst.c	/^static void dequote(char *z){$/;"	f	file:
 dequoteString	test8.c	/^static void dequoteString(char *z){$/;"	f	file:
-deserialize	log.c	/^void deserialize(void* log, enum opcode op){$/;"	f
+deserialize	log.c	/^void deserialize(void* log, enum opcode op, Logger *pLogger){$/;"	f
 destroyRootPage	build.c	/^static void destroyRootPage(Parse *pParse, int iTable, int iDb){$/;"	f	file:
 destroyTable	build.c	/^static void destroyTable(Parse *pParse, Table *pTab){$/;"	f	file:
 destructor	test_func.c	/^static void destructor(void *p){$/;"	f	file:
@@ -3023,7 +3040,7 @@ disableTriggers	sqliteInt.h	/^  u8 disableTriggers;  \/* True to disable trigger
 disableTry	test_mutex.c	/^  int disableTry;            \/* True to force sqlite3_mutex_try() to fail *\/$/;"	m	struct:test_mutex_globals	file:
 disable_debug_trace_modes	shell.c	/^static void disable_debug_trace_modes(void){$/;"	f	file:
 disable_simulated_io_errors	pager.c	/^void disable_simulated_io_errors(void){$/;"	f
-disable_simulated_io_errors	pager.c	3796;"	d	file:
+disable_simulated_io_errors	pager.c	3797;"	d	file:
 disable_simulated_io_errors	pager.h	234;"	d
 disallow	mem2.c	/^  int disallow; \/* Do not allow memory allocation *\/$/;"	m	struct:__anon6	file:
 discardChance	test_pcache.c	/^  unsigned discardChance;   \/* Chance of discarding on an unpin (0-100) *\/$/;"	m	struct:testpcacheGlobalType	file:
@@ -3133,13 +3150,16 @@ enable	test_malloc.c	/^  u8 enable;              \/* True if enabled *\/$/;"	m	s
 enableTimer	shell.c	/^static int enableTimer = 0;$/;"	v	file:
 enable_shared_cache	sqlite3ext.h	/^  int  (*enable_shared_cache)(int);$/;"	m	struct:sqlite3_api_routines
 enable_simulated_io_errors	pager.c	/^void enable_simulated_io_errors(void){$/;"	f
-enable_simulated_io_errors	pager.c	3797;"	d	file:
+enable_simulated_io_errors	pager.c	3798;"	d	file:
 enable_simulated_io_errors	pager.h	235;"	d
 enc	sqliteInt.h	/^  u8 enc;                       \/* Text encoding *\/$/;"	m	struct:sqlite3
 enc	sqliteInt.h	/^  u8 enc;               \/* Text encoding handled by xCmp() *\/$/;"	m	struct:CollSeq
 enc	sqliteInt.h	/^  u8 enc;              \/* Text encoding used by this database *\/$/;"	m	struct:Schema
 enc	sqliteInt.h	/^  u8 enc;             \/* Text encoding - one of the SQLITE_UTF* values *\/$/;"	m	struct:KeyInfo
 enc	vdbeInt.h	/^  u8  enc;            \/* SQLITE_UTF8, SQLITE_UTF16BE, SQLITE_UTF16LE *\/$/;"	m	struct:Mem
+enc2	log.h	/^    u8 enc2;$/;"	m	struct:CsrOpenLog
+enc2	log.h	/^    u8 enc2;$/;"	m	struct:CsrUnpackedLog
+enc2	sqliteInt.h	/^  u8 enc2;               \/* varaible use to create collseq *\/$/;"	m	struct:CollSeq
 endTimer	shell.c	/^static void endTimer(void){$/;"	f	file:
 endpoint	memjournal.c	/^  FilePoint endpoint;             \/* Pointer to the end of the file *\/$/;"	m	struct:MemJournal	file:
 enlargeAndAppend	printf.c	/^static void SQLITE_NOINLINE enlargeAndAppend(StrAccum *p, const char *z, int N){$/;"	f	file:
@@ -3507,8 +3527,8 @@ getStaticMutexPointer	test_mutex.c	/^static sqlite3_mutex *getStaticMutexPointer
 getStmtPointer	test1.c	/^static int getStmtPointer($/;"	f	file:
 getTempStore	pragma.c	/^static int getTempStore(const char *z){$/;"	f	file:
 getTextArg	printf.c	/^static char *getTextArg(PrintfArguments *p){$/;"	f	file:
-getVarint	sqliteInt.h	3901;"	d
-getVarint32	sqliteInt.h	3896;"	d
+getVarint	sqliteInt.h	3902;"	d
+getVarint32	sqliteInt.h	3897;"	d
 getWin32Handle	test1.c	/^int getWin32Handle(Tcl_Interp *interp, const char *zA, LPHANDLE phFile){$/;"	f
 get_autocommit	sqlite3ext.h	/^  int  (*get_autocommit)(sqlite3*);$/;"	m	struct:sqlite3_api_routines
 get_autocommit	test1.c	/^static int SQLITE_TCLAPI get_autocommit($/;"	f	file:
@@ -3552,6 +3572,7 @@ hasReadConflicts	btree.c	113;"	d	file:
 hasSharedCacheTableLock	btree.c	/^static int hasSharedCacheTableLock($/;"	f	file:
 hasSharedCacheTableLock	btree.c	112;"	d	file:
 hasTimer	shell.c	/^static int hasTimer(void){$/;"	f	file:
+hash	log.h	/^    int hash;$/;"	m	struct:LOGHDR
 hashString	test8.c	/^static int hashString(const char *zString){$/;"	f	file:
 hdr	log.h	/^    logHdr hdr;$/;"	m	struct:LOGGER
 hdr	mem3.c	/^    } hdr;$/;"	m	union:Mem3Block::__anon7	typeref:struct:Mem3Block::__anon7::__anon8	file:
@@ -3600,6 +3621,7 @@ iBt	log.h	/^    int iBt;$/;"	m	struct:BtFlagLog
 iBt	log.h	/^    int iBt;$/;"	m	struct:BtIbtLog
 iBt	log.h	/^    int iBt;$/;"	m	struct:BtOpenLog
 iBt	log.h	/^    int iBt;$/;"	m	struct:BtSaveLog
+iBt	log.h	/^    int iBt;$/;"	m	struct:CsrOpenLog
 iBufEnd	vdbesort.c	/^  int iBufEnd;                    \/* Last byte of buffer to write *\/$/;"	m	struct:PmaWriter	file:
 iBufStart	vdbesort.c	/^  int iBufStart;                  \/* First byte of buffer to write *\/$/;"	m	struct:PmaWriter	file:
 iBufferOfst	test_demovfs.c	/^  sqlite3_int64 iBufferOfst;      \/* Offset in file of zBuffer[0] *\/$/;"	m	struct:DemoFile	file:
@@ -3915,13 +3937,13 @@ isLikeOrGlob	whereexpr.c	/^static int isLikeOrGlob($/;"	f	file:
 isLookaside	malloc.c	/^static int isLookaside(sqlite3 *db, void *p){$/;"	f	file:
 isLookaside	malloc.c	400;"	d	file:
 isMallocInit	sqliteInt.h	/^  int isMallocInit;                 \/* True after malloc is initialized *\/$/;"	m	struct:Sqlite3Config
-isMalloced	sqliteInt.h	3176;"	d
+isMalloced	sqliteInt.h	3177;"	d
 isMatchOfColumn	whereexpr.c	/^static int isMatchOfColumn($/;"	f	file:
 isMultiWrite	sqliteInt.h	/^  u8 isMultiWrite;     \/* True if statement may modify\/insert multiple rows *\/$/;"	m	struct:Parse
 isMutexInit	sqliteInt.h	/^  int isMutexInit;                  \/* True after mutexes are initialized *\/$/;"	m	struct:Sqlite3Config
 isNoshm	test_vfs.c	/^  int isNoshm;$/;"	m	struct:Testvfs	file:
 isNumber	shell.c	/^static int isNumber(const char *z, int *realnum){$/;"	f	file:
-isOpen	pager.c	816;"	d	file:
+isOpen	pager.c	817;"	d	file:
 isOrdered	vdbeInt.h	/^  Bool isOrdered:1;       \/* True if the table is not BTREE_UNORDERED *\/$/;"	m	struct:VdbeCursor
 isOrdered	whereInt.h	/^      i8 isOrdered;          \/* True if satisfies ORDER BY *\/$/;"	m	struct:WhereLoop::__anon26::__anon28
 isOrdered	whereInt.h	/^  i8 isOrdered;         \/* No. of ORDER BY terms satisfied. -1 for unknown *\/$/;"	m	struct:WherePath
@@ -3964,7 +3986,7 @@ journalMode	pager.c	/^  u8 journalMode;             \/* One of the PAGER_JOURNAL
 journalOff	pager.c	/^  i64 journalOff;             \/* Current write offset in the journal file *\/$/;"	m	struct:Pager	file:
 journalSizeLimit	pager.c	/^  i64 journalSizeLimit;       \/* Size limit for persistent journal files *\/$/;"	m	struct:Pager	file:
 jrnlBufferSize	pager.c	/^static int jrnlBufferSize(Pager *pPager){$/;"	f	file:
-jrnlBufferSize	pager.c	1206;"	d	file:
+jrnlBufferSize	pager.c	1207;"	d	file:
 jtAccess	test_journal.c	/^static int jtAccess($/;"	f	file:
 jtCheckReservedLock	test_journal.c	/^static int jtCheckReservedLock(sqlite3_file *pFile, int *pResOut){$/;"	f	file:
 jtClose	test_journal.c	/^static int jtClose(sqlite3_file *pFile){$/;"	f	file:
@@ -4046,12 +4068,13 @@ list_del	list.h	/^static __inline__ void list_del(struct list_head *entry)$/;"	f
 list_del_init	list.h	/^static __inline__ void list_del_init(struct list_head *entry)$/;"	f
 list_empty	list.h	/^static __inline__ int list_empty(struct list_head *head)$/;"	f
 list_entry	list.h	140;"	d
-list_for_each	list.h	148;"	d
-list_for_each_prev	list.h	167;"	d
-list_for_each_prev_safe	list.h	177;"	d
-list_for_each_safe	list.h	158;"	d
+list_for_each	list.h	151;"	d
+list_for_each_prev	list.h	170;"	d
+list_for_each_prev_safe	list.h	180;"	d
+list_for_each_safe	list.h	161;"	d
 list_head	list.h	/^struct list_head {$/;"	s
 list_splice	list.h	/^static __inline__ void list_splice(struct list_head *list, struct list_head *head)$/;"	f
+list_top	list.h	143;"	d
 loadAnalysis	analyze.c	/^static void loadAnalysis(Parse *pParse, int iDb){$/;"	f	file:
 loadExt	func.c	/^static void loadExt(sqlite3_context *context, int argc, sqlite3_value **argv){$/;"	f	file:
 loadStat4	analyze.c	/^static int loadStat4(sqlite3 *db, const char *zDb){$/;"	f	file:
@@ -4084,6 +4107,7 @@ log_buffer	log.h	/^    void *log_buffer;$/;"	m	struct:LOGGER
 log_fd	log.h	/^    int log_fd;$/;"	m	struct:LOGGER
 logcallback	test1.c	/^} logcallback = {0, 0};$/;"	v	typeref:struct:LogCallback	file:
 loggerState	log.h	/^enum loggerState {START, ON, OFF};$/;"	g
+logtype	log.h	/^enum logtype { bt_open, bt_ibt, bt_flag, bt_save, csr_open = 0x10, csr_icsr, csr_insert, csr_flag, csr_unpacked };$/;"	g
 lookaside	sqliteInt.h	/^  Lookaside lookaside;          \/* Lookaside malloc configuration *\/$/;"	m	struct:sqlite3
 lookupName	resolve.c	/^static int lookupName($/;"	f	file:
 lowerFunc	func.c	/^static void lowerFunc(sqlite3_context *context, int argc, sqlite3_value **argv){$/;"	f	file:
@@ -4933,6 +4957,7 @@ pBt	btreeInt.h	/^  BtShared *pBt;    \/* The tree being checked out *\/$/;"	m	st
 pBt	sqliteInt.h	/^  Btree *pBt;          \/* The B*Tree structure for this database file *\/$/;"	m	struct:Db
 pBtree	btreeInt.h	/^  Btree *pBtree;            \/* The Btree to which this cursor belongs *\/$/;"	m	struct:BtCursor
 pBtree	btreeInt.h	/^  Btree *pBtree;        \/* Btree handle holding this lock *\/$/;"	m	struct:BtLock
+pBtree	log.h	/^    Btree *pBtree;$/;"	m	struct:LOGGER
 pBtx	vdbeInt.h	/^  Btree *pBtx;            \/* Separate file holding temporary table *\/$/;"	m	struct:VdbeCursor
 pBuffer	test_vfs.c	/^  TestvfsBuffer *pBuffer;         \/* List of shared buffers *\/$/;"	m	struct:Testvfs	file:
 pBulk	pcache1.c	/^  void *pBulk;                        \/* Bulk memory used by pcache-local *\/$/;"	m	struct:PCache1	file:
@@ -5107,6 +5132,7 @@ pLog	shell.c	/^  FILE *pLog;            \/* Write log output here *\/$/;"	m	stru
 pLog	test_osinst.c	/^  sqlite3_file *pLog;             \/* Log file handle *\/$/;"	m	struct:VfslogVfs	file:
 pLogArg	sqliteInt.h	/^  void *pLogArg;                       \/* First argument to xLog() *\/$/;"	m	struct:Sqlite3Config
 pLogger	btreeInt.h	/^  Logger *pLogger;$/;"	m	struct:BtShared
+pLogger	pager.c	/^  Logger *pLogger;$/;"	m	struct:Pager	file:
 pLoops	whereInt.h	/^  WhereLoop *pLoops;        \/* List of all WhereLoop objects *\/$/;"	m	struct:WhereInfo
 pLruNext	pcache1.c	/^  PgHdr1 *pLruNext;              \/* Next in LRU list of unpinned pages *\/$/;"	m	struct:PgHdr1	file:
 pLruPrev	pcache1.c	/^  PgHdr1 *pLruPrev;              \/* Previous in LRU list of unpinned pages *\/$/;"	m	struct:PgHdr1	file:
@@ -5377,6 +5403,7 @@ pVdbe	sqliteInt.h	/^  Vdbe *pVdbe;         \/* An engine for executing database 
 pVdbe	sqliteInt.h	/^  struct Vdbe *pVdbe;           \/* List of active virtual machines *\/$/;"	m	struct:sqlite3	typeref:struct:sqlite3::Vdbe
 pVdbe	vdbeInt.h	/^  Vdbe *pVdbe;            \/* The VM that owns this context *\/$/;"	m	struct:sqlite3_context
 pVdbeBranchArg	sqliteInt.h	/^  void *pVdbeBranchArg;                                     \/* 1st argument *\/$/;"	m	struct:Sqlite3Config
+pVfs	log.h	/^    sqlite3_vfs *pVfs;$/;"	m	struct:LOGGER
 pVfs	memjournal.c	/^  sqlite3_vfs *pVfs;              \/* The "real" underlying VFS *\/$/;"	m	struct:MemJournal	file:
 pVfs	os_unix.c	/^  sqlite3_vfs *pVfs;                  \/* The VFS that created this unixFile *\/$/;"	m	struct:unixFile	file:
 pVfs	os_win.c	/^  sqlite3_vfs *pVfs;      \/* The VFS used to open this file *\/$/;"	m	struct:winFile	file:
@@ -5437,7 +5464,7 @@ page_write	test2.c	/^static int SQLITE_TCLAPI page_write($/;"	f	file:
 pagerAcquireMapPage	pager.c	/^static int pagerAcquireMapPage($/;"	f	file:
 pagerAddPageToRollbackJournal	pager.c	/^static SQLITE_NOINLINE int pagerAddPageToRollbackJournal(PgHdr *pPg){$/;"	f	file:
 pagerBeginReadTransaction	pager.c	/^static int pagerBeginReadTransaction(Pager *pPager){$/;"	f	file:
-pagerBeginReadTransaction	pager.c	832;"	d	file:
+pagerBeginReadTransaction	pager.c	833;"	d	file:
 pagerExclusiveLock	pager.c	/^static int pagerExclusiveLock(Pager *pPager){$/;"	f	file:
 pagerFixMaplimit	pager.c	/^static void pagerFixMaplimit(Pager *pPager){$/;"	f	file:
 pagerFlushOnCommit	pager.c	/^static int pagerFlushOnCommit(Pager *pPager, int bCommit){$/;"	f	file:
@@ -5446,31 +5473,31 @@ pagerLockDb	pager.c	/^static int pagerLockDb(Pager *pPager, int eLock){$/;"	f	fi
 pagerOpenSavepoint	pager.c	/^static SQLITE_NOINLINE int pagerOpenSavepoint(Pager *pPager, int nSavepoint){$/;"	f	file:
 pagerOpenWal	pager.c	/^static int pagerOpenWal(Pager *pPager){$/;"	f	file:
 pagerOpenWalIfPresent	pager.c	/^static int pagerOpenWalIfPresent(Pager *pPager){$/;"	f	file:
-pagerOpenWalIfPresent	pager.c	831;"	d	file:
+pagerOpenWalIfPresent	pager.c	832;"	d	file:
 pagerOpentemp	pager.c	/^static int pagerOpentemp($/;"	f	file:
 pagerPagecount	pager.c	/^static int pagerPagecount(Pager *pPager, Pgno *pnPage){$/;"	f	file:
 pagerPlaybackSavepoint	pager.c	/^static int pagerPlaybackSavepoint(Pager *pPager, PagerSavepoint *pSavepoint){$/;"	f	file:
 pagerReleaseMapPage	pager.c	/^static void pagerReleaseMapPage(PgHdr *pPg){$/;"	f	file:
 pagerReportSize	pager.c	/^static void pagerReportSize(Pager *pPager){$/;"	f	file:
-pagerReportSize	pager.c	2189;"	d	file:
+pagerReportSize	pager.c	2190;"	d	file:
 pagerRollbackWal	pager.c	/^static int pagerRollbackWal(Pager *pPager){$/;"	f	file:
-pagerRollbackWal	pager.c	829;"	d	file:
+pagerRollbackWal	pager.c	830;"	d	file:
 pagerStress	pager.c	/^static int pagerStress(void *p, PgHdr *pPg){$/;"	f	file:
 pagerSyncHotJournal	pager.c	/^static int pagerSyncHotJournal(Pager *pPager){$/;"	f	file:
 pagerUndoCallback	pager.c	/^static int pagerUndoCallback(void *pCtx, Pgno iPg){$/;"	f	file:
 pagerUnlockAndRollback	pager.c	/^static void pagerUnlockAndRollback(Pager *pPager){$/;"	f	file:
 pagerUnlockDb	pager.c	/^static int pagerUnlockDb(Pager *pPager, int eLock){$/;"	f	file:
 pagerUnlockIfUnused	pager.c	/^static void pagerUnlockIfUnused(Pager *pPager){$/;"	f	file:
-pagerUseWal	pager.c	826;"	d	file:
-pagerUseWal	pager.c	828;"	d	file:
+pagerUseWal	pager.c	827;"	d	file:
+pagerUseWal	pager.c	829;"	d	file:
 pagerWalFrames	pager.c	/^static int pagerWalFrames($/;"	f	file:
-pagerWalFrames	pager.c	830;"	d	file:
+pagerWalFrames	pager.c	831;"	d	file:
 pagerWriteLargeSector	pager.c	/^static SQLITE_NOINLINE int pagerWriteLargeSector(PgHdr *pPg){$/;"	f	file:
 pager_cksum	pager.c	/^static u32 pager_cksum(Pager *pPager, const u8 *aData){$/;"	f	file:
 pager_close	test2.c	/^static int SQLITE_TCLAPI pager_close($/;"	f	file:
 pager_commit	test2.c	/^static int SQLITE_TCLAPI pager_commit($/;"	f	file:
 pager_datahash	pager.c	/^static u32 pager_datahash(int nByte, unsigned char *pData){$/;"	f	file:
-pager_datahash	pager.c	1246;"	d	file:
+pager_datahash	pager.c	1247;"	d	file:
 pager_delmaster	pager.c	/^static int pager_delmaster(Pager *pPager, const char *zMaster){$/;"	f	file:
 pager_end_transaction	pager.c	/^static int pager_end_transaction(Pager *pPager, int hasMaster, int bCommit){$/;"	f	file:
 pager_error	pager.c	/^static int pager_error(Pager *pPager, int rc){$/;"	f	file:
@@ -5479,13 +5506,13 @@ pager_open	test2.c	/^static int SQLITE_TCLAPI pager_open($/;"	f	file:
 pager_open_journal	pager.c	/^static int pager_open_journal(Pager *pPager){$/;"	f	file:
 pager_pagecount	test2.c	/^static int SQLITE_TCLAPI pager_pagecount($/;"	f	file:
 pager_pagehash	pager.c	/^static u32 pager_pagehash(PgHdr *pPage){$/;"	f	file:
-pager_pagehash	pager.c	1247;"	d	file:
+pager_pagehash	pager.c	1248;"	d	file:
 pager_playback	pager.c	/^static int pager_playback(Pager *pPager, int isHot){$/;"	f	file:
 pager_playback_one_page	pager.c	/^static int pager_playback_one_page($/;"	f	file:
 pager_reset	pager.c	/^static void pager_reset(Pager *pPager){$/;"	f	file:
 pager_rollback	test2.c	/^static int SQLITE_TCLAPI pager_rollback($/;"	f	file:
 pager_set_pagehash	pager.c	/^static void pager_set_pagehash(PgHdr *pPage){$/;"	f	file:
-pager_set_pagehash	pager.c	1248;"	d	file:
+pager_set_pagehash	pager.c	1249;"	d	file:
 pager_stats	test2.c	/^static int SQLITE_TCLAPI pager_stats($/;"	f	file:
 pager_stmt_begin	test2.c	/^static int SQLITE_TCLAPI pager_stmt_begin($/;"	f	file:
 pager_stmt_commit	test2.c	/^static int SQLITE_TCLAPI pager_stmt_commit($/;"	f	file:
@@ -5658,11 +5685,11 @@ ptrmapPutOvflPtr	btree.c	1012;"	d	file:
 pushDownWhereTerms	select.c	/^static int pushDownWhereTerms($/;"	f	file:
 pushOntoSorter	select.c	/^static void pushOntoSorter($/;"	f	file:
 put2byte	btreeInt.h	707;"	d
-put32bits	pager.c	1103;"	d	file:
+put32bits	pager.c	1104;"	d	file:
 put32bits	test_osinst.c	/^static void put32bits(unsigned char *p, unsigned int v){$/;"	f	file:
 put4byte	btreeInt.h	709;"	d
-putVarint	sqliteInt.h	3902;"	d
-putVarint32	sqliteInt.h	3898;"	d
+putVarint	sqliteInt.h	3903;"	d
+putVarint32	sqliteInt.h	3899;"	d
 putVarint64	util.c	/^static int SQLITE_NOINLINE putVarint64(unsigned char *p, u64 v){$/;"	f	file:
 pzErrMsg	sqliteInt.h	/^  char **pzErrMsg;    \/* Error message stored here *\/$/;"	m	struct:__anon18
 pzNeededCollation	test1.c	/^static char *pzNeededCollation = zNeededCollation;$/;"	v	file:
@@ -5968,7 +5995,7 @@ setAllPagerFlags	pragma.c	232;"	d	file:
 setBinaryMode	shell.c	/^static void setBinaryMode(FILE *file, int isOutput){$/;"	f	file:
 setBinaryMode	shell.c	165;"	d	file:
 setChildPtrmaps	btree.c	/^static int setChildPtrmaps(MemPage *pPage){$/;"	f	file:
-setChildPtrmaps	btree.c	3712;"	d	file:
+setChildPtrmaps	btree.c	3718;"	d	file:
 setDateTimeToCurrent	date.c	/^static int setDateTimeToCurrent(sqlite3_context *context, DateTime *p){$/;"	f	file:
 setDestPgsz	backup.c	/^static int setDestPgsz(sqlite3_backup *p){$/;"	f	file:
 setGetterMethod	pager.c	/^static void setGetterMethod(Pager *pPager){$/;"	f	file:
@@ -6079,26 +6106,26 @@ sqlite3Atoi	util.c	/^int sqlite3Atoi(const char *z){$/;"	f
 sqlite3Atoi64	util.c	/^int sqlite3Atoi64(const char *zNum, i64 *pNum, int length, u8 enc){$/;"	f
 sqlite3Attach	attach.c	/^void sqlite3Attach(Parse *pParse, Expr *p, Expr *pDbname, Expr *pKey){$/;"	f
 sqlite3AuthCheck	auth.c	/^int sqlite3AuthCheck($/;"	f
-sqlite3AuthCheck	sqliteInt.h	3849;"	d
+sqlite3AuthCheck	sqliteInt.h	3850;"	d
 sqlite3AuthContextPop	auth.c	/^void sqlite3AuthContextPop(AuthContext *pContext){$/;"	f
-sqlite3AuthContextPop	sqliteInt.h	3851;"	d
+sqlite3AuthContextPop	sqliteInt.h	3852;"	d
 sqlite3AuthContextPush	auth.c	/^void sqlite3AuthContextPush($/;"	f
-sqlite3AuthContextPush	sqliteInt.h	3850;"	d
+sqlite3AuthContextPush	sqliteInt.h	3851;"	d
 sqlite3AuthRead	auth.c	/^void sqlite3AuthRead($/;"	f
-sqlite3AuthRead	sqliteInt.h	3848;"	d
+sqlite3AuthRead	sqliteInt.h	3849;"	d
 sqlite3AuthReadCol	auth.c	/^int sqlite3AuthReadCol($/;"	f
 sqlite3AutoExtList	loadext.c	/^static SQLITE_WSD struct sqlite3AutoExtList {$/;"	s	file:
 sqlite3AutoExtList	loadext.c	/^typedef struct sqlite3AutoExtList sqlite3AutoExtList;$/;"	t	typeref:struct:sqlite3AutoExtList	file:
 sqlite3AutoLoadExtensions	loadext.c	/^void sqlite3AutoLoadExtensions(sqlite3 *db){$/;"	f
 sqlite3Autoext	loadext.c	/^} sqlite3Autoext = { 0, 0 };$/;"	v	typeref:struct:sqlite3AutoExtList	file:
 sqlite3AutoincrementBegin	insert.c	/^void sqlite3AutoincrementBegin(Parse *pParse){$/;"	f
-sqlite3AutoincrementBegin	sqliteInt.h	3648;"	d
+sqlite3AutoincrementBegin	sqliteInt.h	3649;"	d
 sqlite3AutoincrementEnd	insert.c	/^void sqlite3AutoincrementEnd(Parse *pParse){$/;"	f
-sqlite3AutoincrementEnd	sqliteInt.h	3649;"	d
+sqlite3AutoincrementEnd	sqliteInt.h	3650;"	d
 sqlite3BackupRestart	backup.c	/^void sqlite3BackupRestart(sqlite3_backup *pBackup){$/;"	f
 sqlite3BackupUpdate	backup.c	/^void sqlite3BackupUpdate(sqlite3_backup *pBackup, Pgno iPage, const u8 *aData){$/;"	f
 sqlite3BeginBenignMalloc	fault.c	/^void sqlite3BeginBenignMalloc(void){$/;"	f
-sqlite3BeginBenignMalloc	sqliteInt.h	4185;"	d
+sqlite3BeginBenignMalloc	sqliteInt.h	4186;"	d
 sqlite3BeginBenignMalloc	test_func.c	162;"	d	file:
 sqlite3BeginTransaction	build.c	/^void sqlite3BeginTransaction(Parse *pParse, int type){$/;"	f
 sqlite3BeginTrigger	trigger.c	/^void sqlite3BeginTrigger($/;"	f
@@ -6220,12 +6247,12 @@ sqlite3ClearStatTables	build.c	/^static void sqlite3ClearStatTables($/;"	f	file:
 sqlite3ClearTempRegCache	expr.c	/^void sqlite3ClearTempRegCache(Parse *pParse){$/;"	f
 sqlite3Close	main.c	/^static int sqlite3Close(sqlite3 *db, int forceZombie){$/;"	f	file:
 sqlite3CloseExtensions	loadext.c	/^void sqlite3CloseExtensions(sqlite3 *db){$/;"	f
-sqlite3CloseExtensions	sqliteInt.h	4060;"	d
+sqlite3CloseExtensions	sqliteInt.h	4061;"	d
 sqlite3CloseSavepoints	main.c	/^void sqlite3CloseSavepoints(sqlite3 *db){$/;"	f
 sqlite3CodeDropTable	build.c	/^void sqlite3CodeDropTable(Parse *pParse, Table *pTab, int iDb, int isView){$/;"	f
-sqlite3CodeRowTrigger	sqliteInt.h	3830;"	d
+sqlite3CodeRowTrigger	sqliteInt.h	3831;"	d
 sqlite3CodeRowTrigger	trigger.c	/^void sqlite3CodeRowTrigger($/;"	f
-sqlite3CodeRowTriggerDirect	sqliteInt.h	3831;"	d
+sqlite3CodeRowTriggerDirect	sqliteInt.h	3832;"	d
 sqlite3CodeRowTriggerDirect	trigger.c	/^void sqlite3CodeRowTriggerDirect($/;"	f
 sqlite3CodeSubselect	expr.c	/^int sqlite3CodeSubselect($/;"	f
 sqlite3CodeVerifyNamedSchema	build.c	/^void sqlite3CodeVerifyNamedSchema(Parse *pParse, const char *zDb){$/;"	f
@@ -6234,7 +6261,7 @@ sqlite3CollapseDatabaseArray	build.c	/^void sqlite3CollapseDatabaseArray(sqlite3
 sqlite3ColumnDefault	update.c	/^void sqlite3ColumnDefault(Vdbe *v, Table *pTab, int i, int iReg){$/;"	f
 sqlite3ColumnOfIndex	build.c	/^i16 sqlite3ColumnOfIndex(Index *pIdx, i16 iCol){$/;"	f
 sqlite3ColumnPropertiesFromName	build.c	/^void sqlite3ColumnPropertiesFromName(Table *pTab, Column *pCol){$/;"	f
-sqlite3ColumnPropertiesFromName	sqliteInt.h	3594;"	d
+sqlite3ColumnPropertiesFromName	sqliteInt.h	3595;"	d
 sqlite3ColumnType	util.c	/^char *sqlite3ColumnType(Column *pCol, char *zDflt){$/;"	f
 sqlite3ColumnsFromExprList	select.c	/^int sqlite3ColumnsFromExprList($/;"	f
 sqlite3CommitInternalChanges	build.c	/^void sqlite3CommitInternalChanges(sqlite3 *db){$/;"	f
@@ -6243,11 +6270,11 @@ sqlite3CompareAffinity	expr.c	/^char sqlite3CompareAffinity(Expr *pExpr, char af
 sqlite3CompleteInsertion	insert.c	/^void sqlite3CompleteInsertion($/;"	f
 sqlite3Config	global.c	/^SQLITE_WSD struct Sqlite3Config sqlite3Config = {$/;"	v	typeref:struct:Sqlite3Config
 sqlite3ConnectionBlocked	notify.c	/^void sqlite3ConnectionBlocked(sqlite3 *db, sqlite3 *pBlocker){$/;"	f
-sqlite3ConnectionBlocked	sqliteInt.h	4231;"	d
+sqlite3ConnectionBlocked	sqliteInt.h	4232;"	d
 sqlite3ConnectionClosed	notify.c	/^void sqlite3ConnectionClosed(sqlite3 *db){$/;"	f
-sqlite3ConnectionClosed	sqliteInt.h	4233;"	d
+sqlite3ConnectionClosed	sqliteInt.h	4234;"	d
 sqlite3ConnectionUnlocked	notify.c	/^void sqlite3ConnectionUnlocked(sqlite3 *db){$/;"	f
-sqlite3ConnectionUnlocked	sqliteInt.h	4232;"	d
+sqlite3ConnectionUnlocked	sqliteInt.h	4233;"	d
 sqlite3CorruptError	main.c	/^int sqlite3CorruptError(int lineno){$/;"	f
 sqlite3Coverage	util.c	/^void sqlite3Coverage(int x){$/;"	f
 sqlite3CrashTestEnable	test6.c	/^static int sqlite3CrashTestEnable = 0;$/;"	v	file:
@@ -6282,7 +6309,7 @@ sqlite3DeleteColumnNames	build.c	/^void sqlite3DeleteColumnNames(sqlite3 *db, Ta
 sqlite3DeleteFrom	delete.c	/^void sqlite3DeleteFrom($/;"	f
 sqlite3DeleteIndexSamples	analyze.c	/^void sqlite3DeleteIndexSamples(sqlite3 *db, Index *pIdx){$/;"	f
 sqlite3DeleteTable	build.c	/^void sqlite3DeleteTable(sqlite3 *db, Table *pTable){$/;"	f
-sqlite3DeleteTrigger	sqliteInt.h	3827;"	d
+sqlite3DeleteTrigger	sqliteInt.h	3828;"	d
 sqlite3DeleteTrigger	trigger.c	/^void sqlite3DeleteTrigger(sqlite3 *db, Trigger *pTrigger){$/;"	f
 sqlite3DeleteTriggerStep	trigger.c	/^void sqlite3DeleteTriggerStep(sqlite3 *db, TriggerStep *pTriggerStep){$/;"	f
 sqlite3DeleteUnlinkIfExists	test_delete.c	/^static int sqlite3DeleteUnlinkIfExists(const char *zFile, int *pbExists){$/;"	f	file:
@@ -6291,10 +6318,10 @@ sqlite3Detach	attach.c	/^void sqlite3Detach(Parse *pParse, Expr *pDbname){$/;"	f
 sqlite3DropIndex	build.c	/^void sqlite3DropIndex(Parse *pParse, SrcList *pName, int ifExists){$/;"	f
 sqlite3DropTable	build.c	/^void sqlite3DropTable(Parse *pParse, SrcList *pName, int isView, int noErr){$/;"	f
 sqlite3DropTrigger	trigger.c	/^void sqlite3DropTrigger(Parse *pParse, SrcList *pName, int noErr){$/;"	f
-sqlite3DropTriggerPtr	sqliteInt.h	3828;"	d
+sqlite3DropTriggerPtr	sqliteInt.h	3829;"	d
 sqlite3DropTriggerPtr	trigger.c	/^void sqlite3DropTriggerPtr(Parse *pParse, Trigger *pTrigger){$/;"	f
 sqlite3EndBenignMalloc	fault.c	/^void sqlite3EndBenignMalloc(void){$/;"	f
-sqlite3EndBenignMalloc	sqliteInt.h	4186;"	d
+sqlite3EndBenignMalloc	sqliteInt.h	4187;"	d
 sqlite3EndBenignMalloc	test_func.c	163;"	d	file:
 sqlite3EndTable	build.c	/^void sqlite3EndTable($/;"	f
 sqlite3ErrName	main.c	/^const char *sqlite3ErrName(int rc){$/;"	f
@@ -6324,9 +6351,9 @@ sqlite3ExprCacheRemove	expr.c	/^void sqlite3ExprCacheRemove(Parse *pParse, int i
 sqlite3ExprCacheStore	expr.c	/^void sqlite3ExprCacheStore(Parse *pParse, int iTab, int iCol, int iReg){$/;"	f
 sqlite3ExprCanBeNull	expr.c	/^int sqlite3ExprCanBeNull(const Expr *p){$/;"	f
 sqlite3ExprCheckHeight	expr.c	/^int sqlite3ExprCheckHeight(Parse *pParse, int nHeight){$/;"	f
-sqlite3ExprCheckHeight	sqliteInt.h	4220;"	d
+sqlite3ExprCheckHeight	sqliteInt.h	4221;"	d
 sqlite3ExprCheckIN	expr.c	/^int sqlite3ExprCheckIN(Parse *pParse, Expr *pIn){$/;"	f
-sqlite3ExprCheckIN	sqliteInt.h	4033;"	d
+sqlite3ExprCheckIN	sqliteInt.h	4034;"	d
 sqlite3ExprCode	expr.c	/^void sqlite3ExprCode(Parse *pParse, Expr *pExpr, int target){$/;"	f
 sqlite3ExprCodeAndCache	expr.c	/^void sqlite3ExprCodeAndCache(Parse *pParse, Expr *pExpr, int target){$/;"	f
 sqlite3ExprCodeAtInit	expr.c	/^void sqlite3ExprCodeAtInit($/;"	f
@@ -6376,9 +6403,9 @@ sqlite3ExprSkipCollate	expr.c	/^Expr *sqlite3ExprSkipCollate(Expr *pExpr){$/;"	f
 sqlite3ExprVectorSize	expr.c	/^int sqlite3ExprVectorSize(Expr *pExpr){$/;"	f
 sqlite3ExprWalkNoop	select.c	/^int sqlite3ExprWalkNoop(Walker *NotUsed, Expr *NotUsed2){$/;"	f
 sqlite3Fault	test_malloc.c	/^static void sqlite3Fault(void){$/;"	f	file:
-sqlite3FaultSim	sqliteInt.h	3608;"	d
+sqlite3FaultSim	sqliteInt.h	3609;"	d
 sqlite3FaultSim	util.c	/^int sqlite3FaultSim(int iTest){$/;"	f
-sqlite3FileSuffix3	sqliteInt.h	3942;"	d
+sqlite3FileSuffix3	sqliteInt.h	3943;"	d
 sqlite3FileSuffix3	util.c	/^void sqlite3FileSuffix3(const char *zBaseFilename, char *z){$/;"	f
 sqlite3FindCollSeq	callback.c	/^CollSeq *sqlite3FindCollSeq($/;"	f
 sqlite3FindDb	build.c	/^int sqlite3FindDb(sqlite3 *db, Token *pName){$/;"	f
@@ -6396,20 +6423,20 @@ sqlite3FixSelect	attach.c	/^int sqlite3FixSelect($/;"	f
 sqlite3FixSrcList	attach.c	/^int sqlite3FixSrcList($/;"	f
 sqlite3FixTriggerStep	attach.c	/^int sqlite3FixTriggerStep($/;"	f
 sqlite3FkActions	fkey.c	/^void sqlite3FkActions($/;"	f
-sqlite3FkActions	sqliteInt.h	4155;"	d
+sqlite3FkActions	sqliteInt.h	4156;"	d
 sqlite3FkCheck	fkey.c	/^void sqlite3FkCheck($/;"	f
-sqlite3FkCheck	sqliteInt.h	4156;"	d
+sqlite3FkCheck	sqliteInt.h	4157;"	d
 sqlite3FkDelete	fkey.c	/^void sqlite3FkDelete(sqlite3 *db, Table *pTab){$/;"	f
-sqlite3FkDelete	sqliteInt.h	4165;"	d
+sqlite3FkDelete	sqliteInt.h	4166;"	d
 sqlite3FkDropTable	fkey.c	/^void sqlite3FkDropTable(Parse *pParse, SrcList *pName, Table *pTab){$/;"	f
-sqlite3FkDropTable	sqliteInt.h	4157;"	d
+sqlite3FkDropTable	sqliteInt.h	4158;"	d
 sqlite3FkLocateIndex	fkey.c	/^int sqlite3FkLocateIndex($/;"	f
-sqlite3FkLocateIndex	sqliteInt.h	4166;"	d
+sqlite3FkLocateIndex	sqliteInt.h	4167;"	d
 sqlite3FkOldmask	fkey.c	/^u32 sqlite3FkOldmask($/;"	f
-sqlite3FkOldmask	sqliteInt.h	4158;"	d
+sqlite3FkOldmask	sqliteInt.h	4159;"	d
 sqlite3FkReferences	fkey.c	/^FKey *sqlite3FkReferences(Table *pTab){$/;"	f
 sqlite3FkRequired	fkey.c	/^int sqlite3FkRequired($/;"	f
-sqlite3FkRequired	sqliteInt.h	4159;"	d
+sqlite3FkRequired	sqliteInt.h	4160;"	d
 sqlite3FunctionUsesThisSrc	expr.c	/^int sqlite3FunctionUsesThisSrc(Expr *pExpr, SrcList *pSrcList){$/;"	f
 sqlite3GenerateConstraintChecks	insert.c	/^void sqlite3GenerateConstraintChecks($/;"	f
 sqlite3GenerateIndexKey	delete.c	/^int sqlite3GenerateIndexKey($/;"	f
@@ -6423,7 +6450,7 @@ sqlite3GetInt32	util.c	/^int sqlite3GetInt32(const char *zNum, int *pValue){$/;"
 sqlite3GetTempRange	expr.c	/^int sqlite3GetTempRange(Parse *pParse, int nReg){$/;"	f
 sqlite3GetTempReg	expr.c	/^int sqlite3GetTempReg(Parse *pParse){$/;"	f
 sqlite3GetToken	tokenize.c	/^int sqlite3GetToken(const unsigned char *z, int *tokenType){$/;"	f
-sqlite3GetVTable	sqliteInt.h	4083;"	d
+sqlite3GetVTable	sqliteInt.h	4084;"	d
 sqlite3GetVTable	vtab.c	/^VTable *sqlite3GetVTable(sqlite3 *db, Table *pTab){$/;"	f
 sqlite3GetVarint	util.c	/^u8 sqlite3GetVarint(const unsigned char *p, u64 *v){$/;"	f
 sqlite3GetVarint32	util.c	/^u8 sqlite3GetVarint32(const unsigned char *p, u32 *v){$/;"	f
@@ -6470,25 +6497,25 @@ sqlite3IoerrnomemError	main.c	/^int sqlite3IoerrnomemError(int lineno){$/;"	f
 sqlite3IsEbcdicIdChar	tokenize.c	/^const char sqlite3IsEbcdicIdChar[] = {$/;"	v
 sqlite3IsIdChar	tokenize.c	/^int sqlite3IsIdChar(u8 c){ return IdChar(c); }$/;"	f
 sqlite3IsLikeFunction	func.c	/^int sqlite3IsLikeFunction(sqlite3 *db, Expr *pExpr, int *pIsNocase, char *aWc){$/;"	f
-sqlite3IsNaN	sqliteInt.h	3509;"	d
+sqlite3IsNaN	sqliteInt.h	3510;"	d
 sqlite3IsNaN	util.c	/^int sqlite3IsNaN(double x){$/;"	f
-sqlite3IsNumericAffinity	sqliteInt.h	1725;"	d
+sqlite3IsNumericAffinity	sqliteInt.h	1726;"	d
 sqlite3IsReadOnly	delete.c	/^int sqlite3IsReadOnly(Parse *pParse, Table *pTab, int viewOk){$/;"	f
 sqlite3IsRowid	expr.c	/^int sqlite3IsRowid(const char *z){$/;"	f
-sqlite3IsToplevel	sqliteInt.h	3824;"	d
-sqlite3IsToplevel	sqliteInt.h	3834;"	d
-sqlite3Isalnum	sqliteInt.h	3401;"	d
-sqlite3Isalnum	sqliteInt.h	3410;"	d
-sqlite3Isalpha	sqliteInt.h	3402;"	d
-sqlite3Isalpha	sqliteInt.h	3411;"	d
-sqlite3Isdigit	sqliteInt.h	3403;"	d
-sqlite3Isdigit	sqliteInt.h	3412;"	d
-sqlite3Isquote	sqliteInt.h	3406;"	d
-sqlite3Isquote	sqliteInt.h	3415;"	d
-sqlite3Isspace	sqliteInt.h	3400;"	d
-sqlite3Isspace	sqliteInt.h	3409;"	d
-sqlite3Isxdigit	sqliteInt.h	3404;"	d
-sqlite3Isxdigit	sqliteInt.h	3413;"	d
+sqlite3IsToplevel	sqliteInt.h	3825;"	d
+sqlite3IsToplevel	sqliteInt.h	3835;"	d
+sqlite3Isalnum	sqliteInt.h	3402;"	d
+sqlite3Isalnum	sqliteInt.h	3411;"	d
+sqlite3Isalpha	sqliteInt.h	3403;"	d
+sqlite3Isalpha	sqliteInt.h	3412;"	d
+sqlite3Isdigit	sqliteInt.h	3404;"	d
+sqlite3Isdigit	sqliteInt.h	3413;"	d
+sqlite3Isquote	sqliteInt.h	3407;"	d
+sqlite3Isquote	sqliteInt.h	3416;"	d
+sqlite3Isspace	sqliteInt.h	3401;"	d
+sqlite3Isspace	sqliteInt.h	3410;"	d
+sqlite3Isxdigit	sqliteInt.h	3405;"	d
+sqlite3Isxdigit	sqliteInt.h	3414;"	d
 sqlite3JoinType	select.c	/^int sqlite3JoinType(Parse *pParse, Token *pA, Token *pB, Token *pC){$/;"	f
 sqlite3JournalCreate	memjournal.c	/^int sqlite3JournalCreate(sqlite3_file *p){$/;"	f
 sqlite3JournalIsInMemory	memjournal.c	/^int sqlite3JournalIsInMemory(sqlite3_file *p){$/;"	f
@@ -6514,9 +6541,8 @@ sqlite3LogBtreeClear	log.c	/^void inline sqlite3LogBtreeClear(Btree *pBtree, int
 sqlite3LogBtreeClose	log.c	/^void inline sqlite3LogBtreeClose(Btree *pBtree){$/;"	f
 sqlite3LogBtreeCreate	log.c	/^void inline sqlite3LogBtreeCreate(Btree *pBtree, int flags){$/;"	f
 sqlite3LogBtreeDrop	log.c	/^void inline sqlite3LogBtreeDrop(Btree *pBtree, int iTable){$/;"	f
-sqlite3LogBtreeEndTrans	log.c	/^void inline sqlite3LogBtreeEndTrans(Btree *pBtree){$/;"	f
-sqlite3LogBtreeOpen	log.c	/^void inline sqlite3LogBtreeOpen(Btree *pBtree, char* zFilename, int flags, int vfsFlags){$/;"	f
-sqlite3LogBtreeSavepoints	log.c	/^void inline sqlite3LogBtreeSavepoints(Btree *pBtree, int op, int iSavepoint){$/;"	f
+sqlite3LogBtreeOpen	log.c	/^void inline sqlite3LogBtreeOpen(Btree *pBtree, const char* zFilename, int flags, int vfsFlags){$/;"	f
+sqlite3LogBtreeSavepoint	log.c	/^void inline sqlite3LogBtreeSavepoint(Btree *pBtree, int op, int iSavepoint){$/;"	f
 sqlite3LogCheckPoint	log.c	/^int sqlite3LogCheckPoint(Logger *pLogger){$/;"	f
 sqlite3LogCursorClear	log.c	/^void inline sqlite3LogCursorClear(BtCursor *pCur){$/;"	f
 sqlite3LogCursorClose	log.c	/^void inline sqlite3LogCursorClose(BtCursor *pCur){$/;"	f
@@ -6528,7 +6554,7 @@ sqlite3LogCursorInsert	log.c	/^void inline sqlite3LogCursorInsert(BtCursor *pCur
 sqlite3LogCursorIntegerKey	log.c	/^void inline sqlite3LogCursorIntegerKey(BtCursor *pCur){$/;"	f
 sqlite3LogCursorLast	log.c	/^void inline sqlite3LogCursorLast(BtCursor *pCur){$/;"	f
 sqlite3LogCursorNext	log.c	/^void inline sqlite3LogCursorNext(BtCursor *pCur){$/;"	f
-sqlite3LogCursorOpen	log.c	/^void inline sqlite3LogCursorOpen(int wrFlag, BtCursor *pCur){$/;"	f
+sqlite3LogCursorOpen	log.c	/^void inline sqlite3LogCursorOpen(int wrFlag, BtCursor *pCur, Btree *pBtree){$/;"	f
 sqlite3LogCursorPrev	log.c	/^void inline sqlite3LogCursorPrev(BtCursor *pCur){$/;"	f
 sqlite3LogCursorRestore	log.c	/^void inline sqlite3LogCursorRestore(BtCursor *pCur){$/;"	f
 sqlite3LogCursorUnpacked	log.c	/^void inline sqlite3LogCursorUnpacked(BtCursor *pCur, UnpackedRecord *pIdxKey, int intKey, int biasRight){$/;"	f
@@ -6538,12 +6564,12 @@ sqlite3LogEstFromDouble	util.c	/^LogEst sqlite3LogEstFromDouble(double x){$/;"	f
 sqlite3LogEstToInt	util.c	/^u64 sqlite3LogEstToInt(LogEst x){$/;"	f
 sqlite3LogFileInit	log.c	/^void sqlite3LogFileInit(Logger *pLogger){$/;"	f
 sqlite3LogForceAtCommit	log.c	/^int sqlite3LogForceAtCommit(Btree *pBtree){$/;"	f
-sqlite3LogInit	log.c	/^int sqlite3LogInit(BtCursor* pCur){$/;"	f
 sqlite3LogRecovery	log.c	/^void sqlite3LogRecovery(Logger *pLogger, logCell *m_logCell){$/;"	f
 sqlite3LogRollback	log.c	/^int sqlite3LogRollback(Logger *pLogger){$/;"	f
+sqlite3LogRollbackTop	log.c	/^int sqlite3LogRollbackTop(Logger *pLogger){$/;"	f
 sqlite3LoggerClose	log.c	/^void sqlite3LoggerClose(Logger *pLogger){$/;"	f
-sqlite3LoggerOpenPhaseOne	log.c	/^int sqlite3LoggerOpenPhaseOne(Logger **ppLogger){$/;"	f
-sqlite3LoggerOpenPhaseTwo	log.c	/^int sqlite3LoggerOpenPhaseTwo(sqlite3_vfs *pVfs,const char* zPathname,int nPathname,Logger *pLogger){$/;"	f
+sqlite3LoggerOpenPhaseOne	log.c	/^int sqlite3LoggerOpenPhaseOne(Btree *pBtree){$/;"	f
+sqlite3LoggerOpenPhaseTwo	log.c	/^int sqlite3LoggerOpenPhaseTwo(struct Pager *pPager, Logger *pLogger){$/;"	f
 sqlite3MPrintf	printf.c	/^char *sqlite3MPrintf(sqlite3 *db, const char *zFormat, ...){$/;"	f
 sqlite3Malloc	malloc.c	/^void *sqlite3Malloc(u64 n){$/;"	f
 sqlite3MallocAlarm	malloc.c	/^static void sqlite3MallocAlarm(int nByte){$/;"	f	file:
@@ -6589,17 +6615,17 @@ sqlite3MemdebugBacktrace	mem2.c	/^void sqlite3MemdebugBacktrace(int depth){$/;"	
 sqlite3MemdebugBacktraceCallback	mem2.c	/^void sqlite3MemdebugBacktraceCallback(void (*xBacktrace)(int, int, void **)){$/;"	f
 sqlite3MemdebugDump	mem2.c	/^void sqlite3MemdebugDump(const char *zFilename){$/;"	f
 sqlite3MemdebugHasType	mem2.c	/^int sqlite3MemdebugHasType(void *p, u8 eType){$/;"	f
-sqlite3MemdebugHasType	sqliteInt.h	4288;"	d
+sqlite3MemdebugHasType	sqliteInt.h	4289;"	d
 sqlite3MemdebugMallocCount	mem2.c	/^int sqlite3MemdebugMallocCount(){$/;"	f
 sqlite3MemdebugNoType	mem2.c	/^int sqlite3MemdebugNoType(void *p, u8 eType){$/;"	f
-sqlite3MemdebugNoType	sqliteInt.h	4289;"	d
+sqlite3MemdebugNoType	sqliteInt.h	4290;"	d
 sqlite3MemdebugSetType	mem2.c	/^void sqlite3MemdebugSetType(void *p, u8 eType){$/;"	f
-sqlite3MemdebugSetType	sqliteInt.h	4287;"	d
+sqlite3MemdebugSetType	sqliteInt.h	4288;"	d
 sqlite3MemdebugSettitle	mem2.c	/^void sqlite3MemdebugSettitle(const char *zTitle){$/;"	f
 sqlite3MemdebugSync	mem2.c	/^void sqlite3MemdebugSync(){$/;"	f
 sqlite3MemoryBarrier	mutex_unix.c	/^void sqlite3MemoryBarrier(void){$/;"	f
 sqlite3MemoryBarrier	mutex_w32.c	/^void sqlite3MemoryBarrier(void){$/;"	f
-sqlite3MemoryBarrier	sqliteInt.h	3494;"	d
+sqlite3MemoryBarrier	sqliteInt.h	3495;"	d
 sqlite3Memsys3Dump	mem3.c	/^void sqlite3Memsys3Dump(const char *zFilename){$/;"	f
 sqlite3Memsys5Dump	mem5.c	/^void sqlite3Memsys5Dump(const char *zFilename){$/;"	f
 sqlite3MemsysGetHeader	mem2.c	/^static struct MemBlockHdr *sqlite3MemsysGetHeader(void *pAllocation){$/;"	f	file:
@@ -6739,8 +6765,8 @@ sqlite3PagerWalCallback	pager.c	/^int sqlite3PagerWalCallback(Pager *pPager){$/;
 sqlite3PagerWalFramesize	pager.c	/^int sqlite3PagerWalFramesize(Pager *pPager){$/;"	f
 sqlite3PagerWalSupported	pager.c	/^int sqlite3PagerWalSupported(Pager *pPager){$/;"	f
 sqlite3PagerWrite	pager.c	/^int sqlite3PagerWrite(PgHdr *pPg){$/;"	f
-sqlite3ParseToplevel	sqliteInt.h	3823;"	d
-sqlite3ParseToplevel	sqliteInt.h	3833;"	d
+sqlite3ParseToplevel	sqliteInt.h	3824;"	d
+sqlite3ParseToplevel	sqliteInt.h	3834;"	d
 sqlite3ParseUri	main.c	/^int sqlite3ParseUri($/;"	f
 sqlite3ParserReset	prepare.c	/^void sqlite3ParserReset(Parse *pParse){$/;"	f
 sqlite3Pcache1Mutex	pcache1.c	/^sqlite3_mutex *sqlite3Pcache1Mutex(void){$/;"	f
@@ -6841,11 +6867,11 @@ sqlite3SelectDestInit	select.c	/^void sqlite3SelectDestInit(SelectDest *pDest, i
 sqlite3SelectDup	expr.c	/^Select *sqlite3SelectDup(sqlite3 *db, Select *p, int flags){$/;"	f
 sqlite3SelectExpand	select.c	/^static void sqlite3SelectExpand(Parse *pParse, Select *pSelect){$/;"	f	file:
 sqlite3SelectExprHeight	expr.c	/^int sqlite3SelectExprHeight(Select *p){$/;"	f
-sqlite3SelectExprHeight	sqliteInt.h	4219;"	d
+sqlite3SelectExprHeight	sqliteInt.h	4220;"	d
 sqlite3SelectNew	select.c	/^Select *sqlite3SelectNew($/;"	f
 sqlite3SelectPrep	select.c	/^void sqlite3SelectPrep($/;"	f
 sqlite3SelectSetName	select.c	/^void sqlite3SelectSetName(Select *p, const char *zName){$/;"	f
-sqlite3SelectSetName	sqliteInt.h	3787;"	d
+sqlite3SelectSetName	sqliteInt.h	3788;"	d
 sqlite3SelectTrace	select.c	/^\/***\/ int sqlite3SelectTrace = 0;$/;"	v
 sqlite3SelectWrongNumTermsError	select.c	/^void sqlite3SelectWrongNumTermsError(Parse *pParse, Select *p){$/;"	f
 sqlite3SetHasNullFlag	expr.c	/^static void sqlite3SetHasNullFlag(Vdbe *v, int iCur, int regHasNull){$/;"	f	file:
@@ -6864,13 +6890,13 @@ sqlite3SrcListFuncArgs	build.c	/^void sqlite3SrcListFuncArgs(Parse *pParse, SrcL
 sqlite3SrcListIndexedBy	build.c	/^void sqlite3SrcListIndexedBy(Parse *pParse, SrcList *p, Token *pIndexedBy){$/;"	f
 sqlite3SrcListLookup	delete.c	/^Table *sqlite3SrcListLookup(Parse *pParse, SrcList *pSrc){$/;"	f
 sqlite3SrcListShiftJoinType	build.c	/^void sqlite3SrcListShiftJoinType(SrcList *p){$/;"	f
-sqlite3StackAllocRaw	sqliteInt.h	3463;"	d
-sqlite3StackAllocRaw	sqliteInt.h	3467;"	d
-sqlite3StackAllocZero	sqliteInt.h	3464;"	d
-sqlite3StackAllocZero	sqliteInt.h	3468;"	d
+sqlite3StackAllocRaw	sqliteInt.h	3464;"	d
+sqlite3StackAllocRaw	sqliteInt.h	3468;"	d
+sqlite3StackAllocZero	sqliteInt.h	3465;"	d
+sqlite3StackAllocZero	sqliteInt.h	3469;"	d
 sqlite3StackDepth	test1.c	/^u64 sqlite3StackDepth(void){$/;"	f
-sqlite3StackFree	sqliteInt.h	3465;"	d
-sqlite3StackFree	sqliteInt.h	3469;"	d
+sqlite3StackFree	sqliteInt.h	3466;"	d
+sqlite3StackFree	sqliteInt.h	3470;"	d
 sqlite3StartTable	build.c	/^void sqlite3StartTable($/;"	f
 sqlite3Stat	status.c	/^} sqlite3Stat = { {0,}, {0,} };$/;"	v	typeref:struct:sqlite3StatType	file:
 sqlite3Stat4Column	vdbemem.c	/^int sqlite3Stat4Column($/;"	f
@@ -6895,7 +6921,7 @@ sqlite3StrAccumInit	printf.c	/^void sqlite3StrAccumInit(StrAccum *p, sqlite3 *db
 sqlite3StrAccumReset	printf.c	/^void sqlite3StrAccumReset(StrAccum *p){$/;"	f
 sqlite3StrBINARY	global.c	/^const char sqlite3StrBINARY[] = "BINARY";$/;"	v
 sqlite3StrICmp	util.c	/^int sqlite3StrICmp(const char *zLeft, const char *zRight){$/;"	f
-sqlite3StrNICmp	sqliteInt.h	3427;"	d
+sqlite3StrNICmp	sqliteInt.h	3428;"	d
 sqlite3StringToId	build.c	/^static void sqlite3StringToId(Expr *p){$/;"	f	file:
 sqlite3Strlen30	util.c	/^int sqlite3Strlen30(const char *z){$/;"	f
 sqlite3SubInt64	util.c	/^int sqlite3SubInt64(i64 *pA, i64 iB){$/;"	f
@@ -6904,7 +6930,7 @@ sqlite3SystemError	util.c	/^void sqlite3SystemError(sqlite3 *db, int rc){$/;"	f
 sqlite3TableAffinity	insert.c	/^void sqlite3TableAffinity(Vdbe *v, Table *pTab, int iReg){$/;"	f
 sqlite3TableColumnAffinity	expr.c	/^char sqlite3TableColumnAffinity(Table *pTab, int iCol){$/;"	f
 sqlite3TableLock	build.c	/^void sqlite3TableLock($/;"	f
-sqlite3TableLock	sqliteInt.h	4066;"	d
+sqlite3TableLock	sqliteInt.h	4067;"	d
 sqlite3TempInMemory	main.c	/^int sqlite3TempInMemory(const sqlite3 *db){$/;"	f
 sqlite3TestBinToHex	test_hexio.c	/^void sqlite3TestBinToHex(unsigned char *zBuf, int N){$/;"	f
 sqlite3TestErrCode	test1.c	/^int sqlite3TestErrCode(Tcl_Interp *interp, sqlite3 *db, int rc){$/;"	f
@@ -6915,10 +6941,10 @@ sqlite3ThreadCreate	threads.c	/^int sqlite3ThreadCreate($/;"	f
 sqlite3ThreadJoin	threads.c	/^int sqlite3ThreadJoin(SQLiteThread *p, void **ppOut){$/;"	f
 sqlite3ThreadProc	threads.c	/^static unsigned __stdcall sqlite3ThreadProc($/;"	f	file:
 sqlite3TokenInit	util.c	/^void sqlite3TokenInit(Token *p, char *z){$/;"	f
-sqlite3Tolower	sqliteInt.h	3405;"	d
-sqlite3Tolower	sqliteInt.h	3414;"	d
-sqlite3Toupper	sqliteInt.h	3399;"	d
-sqlite3Toupper	sqliteInt.h	3408;"	d
+sqlite3Tolower	sqliteInt.h	3406;"	d
+sqlite3Tolower	sqliteInt.h	3415;"	d
+sqlite3Toupper	sqliteInt.h	3400;"	d
+sqlite3Toupper	sqliteInt.h	3409;"	d
 sqlite3TransferBindings	vdbeapi.c	/^int sqlite3TransferBindings(sqlite3_stmt *pFromStmt, sqlite3_stmt *pToStmt){$/;"	f
 sqlite3TreeViewBareExprList	treeview.c	/^void sqlite3TreeViewBareExprList($/;"	f
 sqlite3TreeViewExpr	treeview.c	/^void sqlite3TreeViewExpr(TreeView *pView, const Expr *pExpr, u8 moreToFollow){$/;"	f
@@ -6929,21 +6955,21 @@ sqlite3TreeViewPop	treeview.c	/^static void sqlite3TreeViewPop(TreeView *p){$/;"
 sqlite3TreeViewPush	treeview.c	/^static TreeView *sqlite3TreeViewPush(TreeView *p, u8 moreToFollow){$/;"	f	file:
 sqlite3TreeViewSelect	treeview.c	/^void sqlite3TreeViewSelect(TreeView *pView, const Select *p, u8 moreToFollow){$/;"	f
 sqlite3TreeViewWith	treeview.c	/^void sqlite3TreeViewWith(TreeView *pView, const With *pWith, u8 moreToFollow){$/;"	f
-sqlite3TriggerColmask	sqliteInt.h	3835;"	d
+sqlite3TriggerColmask	sqliteInt.h	3836;"	d
 sqlite3TriggerColmask	trigger.c	/^u32 sqlite3TriggerColmask($/;"	f
 sqlite3TriggerDeleteStep	trigger.c	/^TriggerStep *sqlite3TriggerDeleteStep($/;"	f
 sqlite3TriggerInsertStep	trigger.c	/^TriggerStep *sqlite3TriggerInsertStep($/;"	f
-sqlite3TriggerList	sqliteInt.h	3832;"	d
+sqlite3TriggerList	sqliteInt.h	3833;"	d
 sqlite3TriggerList	trigger.c	/^Trigger *sqlite3TriggerList(Parse *pParse, Table *pTab){$/;"	f
 sqlite3TriggerSelectStep	trigger.c	/^TriggerStep *sqlite3TriggerSelectStep(sqlite3 *db, Select *pSelect){$/;"	f
 sqlite3TriggerUpdateStep	trigger.c	/^TriggerStep *sqlite3TriggerUpdateStep($/;"	f
-sqlite3TriggersExist	sqliteInt.h	3826;"	d
+sqlite3TriggersExist	sqliteInt.h	3827;"	d
 sqlite3TriggersExist	trigger.c	/^Trigger *sqlite3TriggersExist($/;"	f
 sqlite3TwoPartName	build.c	/^int sqlite3TwoPartName($/;"	f
 sqlite3UniqueConstraint	build.c	/^void sqlite3UniqueConstraint($/;"	f
 sqlite3UnlinkAndDeleteIndex	build.c	/^void sqlite3UnlinkAndDeleteIndex(sqlite3 *db, int iDb, const char *zIdxName){$/;"	f
 sqlite3UnlinkAndDeleteTable	build.c	/^void sqlite3UnlinkAndDeleteTable(sqlite3 *db, int iDb, const char *zTabName){$/;"	f
-sqlite3UnlinkAndDeleteTrigger	sqliteInt.h	3829;"	d
+sqlite3UnlinkAndDeleteTrigger	sqliteInt.h	3830;"	d
 sqlite3UnlinkAndDeleteTrigger	trigger.c	/^void sqlite3UnlinkAndDeleteTrigger(sqlite3 *db, int iDb, const char *zName){$/;"	f
 sqlite3Update	update.c	/^void sqlite3Update($/;"	f
 sqlite3UpperToLower	global.c	/^const unsigned char sqlite3UpperToLower[] = {$/;"	v
@@ -7021,7 +7047,7 @@ sqlite3VdbeGetBoundValue	vdbeaux.c	/^sqlite3_value *sqlite3VdbeGetBoundValue(Vdb
 sqlite3VdbeGetOp	vdbeaux.c	/^VdbeOp *sqlite3VdbeGetOp(Vdbe *p, int addr){$/;"	f
 sqlite3VdbeGoto	vdbeaux.c	/^int sqlite3VdbeGoto(Vdbe *p, int iDest){$/;"	f
 sqlite3VdbeHalt	vdbeaux.c	/^int sqlite3VdbeHalt(Vdbe *p){$/;"	f
-sqlite3VdbeIOTraceSql	sqliteInt.h	4251;"	d
+sqlite3VdbeIOTraceSql	sqliteInt.h	4252;"	d
 sqlite3VdbeIOTraceSql	vdbeaux.c	/^void sqlite3VdbeIOTraceSql(Vdbe *p){$/;"	f
 sqlite3VdbeIdxKeyCompare	vdbeaux.c	/^int sqlite3VdbeIdxKeyCompare($/;"	f
 sqlite3VdbeIdxRowid	vdbeaux.c	/^int sqlite3VdbeIdxRowid(sqlite3 *db, BtCursor *pCur, i64 *rowid){$/;"	f
@@ -7112,7 +7138,7 @@ sqlite3VdbeVerifyNoMallocRequired	vdbeaux.c	/^void sqlite3VdbeVerifyNoMallocRequ
 sqlite3VectorErrorMsg	expr.c	/^void sqlite3VectorErrorMsg(Parse *pParse, Expr *pExpr){$/;"	f
 sqlite3VectorFieldSubexpr	expr.c	/^Expr *sqlite3VectorFieldSubexpr(Expr *pVector, int i){$/;"	f
 sqlite3ViewGetColumnNames	build.c	/^int sqlite3ViewGetColumnNames(Parse *pParse, Table *pTable){$/;"	f
-sqlite3ViewGetColumnNames	sqliteInt.h	3635;"	d
+sqlite3ViewGetColumnNames	sqliteInt.h	3636;"	d
 sqlite3VtabArgExtend	vtab.c	/^void sqlite3VtabArgExtend(Parse *pParse, Token *p){$/;"	f
 sqlite3VtabArgInit	vtab.c	/^void sqlite3VtabArgInit(Parse *pParse){$/;"	f
 sqlite3VtabBegin	vtab.c	/^int sqlite3VtabBegin(sqlite3 *db, VTable *pVTab){$/;"	f
@@ -7120,9 +7146,9 @@ sqlite3VtabBeginParse	vtab.c	/^void sqlite3VtabBeginParse($/;"	f
 sqlite3VtabCallConnect	vtab.c	/^int sqlite3VtabCallConnect(Parse *pParse, Table *pTab){$/;"	f
 sqlite3VtabCallCreate	vtab.c	/^int sqlite3VtabCallCreate(sqlite3 *db, int iDb, const char *zTab, char **pzErr){$/;"	f
 sqlite3VtabCallDestroy	vtab.c	/^int sqlite3VtabCallDestroy(sqlite3 *db, int iDb, const char *zTab){$/;"	f
-sqlite3VtabClear	sqliteInt.h	4074;"	d
+sqlite3VtabClear	sqliteInt.h	4075;"	d
 sqlite3VtabClear	vtab.c	/^void sqlite3VtabClear(sqlite3 *db, Table *p){$/;"	f
-sqlite3VtabCommit	sqliteInt.h	4077;"	d
+sqlite3VtabCommit	sqliteInt.h	4078;"	d
 sqlite3VtabCommit	vtab.c	/^int sqlite3VtabCommit(sqlite3 *db){$/;"	f
 sqlite3VtabCreateModule	vtab.c	/^Module *sqlite3VtabCreateModule($/;"	f
 sqlite3VtabDisconnect	vtab.c	/^void sqlite3VtabDisconnect(sqlite3 *db, Table *p){$/;"	f
@@ -7130,21 +7156,21 @@ sqlite3VtabEponymousTableClear	vtab.c	/^void sqlite3VtabEponymousTableClear(sqli
 sqlite3VtabEponymousTableInit	vtab.c	/^int sqlite3VtabEponymousTableInit(Parse *pParse, Module *pMod){$/;"	f
 sqlite3VtabFinishParse	vtab.c	/^void sqlite3VtabFinishParse(Parse *pParse, Token *pEnd){$/;"	f
 sqlite3VtabImportErrmsg	vdbeaux.c	/^void sqlite3VtabImportErrmsg(Vdbe *p, sqlite3_vtab *pVtab){$/;"	f
-sqlite3VtabInSync	sqliteInt.h	4078;"	d
-sqlite3VtabInSync	sqliteInt.h	4103;"	d
-sqlite3VtabLock	sqliteInt.h	4079;"	d
+sqlite3VtabInSync	sqliteInt.h	4079;"	d
+sqlite3VtabInSync	sqliteInt.h	4104;"	d
+sqlite3VtabLock	sqliteInt.h	4080;"	d
 sqlite3VtabLock	vtab.c	/^void sqlite3VtabLock(VTable *pVTab){$/;"	f
 sqlite3VtabMakeWritable	vtab.c	/^void sqlite3VtabMakeWritable(Parse *pParse, Table *pTab){$/;"	f
 sqlite3VtabOverloadFunction	vtab.c	/^FuncDef *sqlite3VtabOverloadFunction($/;"	f
-sqlite3VtabRollback	sqliteInt.h	4076;"	d
+sqlite3VtabRollback	sqliteInt.h	4077;"	d
 sqlite3VtabRollback	vtab.c	/^int sqlite3VtabRollback(sqlite3 *db){$/;"	f
-sqlite3VtabSavepoint	sqliteInt.h	4082;"	d
+sqlite3VtabSavepoint	sqliteInt.h	4083;"	d
 sqlite3VtabSavepoint	vtab.c	/^int sqlite3VtabSavepoint(sqlite3 *db, int op, int iSavepoint){$/;"	f
-sqlite3VtabSync	sqliteInt.h	4075;"	d
+sqlite3VtabSync	sqliteInt.h	4076;"	d
 sqlite3VtabSync	vtab.c	/^int sqlite3VtabSync(sqlite3 *db, Vdbe *p){$/;"	f
-sqlite3VtabUnlock	sqliteInt.h	4080;"	d
+sqlite3VtabUnlock	sqliteInt.h	4081;"	d
 sqlite3VtabUnlock	vtab.c	/^void sqlite3VtabUnlock(VTable *pVTab){$/;"	f
-sqlite3VtabUnlockList	sqliteInt.h	4081;"	d
+sqlite3VtabUnlockList	sqliteInt.h	4082;"	d
 sqlite3VtabUnlockList	vtab.c	/^void sqlite3VtabUnlockList(sqlite3 *db){$/;"	f
 sqlite3WalBeginReadTransaction	wal.c	/^int sqlite3WalBeginReadTransaction(Wal *pWal, int *pChanged){$/;"	f
 sqlite3WalBeginReadTransaction	wal.h	32;"	d
@@ -7225,9 +7251,9 @@ sqlite3WhereTrace	whereInt.h	/^\/***\/ int sqlite3WhereTrace;$/;"	v
 sqlite3Win32Wait	os_win.c	/^DWORD sqlite3Win32Wait(HANDLE hObject){$/;"	f
 sqlite3WithAdd	build.c	/^With *sqlite3WithAdd($/;"	f
 sqlite3WithDelete	build.c	/^void sqlite3WithDelete(sqlite3 *db, With *pWith){$/;"	f
-sqlite3WithDelete	sqliteInt.h	4137;"	d
+sqlite3WithDelete	sqliteInt.h	4138;"	d
 sqlite3WithPush	select.c	/^void sqlite3WithPush(Parse *pParse, With *pWith, u8 bFree){$/;"	f
-sqlite3WithPush	sqliteInt.h	4136;"	d
+sqlite3WithPush	sqliteInt.h	4137;"	d
 sqlite3XPrintf	printf.c	/^void sqlite3XPrintf(StrAccum *p, const char *zFormat, ...){$/;"	f
 sqlite3_aggregate_context	sqlite3ext.h	309;"	d
 sqlite3_aggregate_context	vdbeapi.c	/^void *sqlite3_aggregate_context(sqlite3_context *p, int nByte){$/;"	f
@@ -7981,6 +8007,7 @@ suppressErr	sqliteInt.h	/^  u8 suppressErr;               \/* Do not issue error
 swapMixedEndianFloat	vdbeaux.c	3289;"	d	file:
 swapMixedEndianFloat	vdbeaux.c	3291;"	d	file:
 switchLockProxyPath	os_unix.c	/^static int switchLockProxyPath(unixFile *pFile, const char *path) {$/;"	f	file:
+sync	log.h	/^    int sync;$/;"	m	struct:LOGGER
 syncFlags	pager.c	/^  u8 syncFlags;               \/* SYNC_NORMAL or SYNC_FULL otherwise *\/$/;"	m	struct:Pager	file:
 syncFlags	wal.c	/^  int syncFlags;               \/* Flags for the fsync *\/$/;"	m	struct:WalWriter	file:
 syncFlags	wal.c	/^  u8 syncFlags;              \/* Flags to use to sync header writes *\/$/;"	m	struct:Wal	file:
@@ -9183,6 +9210,7 @@ withDup	expr.c	/^static With *withDup(sqlite3 *db, With *p){$/;"	f	file:
 withDup	expr.c	1268;"	d	file:
 withExpand	select.c	/^static int withExpand($/;"	f	file:
 working_64bit_int	test1.c	/^static int SQLITE_TCLAPI working_64bit_int($/;"	f	file:
+wrFlag	log.h	/^    int wrFlag;$/;"	m	struct:CsrOpenLog
 wrFlag	vdbeInt.h	/^  u8 wrFlag;              \/* The wrFlag argument to sqlite3BtreeCursor() *\/$/;"	m	struct:VdbeCursor
 wrMemFree	test_init.c	/^static void wrMemFree(void *p)            {wrapped.mem.xFree(p);}$/;"	f	file:
 wrMemInit	test_init.c	/^static int wrMemInit(void *pAppData){$/;"	f	file:
@@ -9364,7 +9392,7 @@ zFile	log.h	/^	char *zFile;$/;"	m	struct:LOGGER
 zFile	shell.c	/^  const char *zFile;  \/* Name of the input file *\/$/;"	m	struct:ImportCtx	file:
 zFile	test_osinst.c	/^  char *zFile;                    \/* File name for pFd *\/$/;"	m	struct:VfslogVtab	file:
 zFile	test_vfs.c	/^  char *zFile;                    \/* Associated file name *\/$/;"	m	struct:TestvfsBuffer	file:
-zFilename	log.h	/^    char *zFilename;$/;"	m	struct:BtOpenLog
+zFilename	log.h	/^    const char *zFilename;$/;"	m	struct:BtOpenLog
 zFilename	os_unix.c	/^  char *zFilename;           \/* Name of the mmapped file *\/$/;"	m	struct:unixShmNode	file:
 zFilename	os_win.c	/^  char *zFilename;           \/* Name of the file *\/$/;"	m	struct:winShmNode	file:
 zFilename	pager.c	/^  char *zFilename;            \/* Name of the database file *\/$/;"	m	struct:Pager	file:
@@ -9386,6 +9414,8 @@ zMalloc	vdbeInt.h	/^  char *zMalloc;      \/* Space to hold MEM_Str or MEM_Blob 
 zMbcsName	test_quota.c	/^  char *zMbcsName;        \/* Full MBCS pathname of the file *\/$/;"	m	struct:quota_FILE	file:
 zName	date.c	/^  char *zName;        \/* Name of the transformation *\/$/;"	m	struct:__anon5	file:
 zName	dbstat.c	/^  char *zName;                    \/* Value of 'name' column *\/$/;"	m	struct:StatCursor	file:
+zName	log.h	/^    char* zName;$/;"	m	struct:CsrOpenLog
+zName	log.h	/^    char* zName;$/;"	m	struct:CsrUnpackedLog
 zName	os_unix.c	/^  const char *zName;            \/* Name of the system call *\/$/;"	m	struct:unix_syscall	file:
 zName	os_win.c	/^  const char *zName;            \/* Name of the system call *\/$/;"	m	struct:win_syscall	file:
 zName	pragma.h	/^  const char *const zName; \/* Name of pragma *\/$/;"	m	struct:PragmaName
