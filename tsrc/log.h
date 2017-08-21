@@ -19,9 +19,9 @@ enum opcode {
     /*bt_open_log*/
     BTREE_OPEN = 0x01,
     /*bt_iBt_log*/
-    DROP = 0x10, BTREE_CLEAR, BEGINTRANS, COMMIT,
+    DROP = 0x10, BTREE_CLEAR, COMMIT,
     /*bt_flag_log*/
-    BTREE_CLOSE = 0x20, CREATE, 
+    BTREE_CLOSE = 0x20, CREATE, BEGINTRANS,
     /*bt_save_log*/
     SAVEPOINT = 0x30, 
 
@@ -79,7 +79,7 @@ struct LOGGER{
 	int p_check;
     unsigned int lastLsn;
     Btree *apBt[10];
-    BtCursor *apCsr[10];
+    BtCursor *apCsr[1000];
     enum loggerState state;
     sqlite3_vfs *pVfs;
     sqlite3 *db;
@@ -157,7 +157,7 @@ struct CsrInsertLog{
     int iCsr;
     int seekResult;
     int appendBias;
-    const BtreePayload *pX;
+    BtreePayload *pX;
 };
 
 struct CsrFlagLog{

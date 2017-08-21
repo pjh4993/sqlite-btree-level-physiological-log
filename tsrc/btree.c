@@ -4267,6 +4267,7 @@ int sqlite3BtreeCloseCursor(BtCursor *pCur){
     unlockBtreeIfUnused(pBt);
     sqlite3_free(pCur->aOverflow);
     /* sqlite3_free(pCur); */
+    sqlite3LogRollbackTop(pBt->pLogger);
     sqlite3LogCursorClose(pCur);
     sqlite3BtreeLeave(pBtree);
   }

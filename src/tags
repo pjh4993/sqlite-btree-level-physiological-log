@@ -228,7 +228,7 @@ DEVSYM_VFS_NAME	test_devsym.c	30;"	d	file:
 DFUNCTION	sqliteInt.h	1607;"	d
 DIR	test_windirent.h	/^struct DIR {$/;"	s
 DIR	test_windirent.h	/^typedef struct DIR DIR;$/;"	t	typeref:struct:DIR
-DIRECT_MODE	pager.c	6140;"	d	file:
+DIRECT_MODE	pager.c	6139;"	d	file:
 DIRENT	test_fs.c	81;"	d	file:
 DIRENT	test_windirent.h	/^struct DIRENT {$/;"	s
 DIRENT	test_windirent.h	/^typedef struct DIRENT DIRENT;$/;"	t	typeref:struct:DIRENT
@@ -673,7 +673,7 @@ Module	sqliteInt.h	/^struct Module {$/;"	s
 Module	sqliteInt.h	/^typedef struct Module Module;$/;"	t	typeref:struct:Module
 NAME_MAX	test_windirent.h	56;"	d
 NAME_MAX	test_windirent.h	58;"	d
-NB	btree.c	6787;"	d	file:
+NB	btree.c	6788;"	d	file:
 NCSIZE	mem2.c	74;"	d	file:
 NC_AllowAgg	sqliteInt.h	2626;"	d
 NC_HasAgg	sqliteInt.h	2630;"	d
@@ -690,7 +690,7 @@ NEVER	sqliteInt.h	424;"	d
 NEVER	sqliteInt.h	427;"	d
 NEVER	sqliteInt.h	430;"	d
 NEXT	log.h	/^    CSR_CLOSE, NEXT = 0x110, PREV, FIRST, LAST, CSR_EOF, INTEGERKEY, CSR_CLEAR, RESTORE, INCRBLOB, $/;"	e	enum:opcode
-NN	btree.c	6786;"	d	file:
+NN	btree.c	6787;"	d	file:
 NO_LOCK	os.h	85;"	d
 NTDDI_WIN8	os_win.c	72;"	d	file:
 NTDDI_WINBLUE	os_win.c	76;"	d	file:
@@ -2248,10 +2248,10 @@ argv	test7.c	/^  const char *argv[100];   \/* result columns *\/$/;"	m	struct:Th
 argv	vdbeInt.h	/^  sqlite3_value *argv[1]; \/* Argument set *\/$/;"	m	struct:sqlite3_context
 ascii_read_one_field	shell.c	/^static char *SQLITE_CDECL ascii_read_one_field(ImportCtx *p){$/;"	f	file:
 assertCellInfo	btree.c	/^  static void assertCellInfo(BtCursor *pCur){$/;"	f	file:
-assertCellInfo	btree.c	4292;"	d	file:
+assertCellInfo	btree.c	4293;"	d	file:
 assertMutexHeld	notify.c	31;"	d	file:
 assertParentIndex	btree.c	/^static void assertParentIndex(MemPage *pParent, int iIdx, Pgno iChild){$/;"	f	file:
-assertParentIndex	btree.c	4834;"	d	file:
+assertParentIndex	btree.c	4835;"	d	file:
 assertTruncateConstraint	pager.c	/^static void assertTruncateConstraint(Pager *pPager){$/;"	f	file:
 assertTruncateConstraint	pager.c	3914;"	d	file:
 assertTruncateConstraintCb	pager.c	/^static void assertTruncateConstraintCb(PgHdr *pPg){$/;"	f	file:
@@ -5995,7 +5995,7 @@ setAllPagerFlags	pragma.c	232;"	d	file:
 setBinaryMode	shell.c	/^static void setBinaryMode(FILE *file, int isOutput){$/;"	f	file:
 setBinaryMode	shell.c	165;"	d	file:
 setChildPtrmaps	btree.c	/^static int setChildPtrmaps(MemPage *pPage){$/;"	f	file:
-setChildPtrmaps	btree.c	3718;"	d	file:
+setChildPtrmaps	btree.c	3719;"	d	file:
 setDateTimeToCurrent	date.c	/^static int setDateTimeToCurrent(sqlite3_context *context, DateTime *p){$/;"	f	file:
 setDestPgsz	backup.c	/^static int setDestPgsz(sqlite3_backup *p){$/;"	f	file:
 setGetterMethod	pager.c	/^static void setGetterMethod(Pager *pPager){$/;"	f	file:

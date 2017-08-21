@@ -9,18 +9,16 @@
 #define FIND_IBT(log, pLogger) \
     (pLogger->pBtree)
 #define FIND_ICSR(log, pLogger) \
-    pLogger->apCsr[(log->iCsr%10)]
+    pLogger->apCsr[(log->iCsr)]
 #define FIND_ICOL(log, pLogger) \
     sqlite3FindCollSeq(pLogger->db, (u8)(log->enc2), log->zName,1)
-#define RELEASE_IBT(log, pLogger) \
-    (pLogger->apBt[(log->iBt)] = 0x0)
-#define RELEASE_ICSR(log, pLogger) \
-    (pLogger->apCsr[(log->iCsr)] = 0x0)
+//#define RELEASE_IBT(log, pLogger) 
+//#define RELEASE_ICSR(log, pLogger) 
 #define TYPE(log, type) \
     ((type *)(log))
 #define WRITE(dest, src, tmp) \
-    tmp = (void*)dest; \
-    (memcpy(&tmp, src, sizeof(src)))
+    tmp = &(dest); \
+    (memcpy(tmp, src, sizeof(src)))
 
 
 static inline void add_to_logqueue(Logger *pLogger, qLogCell * p)
@@ -170,7 +168,8 @@ void* serialize(void *log, enum opcode op, int *size){
             if(TYPE(log, struct CsrInsertLog)->pX != 0x0){
                 *size+=sizeof(BtreePayload);
                 if(TYPE(log, struct CsrInsertLog)->pX->pKey == 0x0){
-                    *size +=  TYPE(log, struct CsrInsertLog)->pX->nData;
+                    *size += TYPE(log, struct CsrInsertLog)->pX->nData;
+                    *size += TYPE(log, struct CsrInsertLog)->pX->nZero;
                 }else{
                     *size += TYPE(log, struct CsrInsertLog)->pX->nKey;
                     *size += TYPE(log, struct CsrInsertLog)->pX->nMem * sizeof(Mem);
@@ -191,6 +190,7 @@ void* serialize(void *log, enum opcode op, int *size){
                     memcpy(tmp+=sizeof(BtreePayload), TYPE(log, struct CsrInsertLog)->pX->pData,
                             TYPE(log, struct CsrInsertLog)->pX->nData);
                     tmp+=TYPE(log, struct CsrInsertLog)->pX->nData;
+                    tmp+=TYPE(log, struct CsrInsertLog)->pX->nZero;
                 }else{
                     memcpy(tmp+=sizeof(BtreePayload), TYPE(log, struct CsrInsertLog)->pX->pKey,
                             TYPE(log, struct CsrInsertLog)->pX->nKey);
@@ -318,55 +318,59 @@ void deserialize(void* log, enum opcode op, Logger *pLogger){
             TYPE(log, struct CsrInsertLog)->pX = tmp;
             tmp += sizeof(BtreePayload);
             if(TYPE(log, struct CsrInsertLog)->pX->pKey == 0x0){
-                WRITE(TYPE(log, struct CsrInsertLog)->pX->pData,tmp, tmp2);
+                TYPE(log, struct CsrInsertLog)->pX->pData = tmp;
                 tmp +=TYPE(log, struct CsrInsertLog)->pX->nData;
             }else{
-                WRITE(TYPE(log, struct CsrInsertLog)->pX->pKey, tmp, tmp2);
+                TYPE(log, struct CsrInsertLog)->pX->pKey = tmp;
                 tmp +=TYPE(log, struct CsrInsertLog)->pX->nKey;
             }
-            WRITE(TYPE(log, struct CsrInsertLog)->pX->aMem, tmp, tmp2);
-            tmp += sizeof(Mem)*TYPE(log, struct CsrInsertLog)->pX->nMem;
-            for(i=0; i < TYPE(log, struct CsrInsertLog)->pX->nMem; i++){
-                if(!(TYPE(log, struct CsrInsertLog)->pX->aMem[i].flags & (MEM_Str | MEM_Blob)))
-                    continue;
-                if(TYPE(log, struct CsrInsertLog)->pX->aMem[i].n > 0){
-                    TYPE(log, struct CsrInsertLog)->pX->aMem[i].z = tmp;
-                    tmp+=TYPE(log, struct CsrInsertLog)->pX->aMem[i].n;
-                }
-                if(TYPE(log, struct CsrInsertLog)->pX->aMem[i].szMalloc > 0){
-                    TYPE(log, struct CsrInsertLog)->pX->aMem[i].z = tmp;
-                    tmp+=TYPE(log, struct CsrInsertLog)->pX->aMem[i].szMalloc;
+            if(TYPE(log, struct CsrInsertLog)->pX->pKey != 0x0){
+                TYPE(log, struct CsrInsertLog)->pX->aMem =  tmp;
+                tmp += sizeof(Mem)*TYPE(log, struct CsrInsertLog)->pX->nMem;
+                for(i=0; i < TYPE(log, struct CsrInsertLog)->pX->nMem; i++){
+                    if(!(TYPE(log, struct CsrInsertLog)->pX->aMem[i].flags & (MEM_Str | MEM_Blob)))
+                        continue;
+                    if(TYPE(log, struct CsrInsertLog)->pX->aMem[i].n > 0){
+                        TYPE(log, struct CsrInsertLog)->pX->aMem[i].z = tmp;
+                        tmp+=TYPE(log, struct CsrInsertLog)->pX->aMem[i].n;
+                    }
+                    if(TYPE(log, struct CsrInsertLog)->pX->aMem[i].szMalloc > 0){
+                        TYPE(log, struct CsrInsertLog)->pX->aMem[i].z = tmp;
+                        tmp+=TYPE(log, struct CsrInsertLog)->pX->aMem[i].szMalloc;
+                    }
                 }
             }
             return;
         case csr_unpacked:
             tmp+=sizeof(struct CsrUnpackedLog);
-            TYPE(log, struct CsrUnpackedLog)->pIdxKey = tmp;
-            tmp += sizeof(struct CsrUnpackedLog);
-            if(TYPE(log, struct CsrUnpackedLog)->pIdxKey->pKeyInfo != 0x0){
-                TYPE(log, struct CsrUnpackedLog)->pIdxKey->pKeyInfo = tmp;
-                tmp+=sizeof(KeyInfo);
-                TYPE(log, struct CsrUnpackedLog)->pIdxKey->pKeyInfo->aSortOrder = tmp;
-                tmp += TYPE(log, struct CsrUnpackedLog)->pIdxKey->pKeyInfo->nField * sizeof(u8);
-                TYPE(log, struct CsrUnpackedLog)->zName = tmp;
-                if(TYPE(log, struct CsrUnpackedLog)->pIdxKey->pKeyInfo->aColl[0] != 0x0){
-                    TYPE(log, struct CsrUnpackedLog)->pIdxKey->pKeyInfo->aColl[0] = 
-                        FIND_ICOL(TYPE(log, struct CsrUnpackedLog), pLogger);
-                    tmp += sqlite3Strlen30(TYPE(log, struct CsrUnpackedLog)->zName);
+            if(TYPE(log, struct CsrUnpackedLog)->pIdxKey !=0x0){
+                TYPE(log, struct CsrUnpackedLog)->pIdxKey = tmp;
+                tmp += sizeof(struct CsrUnpackedLog);
+                if(TYPE(log, struct CsrUnpackedLog)->pIdxKey->pKeyInfo != 0x0){
+                    TYPE(log, struct CsrUnpackedLog)->pIdxKey->pKeyInfo = tmp;
+                    tmp+=sizeof(KeyInfo);
+                    TYPE(log, struct CsrUnpackedLog)->pIdxKey->pKeyInfo->aSortOrder = tmp;
+                    tmp += TYPE(log, struct CsrUnpackedLog)->pIdxKey->pKeyInfo->nField * sizeof(u8);
+                    TYPE(log, struct CsrUnpackedLog)->zName = tmp;
+                    if(TYPE(log, struct CsrUnpackedLog)->pIdxKey->pKeyInfo->aColl[0] != 0x0){
+                        TYPE(log, struct CsrUnpackedLog)->pIdxKey->pKeyInfo->aColl[0] = 
+                            FIND_ICOL(TYPE(log, struct CsrUnpackedLog), pLogger);
+                        tmp += sqlite3Strlen30(TYPE(log, struct CsrUnpackedLog)->zName);
+                    }
                 }
-            }
-            TYPE(log, struct CsrUnpackedLog)->pIdxKey->aMem = tmp;
-            tmp+=sizeof(Mem)*TYPE(log, struct CsrUnpackedLog)->pIdxKey->nField;
-            for(i=0; i < TYPE(log, struct CsrUnpackedLog)->pIdxKey->nField; i++){
-                if(!(TYPE(log, struct CsrUnpackedLog)->pIdxKey->aMem[i].flags & (MEM_Str | MEM_Blob)))
-                    continue;
-                if(TYPE(log, struct CsrUnpackedLog)->pIdxKey->aMem[i].n > 0){
-                    TYPE(log, struct CsrUnpackedLog)->pIdxKey->aMem[i].z = tmp;
-                    tmp+=TYPE(log, struct CsrUnpackedLog)->pIdxKey->aMem[i].n;
-                }
-                if(TYPE(log, struct CsrUnpackedLog)->pIdxKey->aMem[i].szMalloc > 0){
-                    TYPE(log, struct CsrUnpackedLog)->pIdxKey->aMem[i].z = tmp;
-                    tmp+=TYPE(log, struct CsrUnpackedLog)->pIdxKey->aMem[i].szMalloc;
+                TYPE(log, struct CsrUnpackedLog)->pIdxKey->aMem = tmp;
+                tmp+=sizeof(Mem)*TYPE(log, struct CsrUnpackedLog)->pIdxKey->nField;
+                for(i=0; i < TYPE(log, struct CsrUnpackedLog)->pIdxKey->nField; i++){
+                    if(!(TYPE(log, struct CsrUnpackedLog)->pIdxKey->aMem[i].flags & (MEM_Str | MEM_Blob)))
+                        continue;
+                    if(TYPE(log, struct CsrUnpackedLog)->pIdxKey->aMem[i].n > 0){
+                        TYPE(log, struct CsrUnpackedLog)->pIdxKey->aMem[i].z = tmp;
+                        tmp+=TYPE(log, struct CsrUnpackedLog)->pIdxKey->aMem[i].n;
+                    }
+                    if(TYPE(log, struct CsrUnpackedLog)->pIdxKey->aMem[i].szMalloc > 0){
+                        TYPE(log, struct CsrUnpackedLog)->pIdxKey->aMem[i].z = tmp;
+                        tmp+=TYPE(log, struct CsrUnpackedLog)->pIdxKey->aMem[i].szMalloc;
+                    }
                 }
             }
             return;
@@ -379,8 +383,6 @@ void deserialize(void* log, enum opcode op, Logger *pLogger){
  * */
 
 void inline sqlite3LogCursorOpen(int wrFlag, BtCursor *pCur, Btree *pBtree){
-    if(wrFlag == 0)
-        return;
     if(pCur->pKeyInfo != 0x0){
         pCur->al.csr_open_log = (struct CsrOpenLog){.iCsr = pCur->idx_aries, .iDb = pCur->pBtree->idx_aries, 
             .wrFlag = wrFlag, .pKeyInfo = pCur->pKeyInfo, .iBt = pBtree->idx_aries, .iTable = pCur->pgnoRoot};
@@ -392,8 +394,6 @@ void inline sqlite3LogCursorOpen(int wrFlag, BtCursor *pCur, Btree *pBtree){
 };
 
 void inline sqlite3LogCursorClose(BtCursor *pCur){
-    if(pCur->curFlags != BTCF_WriteFlag)
-        return;
 
     pCur->al.csr_icsr_log = (struct CsrIcsrLog){.iCsr = pCur->idx_aries};
     sqlite3Log(pCur->pBtree, &pCur->al.csr_icsr_log, CSR_CLOSE); 
@@ -401,8 +401,6 @@ void inline sqlite3LogCursorClose(BtCursor *pCur){
 };
 
 void inline sqlite3LogCursorNext(BtCursor *pCur){
-    if(pCur->curFlags != BTCF_WriteFlag)
-        return;
 
     pCur->al.csr_icsr_log = (struct CsrIcsrLog){.iCsr = pCur->idx_aries};
     sqlite3Log(pCur->pBtree, &pCur->al.csr_icsr_log, NEXT); 
@@ -410,8 +408,6 @@ void inline sqlite3LogCursorNext(BtCursor *pCur){
 };
 
 void inline sqlite3LogCursorPrev(BtCursor *pCur){
-    if(pCur->curFlags != BTCF_WriteFlag)
-        return;
 
     pCur->al.csr_icsr_log = (struct CsrIcsrLog){.iCsr = pCur->idx_aries};
     sqlite3Log(pCur->pBtree, &pCur->al.csr_icsr_log, PREV); 
@@ -419,8 +415,6 @@ void inline sqlite3LogCursorPrev(BtCursor *pCur){
 };
 
 void inline sqlite3LogCursorEof(BtCursor *pCur){
-    if(pCur->curFlags != BTCF_WriteFlag)
-        return;
 
     pCur->al.csr_icsr_log = (struct CsrIcsrLog){.iCsr = pCur->idx_aries};
     sqlite3Log(pCur->pBtree, &pCur->al.csr_icsr_log, CSR_EOF); 
@@ -428,8 +422,6 @@ void inline sqlite3LogCursorEof(BtCursor *pCur){
 };
 
 void inline sqlite3LogCursorFirst(BtCursor *pCur){
-    if(pCur->curFlags != BTCF_WriteFlag)
-        return;
 
     pCur->al.csr_icsr_log = (struct CsrIcsrLog){.iCsr = pCur->idx_aries};
     sqlite3Log(pCur->pBtree, &pCur->al.csr_icsr_log, FIRST); 
@@ -437,8 +429,6 @@ void inline sqlite3LogCursorFirst(BtCursor *pCur){
 };
 
 void inline sqlite3LogCursorLast(BtCursor *pCur){
-    if(pCur->curFlags != BTCF_WriteFlag)
-        return;
 
     pCur->al.csr_icsr_log = (struct CsrIcsrLog){.iCsr = pCur->idx_aries};
     sqlite3Log(pCur->pBtree, &pCur->al.csr_icsr_log, LAST); 
@@ -446,8 +436,6 @@ void inline sqlite3LogCursorLast(BtCursor *pCur){
 };
 
 void inline sqlite3LogCursorIntegerKey(BtCursor *pCur){
-    if(pCur->curFlags != BTCF_WriteFlag)
-        return;
 
     pCur->al.csr_icsr_log = (struct CsrIcsrLog){.iCsr = pCur->idx_aries};
     sqlite3Log(pCur->pBtree, &pCur->al.csr_icsr_log, INTEGERKEY); 
@@ -455,8 +443,6 @@ void inline sqlite3LogCursorIntegerKey(BtCursor *pCur){
 };
 
 void inline sqlite3LogCursorUnpacked(BtCursor *pCur, UnpackedRecord *pIdxKey, int intKey, int biasRight){
-    if(pCur->curFlags != BTCF_WriteFlag)
-        return;
 
     pCur->al.csr_unpacked_log = (struct CsrUnpackedLog){.iCsr = pCur->idx_aries, .pIdxKey = pIdxKey, 
         .intKey = intKey, .biasRight = biasRight};
@@ -465,8 +451,6 @@ void inline sqlite3LogCursorUnpacked(BtCursor *pCur, UnpackedRecord *pIdxKey, in
 };
 
 void inline sqlite3LogCursorClear(BtCursor *pCur){
-    if(pCur->curFlags != BTCF_WriteFlag)
-        return;
 
     pCur->al.csr_icsr_log = (struct CsrIcsrLog){.iCsr = pCur->idx_aries};
     sqlite3Log(pCur->pBtree, &pCur->al.csr_icsr_log, CSR_CLEAR); 
@@ -474,8 +458,6 @@ void inline sqlite3LogCursorClear(BtCursor *pCur){
 };
 
 void inline sqlite3LogCursorRestore(BtCursor *pCur){
-    if(pCur->curFlags != BTCF_WriteFlag)
-        return;
 
     pCur->al.csr_icsr_log = (struct CsrIcsrLog){.iCsr = pCur->idx_aries};
     sqlite3Log(pCur->pBtree, &pCur->al.csr_icsr_log, RESTORE); 
@@ -483,8 +465,6 @@ void inline sqlite3LogCursorRestore(BtCursor *pCur){
 };
 
 void inline sqlite3LogCursorIncrBlob(BtCursor *pCur){
-    if(pCur->curFlags != BTCF_WriteFlag)
-        return;
 
     pCur->al.csr_icsr_log = (struct CsrIcsrLog){.iCsr = pCur->idx_aries};
     sqlite3Log(pCur->pBtree, &pCur->al.csr_icsr_log, INCRBLOB); 
@@ -492,8 +472,6 @@ void inline sqlite3LogCursorIncrBlob(BtCursor *pCur){
 };
 
 void inline sqlite3LogCursorInsert(BtCursor *pCur, const BtreePayload *pX, int appendBias, int seekResult){
-    if(pCur->curFlags != BTCF_WriteFlag)
-        return;
 
     pCur->al.csr_insert_log = (struct CsrInsertLog){.iCsr = pCur->idx_aries, .pX = pX, .appendBias = appendBias, .seekResult = seekResult};
     sqlite3Log(pCur->pBtree, &pCur->al.csr_insert_log, INSERT); 
@@ -501,8 +479,6 @@ void inline sqlite3LogCursorInsert(BtCursor *pCur, const BtreePayload *pX, int a
 };
 
 void inline sqlite3LogCursorDelete(BtCursor *pCur, u8 flags){
-    if(pCur->curFlags != BTCF_WriteFlag)
-        return;
 
     pCur->al.csr_flag_log = (struct CsrFlagLog){.iCsr = pCur->idx_aries, .flags = flags};
     sqlite3Log(pCur->pBtree, &pCur->al.csr_flag_log, DELETE); 
@@ -691,7 +667,6 @@ void sqlite3LogRecovery(Logger *pLogger, logCell *m_logCell){
         case BTREE_CLOSE:
             bt_iBt_log = m_logCell->data;
             sqlite3BtreeClose(FIND_IBT(bt_iBt_log, pLogger));
-            RELEASE_IBT(bt_iBt_log, pLogger);
             break;
         case CREATE:
             bt_flag_log = m_logCell->data;
@@ -726,7 +701,7 @@ void sqlite3LogRecovery(Logger *pLogger, logCell *m_logCell){
         case CSR_CLOSE:
             csr_icsr_log = m_logCell->data;
             sqlite3BtreeCloseCursor(FIND_ICSR(csr_icsr_log, pLogger));
-            RELEASE_ICSR(csr_icsr_log, pLogger);
+            //RELEASE_ICSR(csr_icsr_log, pLogger);
             break;
         case NEXT:
             csr_icsr_log = m_logCell->data;
@@ -754,7 +729,7 @@ void sqlite3LogRecovery(Logger *pLogger, logCell *m_logCell){
             break;
         case MV_UNPACKED:
             csr_unpacked_log = m_logCell->data;
-            sqlite3BtreeMovetoUnpacked(FIND_ICSR(csr_icsr_log, pLogger), csr_unpacked_log->pIdxKey, 
+            sqlite3BtreeMovetoUnpacked(FIND_ICSR(csr_unpacked_log, pLogger), csr_unpacked_log->pIdxKey, 
                     csr_unpacked_log->intKey, csr_unpacked_log->biasRight, &tmp);
             break;
         case CSR_CLEAR:
