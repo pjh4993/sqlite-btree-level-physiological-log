@@ -4267,7 +4267,8 @@ int sqlite3BtreeCloseCursor(BtCursor *pCur){
     unlockBtreeIfUnused(pBt);
     sqlite3_free(pCur->aOverflow);
     /* sqlite3_free(pCur); */
-    sqlite3LogRollbackTop(pBt->pLogger);
+    if(pCur->curFlags && BTCF_WriteFlag)
+        sqlite3LogRollbackTop(pBt->pLogger);
     sqlite3LogCursorClose(pCur);
     sqlite3BtreeLeave(pBtree);
   }
@@ -8025,6 +8026,7 @@ int sqlite3BtreeInsert(
   Logger *pLogger = pBt->pLogger;
   unsigned char *oldCell;
   unsigned char *newCell = 0;
+  static int idx_aries = 0;
   if( pCur->eState==CURSOR_FAULT ){
     assert( pCur->skipNext!=SQLITE_OK );
     return pCur->skipNext;
@@ -8101,6 +8103,7 @@ int sqlite3BtreeInsert(
   assert( pCur->eState==CURSOR_VALID || (pCur->eState==CURSOR_INVALID && loc) );
 
   pPage = pCur->apPage[pCur->iPage];
+  printf("HASH - key : %d,  value : %d\n",idx_aries++, pPage->pDbPage->pageHash);
   assert( pPage->intKey || pX->nKey>=0 );
   assert( pPage->leaf || !pPage->intKey );
 
@@ -8236,6 +8239,7 @@ int sqlite3BtreeDelete(BtCursor *pCur, u8 flags){
   CellInfo info;                       /* Size of the cell being deleted */
   int bSkipnext = 0;                   /* Leaf cursor in SKIPNEXT state */
   u8 bPreserve = flags & BTREE_SAVEPOSITION;  /* Keep cursor valid */
+  static int idx_aries = 0;
   sqlite3LogCursorDelete(pCur, flags);
 
   assert( cursorOwnsBtShared(pCur) );
@@ -8251,6 +8255,7 @@ int sqlite3BtreeDelete(BtCursor *pCur, u8 flags){
   iCellDepth = pCur->iPage;
   iCellIdx = pCur->aiIdx[iCellDepth];
   pPage = pCur->apPage[iCellDepth];
+  printf("HASH - key : %d,  value : %d\n",idx_aries--, pPage->pDbPage->pageHash);
   pCell = findCell(pPage, iCellIdx);
   btreeParseCell(pPage,iCellIdx,&info);
 

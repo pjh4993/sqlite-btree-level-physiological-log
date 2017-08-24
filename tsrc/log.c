@@ -53,7 +53,7 @@ int sqlite3LoggerOpenPhaseTwo(struct Pager *pPager, Logger *pLogger){
     int rc= 0;
     const char* zPathname;
     int nPathname;
-    if(pLogger == 0 || pLogger->log_fd != 0)
+    if(pLogger == 0 || pLogger->log_fd != 0 || (pPager && pPager->tempFile==1))
         return 0;
     if(pPager != 0x0){
         zPathname = pPager->zFilename;
@@ -394,95 +394,92 @@ void inline sqlite3LogCursorOpen(int wrFlag, BtCursor *pCur, Btree *pBtree){
 };
 
 void inline sqlite3LogCursorClose(BtCursor *pCur){
-
-    pCur->al.csr_icsr_log = (struct CsrIcsrLog){.iCsr = pCur->idx_aries};
-    sqlite3Log(pCur->pBtree, &pCur->al.csr_icsr_log, CSR_CLOSE); 
-    memset(&pCur->al,0,sizeof(pCur->al));
+    if(pCur->curFlags && BTCF_WriteFlag){
+        pCur->al.csr_icsr_log = (struct CsrIcsrLog){.iCsr = pCur->idx_aries};
+        sqlite3Log(pCur->pBtree, &pCur->al.csr_icsr_log, CSR_CLOSE); 
+        memset(&pCur->al,0,sizeof(pCur->al));
+    }
 };
 
 void inline sqlite3LogCursorNext(BtCursor *pCur){
-
     pCur->al.csr_icsr_log = (struct CsrIcsrLog){.iCsr = pCur->idx_aries};
     sqlite3Log(pCur->pBtree, &pCur->al.csr_icsr_log, NEXT); 
     memset(&pCur->al,0,sizeof(pCur->al));
 };
 
 void inline sqlite3LogCursorPrev(BtCursor *pCur){
-
     pCur->al.csr_icsr_log = (struct CsrIcsrLog){.iCsr = pCur->idx_aries};
     sqlite3Log(pCur->pBtree, &pCur->al.csr_icsr_log, PREV); 
     memset(&pCur->al,0,sizeof(pCur->al));
 };
 
 void inline sqlite3LogCursorEof(BtCursor *pCur){
-
     pCur->al.csr_icsr_log = (struct CsrIcsrLog){.iCsr = pCur->idx_aries};
     sqlite3Log(pCur->pBtree, &pCur->al.csr_icsr_log, CSR_EOF); 
     memset(&pCur->al,0,sizeof(pCur->al));
 };
 
 void inline sqlite3LogCursorFirst(BtCursor *pCur){
-
     pCur->al.csr_icsr_log = (struct CsrIcsrLog){.iCsr = pCur->idx_aries};
     sqlite3Log(pCur->pBtree, &pCur->al.csr_icsr_log, FIRST); 
     memset(&pCur->al,0,sizeof(pCur->al));
 };
 
 void inline sqlite3LogCursorLast(BtCursor *pCur){
-
     pCur->al.csr_icsr_log = (struct CsrIcsrLog){.iCsr = pCur->idx_aries};
     sqlite3Log(pCur->pBtree, &pCur->al.csr_icsr_log, LAST); 
     memset(&pCur->al,0,sizeof(pCur->al));
 };
 
 void inline sqlite3LogCursorIntegerKey(BtCursor *pCur){
-
-    pCur->al.csr_icsr_log = (struct CsrIcsrLog){.iCsr = pCur->idx_aries};
-    sqlite3Log(pCur->pBtree, &pCur->al.csr_icsr_log, INTEGERKEY); 
-    memset(&pCur->al,0,sizeof(pCur->al));
+    if(pCur->curFlags && BTCF_WriteFlag){
+        pCur->al.csr_icsr_log = (struct CsrIcsrLog){.iCsr = pCur->idx_aries};
+        sqlite3Log(pCur->pBtree, &pCur->al.csr_icsr_log, INTEGERKEY); 
+        memset(&pCur->al,0,sizeof(pCur->al));
+    }
 };
 
 void inline sqlite3LogCursorUnpacked(BtCursor *pCur, UnpackedRecord *pIdxKey, int intKey, int biasRight){
-
-    pCur->al.csr_unpacked_log = (struct CsrUnpackedLog){.iCsr = pCur->idx_aries, .pIdxKey = pIdxKey, 
-        .intKey = intKey, .biasRight = biasRight};
-    sqlite3Log(pCur->pBtree, &pCur->al.csr_unpacked_log, MV_UNPACKED); 
-    memset(&pCur->al,0,sizeof(pCur->al));
+    if(pCur->curFlags && BTCF_WriteFlag){
+        pCur->al.csr_unpacked_log = (struct CsrUnpackedLog){.iCsr = pCur->idx_aries, .pIdxKey = pIdxKey, 
+            .intKey = intKey, .biasRight = biasRight};
+        sqlite3Log(pCur->pBtree, &pCur->al.csr_unpacked_log, MV_UNPACKED); 
+        memset(&pCur->al,0,sizeof(pCur->al));
+    }
 };
 
 void inline sqlite3LogCursorClear(BtCursor *pCur){
-
     pCur->al.csr_icsr_log = (struct CsrIcsrLog){.iCsr = pCur->idx_aries};
     sqlite3Log(pCur->pBtree, &pCur->al.csr_icsr_log, CSR_CLEAR); 
     memset(&pCur->al,0,sizeof(pCur->al));
 };
 
 void inline sqlite3LogCursorRestore(BtCursor *pCur){
-
     pCur->al.csr_icsr_log = (struct CsrIcsrLog){.iCsr = pCur->idx_aries};
     sqlite3Log(pCur->pBtree, &pCur->al.csr_icsr_log, RESTORE); 
     memset(&pCur->al,0,sizeof(pCur->al));
 };
 
 void inline sqlite3LogCursorIncrBlob(BtCursor *pCur){
-
     pCur->al.csr_icsr_log = (struct CsrIcsrLog){.iCsr = pCur->idx_aries};
     sqlite3Log(pCur->pBtree, &pCur->al.csr_icsr_log, INCRBLOB); 
     memset(&pCur->al,0,sizeof(pCur->al));
 };
 
 void inline sqlite3LogCursorInsert(BtCursor *pCur, const BtreePayload *pX, int appendBias, int seekResult){
-
-    pCur->al.csr_insert_log = (struct CsrInsertLog){.iCsr = pCur->idx_aries, .pX = pX, .appendBias = appendBias, .seekResult = seekResult};
-    sqlite3Log(pCur->pBtree, &pCur->al.csr_insert_log, INSERT); 
-    memset(&pCur->al,0,sizeof(pCur->al));
+    if(pCur->curFlags && BTCF_WriteFlag){
+        pCur->al.csr_insert_log = (struct CsrInsertLog){.iCsr = pCur->idx_aries, .pX = pX, .appendBias = appendBias, .seekResult = seekResult};
+        sqlite3Log(pCur->pBtree, &pCur->al.csr_insert_log, INSERT); 
+        memset(&pCur->al,0,sizeof(pCur->al));
+    }
 };
 
 void inline sqlite3LogCursorDelete(BtCursor *pCur, u8 flags){
-
-    pCur->al.csr_flag_log = (struct CsrFlagLog){.iCsr = pCur->idx_aries, .flags = flags};
-    sqlite3Log(pCur->pBtree, &pCur->al.csr_flag_log, DELETE); 
-    memset(&pCur->al,0,sizeof(pCur->al));
+    if(pCur->curFlags && BTCF_WriteFlag){
+        pCur->al.csr_flag_log = (struct CsrFlagLog){.iCsr = pCur->idx_aries, .flags = flags};
+        sqlite3Log(pCur->pBtree, &pCur->al.csr_flag_log, DELETE); 
+        memset(&pCur->al,0,sizeof(pCur->al));
+    }
 };
 
 
@@ -777,11 +774,11 @@ int sqlite3LogAnalysis(Logger *pLogger){
         offset+=m_logCell.data_size;
         sqlite3LogRecovery(pLogger,&m_logCell);
     }
-
+    sqlite3BtreeCommit(pLogger->pBtree);
     sqlite3LogFileInit(pLogger);
 
-	pLogger->p_check = 0;
     pLogger->sync = 1;
+	pLogger->p_check = 0;
     pLogger->state = ON;
 
     return SQLITE_OK;

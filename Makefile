@@ -36,7 +36,7 @@ TCC += -I${TOP}/ext/fts3 -I${TOP}/ext/async -I${TOP}/ext/session
 # Define this for the autoconf-based build, so that the code knows it can
 # include the generated config.h
 # 
-TCC += -D_HAVE_SQLITE_CONFIG_H -DBUILD_sqlite
+TCC += -D_HAVE_SQLITE_CONFIG_H -DBUILD_sqlite -DSQLITE_CHECK_PAGES
 
 # Define -DNDEBUG to compile without debugging (i.e., for production usage)
 # Omitting the define will cause extra debugging code to be inserted and
@@ -1088,7 +1088,7 @@ sqlite3rbu.lo:	$(TOP)/ext/rbu/sqlite3rbu.c $(HDR) $(EXTHDR)
 #
 TESTFIXTURE_FLAGS  = -DTCLSH=1 -DSQLITE_TEST=1 -DSQLITE_CRASH_TEST=1
 TESTFIXTURE_FLAGS += -DSQLITE_SERVER=1 -DSQLITE_PRIVATE="" -DSQLITE_CORE 
-TESTFIXTURE_FLAGS += -DBUILD_sqlite
+TESTFIXTURE_FLAGS += -DBUILD_sqlite 
 TESTFIXTURE_FLAGS += -DSQLITE_SERIES_CONSTRAINT_VERIFY=1
 TESTFIXTURE_FLAGS += -DSQLITE_DEFAULT_PAGE_SIZE=1024
 
